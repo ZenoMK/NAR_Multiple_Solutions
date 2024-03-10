@@ -61,6 +61,7 @@ def replace_self_loops_with_minus1(pi):
     return pi
 
 def are_valid_edges_parents(np_input_array, pi):
+    pi = np.array(pi).astype(int)
     for i in range(len(pi)): # for node in graph.
         parent = pi[i]
         if parent != i: # Not a restart, check edge parent->child. (assume restarts are always valid, check later).

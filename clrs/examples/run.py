@@ -51,6 +51,7 @@ flags.DEFINE_list('algorithms', ['dfs'], 'Which algorithms to run.')
 flags.DEFINE_list('train_lengths', ['4', '7', '11', '13', '16'],
                   'Which training sizes to use. A size of -1 means '
                   'use the benchmark dataset.')
+flags.DEFINE_string("filename", "results", "The name of the file to be saved")
 flags.DEFINE_integer('length_needle', -8,
                      'Length of needle for training and validation '
                      '(not testing) in string matching algorithms. '
@@ -504,6 +505,7 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
                  "altUpwards_Model_Accuracy": correctness_model_altUpwards,
                  "altUpwards_True_Accuracy": correctness_true_altUpwards,
                  }
+  #breakpoint()
   result_df = pd.DataFrame.from_dict(result_dict)
   result_df.to_csv('accuracy.csv', encoding='utf-8', index=False)
 
@@ -871,7 +873,7 @@ def main(unused_argv):
       RESULTS['run0'] = (train_time, best_score) # best_score given by highest val score, which is MAE by EVAL_FN
       DF_RESULTS = pd.DataFrame(PRE_DF_RESULTS)
       if FLAGS.save_df:
-          DF_RESULTS.to_csv('score-results-UPDATEMYNAME.csv', encoding='utf-8', index=False)
+          DF_RESULTS.to_csv(FLAGS.filename +'.csv', encoding='utf-8', index=False)
 
   if FLAGS.save_model_to_file: #saving full model. Remember to call loadel_model.eval() on loaded model if you want to do inference
       ## doesnt worKtorch.save(eval_model.state_dict(), 'best_model_state_dict.pth') # saves eval_model to PATH='best_model.pth'
