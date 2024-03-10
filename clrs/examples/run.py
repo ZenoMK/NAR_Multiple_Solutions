@@ -507,7 +507,7 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
                  }
   #breakpoint()
   result_df = pd.DataFrame.from_dict(result_dict)
-  result_df.to_csv('accuracy.csv', encoding='utf-8', index=False)
+  result_df.to_csv(FLAGS.filename+'.csv', encoding='utf-8', index=False)
 
   #As[0].reshape((np.sqrt(len(lAs[0])).astype(int)), np.sqrt(len(lAs[0])).astype(int))
 
@@ -520,42 +520,6 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   if extras:
     out.update(extras)
   return {k: unpack(v) for k, v in out.items()}
-
-"""def bellmanford_beamsearch(A,s,probMatrix,beamwidth = 3):
-    
-    Beamsearch sampler given a probmatrix returned by Bellman-Ford
-    :param A: adjacency matrix
-    :param s: source node
-    :param probMatrix: model output
-    :param beamwidth: the number of candidate solutions at any point
-    :return: sampled parent tree
-    
-    pi = np.zeros(len(probMatrix))
-
-    # make source its own parent
-    pi[s] = s
-
-    # assign parent to every node
-    for i in range(len(probMatrix)):
-        # compute path to i
-        if i != s:
-
-            # sample the beam
-            candidates = [chooseUniformly(probMatrix[i]) for j in range(beamwidth)]
-            for k in range(len(probMatrix)):
-                # sample the beam of the candidates
-                candidate_parents = []
-                for h in candidates:
-                    candidate_parents.append([chooseUniformly(probMatrix[h]) for j in range(beamwidth)])
-                # choose the three best paths
-                cost = [A[candidates[l],i] + A[candidate_parents]"""
-
-
-
-
-
-
-
 
 def create_samplers(rng, train_lengths: List[int]):
   """Create all the samplers."""
@@ -873,7 +837,7 @@ def main(unused_argv):
       RESULTS['run0'] = (train_time, best_score) # best_score given by highest val score, which is MAE by EVAL_FN
       DF_RESULTS = pd.DataFrame(PRE_DF_RESULTS)
       if FLAGS.save_df:
-          DF_RESULTS.to_csv(FLAGS.filename +'.csv', encoding='utf-8', index=False)
+          DF_RESULTS.to_csv('score-results-UPDATEMYNAME.csv', encoding='utf-8', index=False)
 
   if FLAGS.save_model_to_file: #saving full model. Remember to call loadel_model.eval() on loaded model if you want to do inference
       ## doesnt worKtorch.save(eval_model.state_dict(), 'best_model_state_dict.pth') # saves eval_model to PATH='best_model.pth'
