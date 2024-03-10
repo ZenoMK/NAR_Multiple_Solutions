@@ -38,10 +38,14 @@ import time         # measuring model training time
 import pickle       # saving model on kaggle
 import os
 
+from clrs._src import dfs_sampling
+from clrs._src import dfs_uniqueness_check
+
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
 from clrs import _src
 from clrs._src.algorithms import check_graphs
+import clrs._src.dfs_sampling
 
 flags.DEFINE_list('algorithms', ['dfs'], 'Which algorithms to run.')
 flags.DEFINE_list('train_lengths', ['4', '7', '11', '13', '16'],
@@ -318,8 +322,8 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   #breakpoint()
   # TODO sample from probabilities to values. Log Results
 
-  model_sample_random = clrs._src.dfs_sampling.sample_random_list(preds)
-  true_sample_random = clrs._src.dfs_sampling.sample_random_list(outputs)
+  model_sample_random = dfs_sampling.sample_random_list(preds)
+  true_sample_random = dfs_sampling.sample_random_list(outputs)
 
   model_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_random[i]) for i in range(len(model_sample_random))]
   correctness_model_random = sum(model_random_truthmask) / len(model_random_truthmask)
@@ -329,8 +333,8 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
 
   ##### ARGMAX
   ## remember to convert from jax arrays to lists for easy subsequent methods using .tolist()
-  model_sample_argmax = clrs._src.dfs_sampling.sample_argmax_listofdict(preds)
-  true_sample_argmax = clrs._src.dfs_sampling.sample_argmax_listofdatapoint(outputs)
+  model_sample_argmax = dfs_sampling.sample_argmax_listofdict(preds)
+  true_sample_argmax = dfs_sampling.sample_argmax_listofdatapoint(outputs)
 
   # compute the fraction of trees sampled from model output fulfilling the necessary conditions
   model_argmax_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_argmax[i].tolist()) for i in range(len(model_sample_argmax))]
@@ -401,8 +405,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
     # 3. Collect validity result into a dataframe.
 
 ##### RANDOM
-  model_sample_random = clrs._src.dfs_sampling.sample_random_list(preds)
-  true_sample_random = clrs._src.dfs_sampling.sample_random_list(outputs)
+  model_sample_random = dfs_sampling.sample_random_list(preds)
+  true_sample_random = dfs_sampling.sample_random_list(outputs)
 
   model_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_random[i]) for i in range(len(model_sample_random))]
   correctness_model_random = sum(model_random_truthmask) / len(model_random_truthmask)
@@ -412,8 +416,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
 
 ##### ARGMAX
   ## remember to convert from jax arrays to lists for easy subsequent methods using .tolist()
-  model_sample_argmax = clrs._src.dfs_sampling.sample_argmax_listofdict(preds)
-  true_sample_argmax = clrs._src.dfs_sampling.sample_argmax_listofdatapoint(outputs)
+  model_sample_argmax = dfs_sampling.sample_argmax_listofdict(preds)
+  true_sample_argmax = dfs_sampling.sample_argmax_listofdatapoint(outputs)
 
   # compute the fraction of trees sampled from model output fulfilling the necessary conditions
   model_argmax_truthmask = [check_graphs.check_valid_dfsTree(As[i],model_sample_argmax[i].tolist()) for i in range(len(model_sample_argmax))]
@@ -424,9 +428,11 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   correctness_true_argmax = sum(true_argmax_truthmask) / len(true_argmax_truthmask)
 
   ##### UPWARDS
-  model_sample_upwards = clrs._src.dfs_sampling.sample_upwards(preds)
-  true_sample_upwards = clrs._src.dfs_sampling.sample_upwards(outputs)
-  #breakpoint()
+  model_sample_upwards = dfs_sampling.sample_upwards(preds)
+  true_sample_upwards = dfs_sampling.sample_upwards(outputs)
+
+  model_upwards_uniques, model_upwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(preds)
+  true_upwards_uniques, true_upwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(outputs)
 
   model_upwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_upwards[i].astype(int)) for i in range(len(model_sample_upwards))]
   correctness_model_upwards = sum(model_upwards_truthmask) / len(model_upwards_truthmask)
@@ -435,8 +441,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   correctness_true_upwards = sum(true_upwards_truthmask) / len(true_upwards_truthmask)
 
   ##### ALTUPWARDS
-  model_sample_altUpwards = clrs._src.dfs_sampling.sample_altUpwards(preds)
-  true_sample_altUpwards = clrs._src.dfs_sampling.sample_altUpwards(outputs)
+  model_sample_altUpwards = dfs_sampling.sample_altUpwards(preds)
+  true_sample_altUpwards = dfs_sampling.sample_altUpwards(outputs)
 
   model_altUpwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_altUpwards[i].astype(int)) for i in
                              range(len(model_sample_altUpwards))]
@@ -480,6 +486,12 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
                  #
                  "Upwards_Model_Accuracy": correctness_model_upwards,
                  "Upwards_True_Accuracy": correctness_true_upwards,
+
+                 "Upwards_Model_Uniques": model_upwards_uniques,
+                 "Upwards_Model_Valids" : model_upwards_valids,
+
+                 "Upwards_True_Uniques" : true_upwards_uniques,
+                 "Upwards_True_Valids" : true_upwards_valids,
                  #
                  ###
                  #
