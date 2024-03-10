@@ -33,6 +33,11 @@ edge_to_zero_pi = [0,1]
 ## BREAKS!!!
 
 
+backwards_edge = np.array([0,1],[1,0])
+disconnected = np.array( [[0,0,0],[0,0,0],[0,0,0]])
+cyclic = np.array([[0,1,0],[0,0,1],[1,0,0]])
+semi-connected = np.array([[0,1,0],[0,0,0],[0,0,0]])
+
 def check_valid_dfsTree(np_input_array, pi):
     '''checks: acyclic, dangling, edge-validity, and valid-start'''
     pi = pi[:] # copy pi. make sure don't mess with logging
@@ -87,14 +92,15 @@ def are_valid_order_parents(np_input_array, pi):
                 #breakpoint()
                 if self_reachable_by_earlier_node:
                     return False
-        else: # not self-loop, so not a restart, make sure parents are reachable by lower_ix node
-            flag = False
+        else: # not self-loop, so not a restart, make sure parents are reachable by lowest_ix node that reaches i.
             for j in range(i):
-                parent_reachable_by_earlier_node = nx.has_path(g, j, pi[i])
-                if parent_reachable_by_earlier_node:
-                    flag = True
-            if not flag: # parent wasn't reachable by lower_ix node
-                return False
+                # find lowest-index node from which i is reachable
+                reachable_by_node = nx.has_path(g, j, i)
+                if reachable_by_node:
+                    # parent must also be reachable from
+                    parent_reachable_by_earlier_node = nx.has_path(g, j, pi[i])
+                    if not parent_reachable_by_earlier_node:
+                        return False
     return True
 
 
