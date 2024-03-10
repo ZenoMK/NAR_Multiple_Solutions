@@ -702,6 +702,42 @@ def sample_altUpwards(outsOrPreds):
         pi_trees.append(get_parent_tree_upwards(probMatrix))
     return pi_trees
 
+"""def bellmanford_beamsearch(A,s,probMatrix,beamwidth = 3):
+    
+    Beamsearch sampler given a probmatrix returned by Bellman-Ford
+    :param A: adjacency matrix
+    :param s: source node
+    :param probMatrix: model output
+    :param beamwidth: the number of candidate solutions at any point
+    :return: sampled parent tree
+    
+    pi = np.zeros(len(probMatrix))
+
+    # make source its own parent
+    pi[s] = s
+
+    # assign parent to every node
+    for i in range(len(probMatrix)):
+        # compute path to i
+        if i != s:
+
+            # sample the beam
+            candidates = [chooseUniformly(probMatrix[i]) for j in range(beamwidth)]
+            for k in range(len(probMatrix)):
+                # sample the beam of the candidates
+                candidate_parents = []
+                for h in candidates:
+                    candidate_parents.append([chooseUniformly(probMatrix[h]) for j in range(beamwidth)])
+                # choose the three best paths
+                cost = [A[candidates[l],i] + A[candidate_parents]"""
+
+
+
+
+
+
+
+
 def create_samplers(rng, train_lengths: List[int]):
   """Create all the samplers."""
   train_samplers = []
