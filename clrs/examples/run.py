@@ -230,7 +230,7 @@ def make_sampler(length: int,
     if infinite samples), and the spec.
   """
   if length < 0:  # load from file
-    #print('run.py loading from dataset')
+    print('run.py loading from dataset')
     dataset_folder = _maybe_download_dataset(FLAGS.dataset_path)
     sampler, num_samples, spec = clrs.create_dataset(folder=dataset_folder,
                                                      algorithm=algorithm,
@@ -241,7 +241,7 @@ def make_sampler(length: int,
     num_samples = clrs.CLRS30[split]['num_samples'] * multiplier
     sampler, spec = clrs.build_sampler(
         algorithm,
-        seed=rng.randint(2**32),
+        seed=47,
         num_samples=num_samples,
         length=length,
         **sampler_kwargs,
@@ -588,7 +588,7 @@ def create_samplers(rng, train_lengths: List[int]):
                       **common_sampler_args)
       val_sampler, val_samples, spec = make_multi_sampler(**val_args)
 
-      test_args = dict(sizes=[5], #TODO vary, old code: sizes=[-1],
+      test_args = dict(sizes=[-1], #TODO vary, old code: sizes=[-1],
                        split='test',
                        batch_size=32,
                        multiplier=2 * mult,
@@ -633,7 +633,7 @@ def main(unused_argv):
   train_lengths = [int(x) for x in FLAGS.train_lengths]
 
   rng = np.random.RandomState(FLAGS.seed)
-  rng_key = jax.random.PRNGKey(rng.randint(2**32))
+  rng_key = jax.random.PRNGKey(rng.randint(47))
 
  # print('calling create samplers')
   # Create samplers
