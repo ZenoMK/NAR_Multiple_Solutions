@@ -83,7 +83,7 @@ def sample_argmax_listofdatapoint(outputs):
 def sample_random_list(outsOrPreds):
     '''Random Number for each row in probMatrix'''
     trees = []
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(47)
     for i in outsOrPreds:
         if type(i) == type({}):
             distlist = i["pi"].data
@@ -92,6 +92,9 @@ def sample_random_list(outsOrPreds):
         for probMatrix in distlist:
             pi = []
             for row in probMatrix:
+                print(probMatrix)
+                #print(row)
+                len(probMatrix)
                 pi.append(rng.integers(len(row)))
             trees.append(pi)
             #breakpoint()
