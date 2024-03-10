@@ -53,6 +53,7 @@ flags.DEFINE_list('algorithms', ['dfs'], 'Which algorithms to run.')
 flags.DEFINE_list('train_lengths', ['4', '7', '11', '13', '16'],
                   'Which training sizes to use. A size of -1 means '
                   'use the benchmark dataset.')
+flags.DEFINE_string("filename", "results", "The name of the file to be saved")
 flags.DEFINE_integer('length_needle', -8,
                      'Length of needle for training and validation '
                      '(not testing) in string matching algorithms. '
@@ -506,8 +507,9 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
                  "altUpwards_Model_Accuracy": correctness_model_altUpwards,
                  "altUpwards_True_Accuracy": correctness_true_altUpwards,
                  }
+  #breakpoint()
   result_df = pd.DataFrame.from_dict(result_dict)
-  result_df.to_csv('accuracy.csv', encoding='utf-8', index=False)
+  result_df.to_csv(FLAGS.filename+'.csv', encoding='utf-8', index=False)
 
   #As[0].reshape((np.sqrt(len(lAs[0])).astype(int)), np.sqrt(len(lAs[0])).astype(int))
 
@@ -520,42 +522,6 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   if extras:
     out.update(extras)
   return {k: unpack(v) for k, v in out.items()}
-
-"""def bellmanford_beamsearch(A,s,probMatrix,beamwidth = 3):
-    
-    Beamsearch sampler given a probmatrix returned by Bellman-Ford
-    :param A: adjacency matrix
-    :param s: source node
-    :param probMatrix: model output
-    :param beamwidth: the number of candidate solutions at any point
-    :return: sampled parent tree
-    
-    pi = np.zeros(len(probMatrix))
-
-    # make source its own parent
-    pi[s] = s
-
-    # assign parent to every node
-    for i in range(len(probMatrix)):
-        # compute path to i
-        if i != s:
-
-            # sample the beam
-            candidates = [chooseUniformly(probMatrix[i]) for j in range(beamwidth)]
-            for k in range(len(probMatrix)):
-                # sample the beam of the candidates
-                candidate_parents = []
-                for h in candidates:
-                    candidate_parents.append([chooseUniformly(probMatrix[h]) for j in range(beamwidth)])
-                # choose the three best paths
-                cost = [A[candidates[l],i] + A[candidate_parents]"""
-
-
-
-
-
-
-
 
 def create_samplers(rng, train_lengths: List[int]):
   """Create all the samplers."""
