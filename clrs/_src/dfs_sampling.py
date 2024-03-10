@@ -84,6 +84,8 @@ def sample_random_list(outsOrPreds):
     '''Random Number for each row in probMatrix'''
     trees = []
     rng = np.random.default_rng(47)
+    print(outsOrPreds)
+    raise ValueError
     for i in outsOrPreds:
         if type(i) == type({}):
             distlist = i["pi"].data
