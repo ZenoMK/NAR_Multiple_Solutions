@@ -1247,7 +1247,7 @@ def bellman_ford(A: _Array, s: int) -> _Out:
 
 
 
-  ### DFS CODE
+  ### copied from DFS CODE
   # build adj matrix of "is i a parent of j in any pi", sums and divides.
   adjs = []
   for i in range(NUM_SOLUTIONS):

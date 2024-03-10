@@ -41,6 +41,8 @@ import os
 from clrs._src import dfs_sampling
 from clrs._src import dfs_uniqueness_check
 
+from clrs._src import bellman_ford_sampling
+
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
 from clrs import _src
