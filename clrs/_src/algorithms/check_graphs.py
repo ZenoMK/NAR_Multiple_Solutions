@@ -135,7 +135,7 @@ def is_acyclic(pi):
 
 
 
-def bellman_ford(A, s):
+def bellman_ford_cost(A, s):
   """Bellman-Ford's single-source shortest path (Bellman, 1958).
   This has been taken and adapted from the original CLRS Bellman-Ford implementation"""
 
@@ -165,19 +165,19 @@ def bellman_ford(A, s):
 
 def check_valid_BFpaths(A,s, parentpath):
 
-    true_costs = bellman_ford(A,s)
+    true_costs = bellman_ford_cost(A,s)
 
-    # the adjacency matrix of the BFS tree
+    # the adjacency matrix of the BF tree
     BF_tree_adj = np.zeros((len(parentpath),len(parentpath)))
     for i in range(len(parentpath)):
-        BF_tree_adj[parentpath[i],i] = A[parentpath[i],i]
+        if A[parentpath[i],i] == 0 and i != s:
+            return False
+        else:
+            BF_tree_adj[parentpath[i],i] = A[parentpath[i],i]
 
-    hallucinations = check_nohallucinations(A, BF_tree_adj)
-    if hallucinations:
-        return False
-    model_costs = bellman_ford(BF_tree_adj, s)
+    model_costs = bellman_ford_cost(BF_tree_adj, s)
 
-    if true_costs == model_costs:
+    if (true_costs == model_costs).all():
         return True
     else:
         return False
@@ -191,5 +191,13 @@ def check_nohallucinations(A,BF_tree):
     else:
         return True
 
+test_graph = np.array([[0,1,1],
+              [0,0,1],
+              [0,0,0]])
+s = 0
+true_parentpath = [0,0,0]
+false_parentpath = [0,0,1]
 
+assert check_valid_BFpaths(test_graph,s,true_parentpath)
+assert not check_valid_BFpaths(test_graph,s,false_parentpath)
 
