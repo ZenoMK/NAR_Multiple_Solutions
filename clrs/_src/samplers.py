@@ -210,8 +210,8 @@ class Sampler(abc.ABC):
       mat = mat.astype(float) * weights
     return mat
 
-  def _int_weighted_random_er_graph(self, nb_nodes, p=0.5, directed=False, acyclic=False,
-                       weighted=False, low=0.0, high=1.0):
+  def _few_weights_random_er_graph(self, nb_nodes, p=0.5, directed=False, acyclic=False,
+                       weighted=True, low=0.0, high=1.0):
     """Random Erdos-Renyi graph."""
     #print('samplers, int_weighted')
     mat = self._rng.binomial(1, p, size=(nb_nodes, nb_nodes))
@@ -223,10 +223,11 @@ class Sampler(abc.ABC):
       mat = mat[p, :][:, p]
     if weighted:
       weights = np.random.randint(low=low, high=high, size=(nb_nodes, nb_nodes))
+      weights = weights/(high - low)
       #breakpoint()
       if not directed:
         weights *= np.transpose(weights)   # get a symmetric matrix
-        weights = np.round(np.sqrt(weights + 1e-3))  # Add epsilon to protect underflow
+        weights = np.sqrt(weights + 1e-3)  # Add epsilon to protect underflow
       mat = mat.astype(float) * weights
       #breakpoint()
     return mat
@@ -494,9 +495,9 @@ class BellmanFordSampler(Sampler):
       length: int,
       p: Tuple[float, ...] = (0.5,),
       low: int = 1,
-      high: int = 2,
+      high: int = 3,
   ):
-    graph = self._int_weighted_random_er_graph(
+    graph = self._few_weights_random_er_graph(
         nb_nodes=length,
         p=self._rng.choice(p),
         directed=False,

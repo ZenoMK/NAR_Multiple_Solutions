@@ -58,9 +58,7 @@ def add_parent_of_source_to_paths(A, probMatrix, beamwidth, path_guesses, path_c
 
         new_path, new_path_cost = grow_path_by_parent_probs(path, path_cost, parent_probs)
 
-    return
-
-        # Extend candidate path by new parent, calculate cost
+    '''        # Extend candidate path by new parent, calculate cost
         # Store new path grown from this candidate, and its associated cost
         for new_path_num in range(beamwidth):
             new_parent = dfs_sampling.chooseUniformly(parent_probs)
@@ -75,7 +73,8 @@ def add_parent_of_source_to_paths(A, probMatrix, beamwidth, path_guesses, path_c
                 cost_of_new_edge = np.inf
             prev_cost = candidates_cost[candidate_ix]
             new_cost = prev_cost + cost_of_new_edge
-            longer_path_costs.append(new_cost)
+            longer_path_costs.append(new_cost)'''
+    return
 
 
 def BF_beamsearch(A, s, probMatrix, beamwidth=3):
