@@ -18,6 +18,7 @@
 import functools
 import os
 import shutil
+import sys
 from typing import Any, Dict, List
 
 import scipy.special
@@ -37,10 +38,11 @@ import pandas as pd # saving results to dataframe for easy visualization
 import time         # measuring model training time
 import pickle       # saving model on kaggle
 import os
-
 from clrs._src import dfs_sampling
 from clrs._src import dfs_uniqueness_check
 
+pd.set_option("max_colwidth", None)
+np.set_printoptions(threshold=sys.maxsize)
 from clrs._src.algorithms import BF_beamsearch
 
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
@@ -54,6 +56,7 @@ flags.DEFINE_list('train_lengths', ['4', '7', '11', '13', '16'],
                   'Which training sizes to use. A size of -1 means '
                   'use the benchmark dataset.')
 flags.DEFINE_string("filename", "results", "The name of the file to be saved")
+flags.DEFINE_integer("test_length", 64, "Size of the graphs to be tested on")
 flags.DEFINE_integer('length_needle', -8,
                      'Length of needle for training and validation '
                      '(not testing) in string matching algorithms. '
@@ -594,7 +597,7 @@ def create_samplers(rng, train_lengths: List[int]):
                       **common_sampler_args)
       val_sampler, val_samples, spec = make_multi_sampler(**val_args)
 
-      test_args = dict(sizes=[5], #TODO vary, old code: sizes=[-1],
+      test_args = dict(sizes=[FLAGS.test_length], #TODO vary, old code: sizes=[-1],
                        split='test',
                        batch_size=32,
                        multiplier=2 * mult,
