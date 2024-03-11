@@ -1,6 +1,82 @@
 import numpy as np
 import clrs._src.dfs_sampling as dfs_sampling
 
+def beamsearch(A, s, probMatrix, beamwidth=3):
+    """
+    nicely decomposed. calls path_to_i for each node. returns parent tree.
+    LeastCost path parent tree is sufficient for all leastCost paths,  since if leastCost path s->pi[t]->t didn't use leastCost path s->pi[t], there would be a lowerCost path s->t using s->pi[t]
+    """
+    vertices = range(len(probMatrix))
+    pi = np.zeros(len(vertices))
+    pi[s] = s
+    for t in vertices:
+        if t != s:
+            least_cost_path = beamsearch_least_cost_path(A, s, t, probMatrix, beamwidth)
+            pi[t] = least_cost_path[1] # paths in reverse order [a,b,c] means [c->b->a]. Path ends at t: [t,parent,...]
+    return pi
+
+def beamsearch_least_cost_path(A, s, t, probMatrix, beamwidth):
+    '''compute path s->t. Note we go backwards, reconstructing path t->s'''
+    # paths terminate in t
+    path_guesses = [[i] for i in range(beamwidth)]  # paths in reverse order. [a,b,c] indicates [c->b->a]
+    path_costs = [np.inf for i in range(beamwidth)]
+    best_path_cost = np.inf
+    best_path_from_s = None
+
+    for k in range(1, len(probMatrix)):  # try paths of length up-to |V|, number of vertices
+        longer_paths = []  # list of paths, each path in reverse order
+        longer_path_costs = []  # list of path costs for new longer candidate paths
+
+        # get paths length k
+        longer_paths, longer_path_costs = add_beamsearch_parent_of_source_to_paths(A, probMatrix, beamwidth, path_guesses, path_costs)
+
+        best_path_from_s = select_best_path_from_s(s, best_pathlonger_paths)# If any path begins with source node s, and has lower cost than current best path from s,
+        # save it. (remember, paths in target->source order, so path[-1] is starting node)
+        for path_ix in range(len(longer_paths)):
+            path = longer_paths[path_ix]
+            if path[-1] == s:
+                path_cost = longer_path_costs[path_ix]
+                if path_cost < best_path_cost:
+                    best_path_from_s = path
+
+        # filter for next iteration
+
+    return parent_of_t
+
+def add_parent_of_source_to_paths(A, probMatrix, beamwidth, path_guesses, path_costs):
+    # Explore beam-many parents for each of the beam-many candidates
+    longer_paths = []  # list of paths, each path in reverse order
+    longer_path_costs = []  # list of path costs for new longer candidate paths
+
+    for path_ix in range(len(path_guesses)):
+        #print('ci', candidate_ix)
+        path = path_guesses[path_ix]
+        path_cost = path_costs[path_ix]
+        #print('cp-1', candidate_path)
+        highest_node = path[-1]  # most recent node added, conceptually the progenitor of path
+        parent_probs = probMatrix[highest_node]
+
+        new_path, new_path_cost = grow_path_by_parent_probs(path, path_cost, parent_probs)
+
+    return
+
+        # Extend candidate path by new parent, calculate cost
+        # Store new path grown from this candidate, and its associated cost
+        for new_path_num in range(beamwidth):
+            new_parent = dfs_sampling.chooseUniformly(parent_probs)
+
+            # extend & store path
+            new_path = np.append(candidate_path,
+                                 candidate_parent)  # concatenate parent to h, conceptually, adding a parent to path progenitor
+            longer_paths.append(new_path)
+            # calculate & store cost
+            cost_of_new_edge = A[candidate_parent, highest_node]
+            if cost_of_new_edge == 0:  # edge not in OG graph
+                cost_of_new_edge = np.inf
+            prev_cost = candidates_cost[candidate_ix]
+            new_cost = prev_cost + cost_of_new_edge
+            longer_path_costs.append(new_cost)
+
 
 def BF_beamsearch(A, s, probMatrix, beamwidth=3):
     """
@@ -14,13 +90,13 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
     # optimizations possible, keep low-cost shorter paths over extending to bad parents
     # flip-coin for tie-breaking equal-cost kept-parents
     # tune-beam
+    # sample without replacement
     try:
         pi = np.zeros(len(probMatrix))
 
         # make source its own parent
         pi[s] = s
 
-        best_path_stemming_from_s = None
         # assign parent to every node
         for i in range(len(probMatrix)):
             # compute path to i
@@ -30,6 +106,7 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
                 candidates_rev = [[i] for i in range(beamwidth)] # paths in reverse order. [a,b,c] indicates [c->b->a]
                 candidates_cost = [0 for i in range(beamwidth)]
                 best_path_cost = np.inf
+                best_path_stemming_from_s = None
 
                 for k in range(len(probMatrix)): # try paths of length up-to |V|, number of vertices
                     longer_paths = [] # list of paths, each path in reverse order
