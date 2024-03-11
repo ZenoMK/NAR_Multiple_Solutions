@@ -1,6 +1,7 @@
 import numpy as np
 import clrs._src.dfs_sampling as dfs_sampling
 #import graphs as graphs
+#import check_graphs as check_graphs
 
 
 def BF_beamsearch(A, s, probMatrix, beamwidth=3):
@@ -88,8 +89,27 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
     return pi
 
 
-def BF_greedysearch():
-    pass
+def BF_greedysearch(A, s, probMatrix, beamwidth=3):
+    pi = np.zeros(len(probMatrix))
+    pi[s] = s
+
+    # sample parents for each non-source node
+    for i in range(len(probMatrix)):
+        if i != s:
+            # sample candidate parents, ensure at least one parent is plausible (there exists an edge (parent,i))
+            candidates_costs = np.full(beamwidth, np.inf)
+            while (candidates_costs == np.full(len(candidates_costs), np.inf)).all():
+                candidates = [dfs_sampling.chooseUniformly(probMatrix[i]) for j in range(beamwidth)]
+                candidates_costs =[A[candidate, i] for candidate in candidates]
+                # remove any parents without any edges to i
+                for k in range(len(candidates_costs)):
+                    if candidates_costs[k] == 0:
+                        candidates_costs[k] = np.inf
+
+            # choose lowest-cost parent
+            pi[i] = candidates[np.argmin(candidates_costs)]
+    return pi
+
 
 
 
@@ -121,6 +141,8 @@ if __name__ == '__main__':
 
     s = 3
 
-    result = BF_beamsearch(A,s,pM_1)
+    result = BF_greedysearch(A,s,pM_1)
     correct = graphs.bellman_ford(A,s)
     print(correct)
+    print(result)
+    print(check_graphs.check_valid_BFpaths(A,s,result))

@@ -167,11 +167,13 @@ def bellman_ford_cost(A, s):
 def check_valid_BFpaths(A,s, parentpath):
 
     true_costs = bellman_ford_cost(A,s)
+    parentpath = np.array(parentpath).astype(int)
 
     # the adjacency matrix of the BF tree
     BF_tree_adj = np.zeros((len(parentpath),len(parentpath)))
     for i in range(len(parentpath)):
-        if A[parentpath[i],i] == 0 and i != s:
+        print(parentpath[i],i)
+        if np.array(A)[parentpath[i],i] == 0 and i != s:
             return False
         else:
             BF_tree_adj[parentpath[i],i] = A[parentpath[i],i]
