@@ -41,7 +41,7 @@ import os
 from clrs._src import dfs_sampling
 from clrs._src import dfs_uniqueness_check
 
-from clrs._src import bellman_ford_sampling
+from clrs._src.algorithms import BF_beamsearch
 
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
@@ -308,6 +308,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   preds = []
   outputs = []
   As = []
+  source_nodes = []
   while processed_samples < sample_count:
     feedback = next(sampler)
     batch_size = feedback.outputs[0].data.shape[0]
@@ -317,6 +318,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
     preds.append(cur_preds)
     processed_samples += batch_size
     As.append(feedback[0][0][2].data)
+    source_nodes.append(np.argmax(feedback[0][0][1].data, axis=1)) #todo checkme. feedback[0][0][1] is 's', .data gives array
   outputs = _concat(outputs, axis=0)
   As = _concat(As, axis=0)  # concatenate batches
   #breakpoint()
@@ -325,10 +327,12 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   #breakpoint()
   # TODO sample from probabilities to values. Log Results
 
-  model_sample_random = dfs_sampling.sample_random_list(preds)
+  breakpoint()
+  model_sample_random = dfs_sampling.sample_random_list([preds])
   true_sample_random = dfs_sampling.sample_random_list(outputs)
 
-  model_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_random[i]) for i in range(len(model_sample_random))]
+
+  '''model_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_random[i]) for i in range(len(model_sample_random))]
   correctness_model_random = sum(model_random_truthmask) / len(model_random_truthmask)
 
   true_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_random[i]) for i in range(len(true_sample_random))]
@@ -375,7 +379,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
                  ###
                  }
   result_df = pd.DataFrame.from_dict(result_dict)
-  result_df.to_csv('bf_accuracy.csv', encoding='utf-8', index=False)
+  result_df.to_csv('bf_accuracy.csv', encoding='utf-8', index=False)'''
   
   if extras:
     out.update(extras)
