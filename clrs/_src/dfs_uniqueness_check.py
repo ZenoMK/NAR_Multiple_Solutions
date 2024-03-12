@@ -29,9 +29,10 @@ def check_uniqueness_dfs(probMatrices, n_samples = 10, method = "upwards"):
         uniques.append(len(unique_trees)/n_samples)
 
         valid_trees_of_uniques = [check_graphs.check_valid_dfsTree(probMatrices_format[i],j) for j in unique_trees]
-        valids_uniques.append(sum(valid_trees_of_uniques)/n_samples)
+        valids_uniques.append(sum(valid_trees_of_uniques)/len(unique_trees))
 
         valid_trees= [check_graphs.check_valid_dfsTree(probMatrices_format[i], j) for j in samples_matrix_i]
         valids.append(sum(valid_trees) / n_samples)
+        #breakpoint()
 
     return uniques,valids_uniques, valids
