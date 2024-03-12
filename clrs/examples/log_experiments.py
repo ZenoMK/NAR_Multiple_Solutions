@@ -143,7 +143,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
         out.update(extras)
     return {k: unpack(v) for k, v in out.items()}
 
-"""
+
 
 ###############################################################
 # DFS
@@ -165,8 +165,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
         processed_samples += batch_size
         As.append(feedback[0][0][1].data)
     outputs = _concat(outputs, axis=0)
-    As = _concat(As, axis=0)  # concatenate batches
-    # breakpoint()
+    As = _concat(As, axis=0) # concatenate batches
+    #breakpoint()
 
     ### We need preds and A. We want to
     # 1. Sample from preds a candidate tree
@@ -177,12 +177,10 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     model_sample_random = dfs_sampling.sample_random_list(preds)
     true_sample_random = dfs_sampling.sample_random_list(outputs)
 
-    model_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_random[i]) for i in
-                              range(len(model_sample_random))]
+    model_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_random[i]) for i in range(len(model_sample_random))]
     correctness_model_random = sum(model_random_truthmask) / len(model_random_truthmask)
 
-    true_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_random[i]) for i in
-                             range(len(true_sample_random))]
+    true_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_random[i]) for i in range(len(true_sample_random))]
     correctness_true_random = sum(true_random_truthmask) / len(true_random_truthmask)
 
     ##### ARGMAX
@@ -191,96 +189,104 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     true_sample_argmax = dfs_sampling.sample_argmax_listofdatapoint(outputs)
 
     # compute the fraction of trees sampled from model output fulfilling the necessary conditions
-    model_argmax_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_argmax[i].tolist()) for i in
-                              range(len(model_sample_argmax))]
+    model_argmax_truthmask = [check_graphs.check_valid_dfsTree(As[i],model_sample_argmax[i].tolist()) for i in range(len(model_sample_argmax))]
     correctness_model_argmax = sum(model_argmax_truthmask) / len(model_argmax_truthmask)
 
     # compute the fraction of trees sampled from true distributions fulfilling the necessary conditions
-    true_argmax_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_argmax[i].tolist()) for i in
-                             range(len(true_sample_argmax))]
+    true_argmax_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_argmax[i].tolist()) for i in range(len(true_sample_argmax))]
     correctness_true_argmax = sum(true_argmax_truthmask) / len(true_argmax_truthmask)
 
     ##### UPWARDS
     model_sample_upwards = dfs_sampling.sample_upwards(preds)
     true_sample_upwards = dfs_sampling.sample_upwards(outputs)
 
-    model_upwards_uniques, model_upwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(preds)
-    true_upwards_uniques, true_upwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(outputs)
+    model_upwards_uniques, model_upwards_valids_uniques, model_upwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(preds)
+    true_upwards_uniques, true_upwards_valids_uniques, true_upwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(outputs)
 
-    model_upwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_upwards[i].astype(int)) for i in
-                               range(len(model_sample_upwards))]
+    model_upwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_upwards[i].astype(int)) for i in range(len(model_sample_upwards))]
     correctness_model_upwards = sum(model_upwards_truthmask) / len(model_upwards_truthmask)
 
-    true_upwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_upwards[i].astype(int)) for i in
-                              range(len(true_sample_upwards))]
+    true_upwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_upwards[i].astype(int)) for i in range(len(true_sample_upwards))]
     correctness_true_upwards = sum(true_upwards_truthmask) / len(true_upwards_truthmask)
 
     ##### ALTUPWARDS
     model_sample_altUpwards = dfs_sampling.sample_altUpwards(preds)
     true_sample_altUpwards = dfs_sampling.sample_altUpwards(outputs)
 
-    model_altUpwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_altUpwards[i].astype(int)) for i
-                                  in
-                                  range(len(model_sample_altUpwards))]
+    model_altupwards_uniques, model_altupwards_valids_uniques, model_altupwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(preds, method="altupwards")
+    true_altupwards_uniques, true_altupwards_valids_uniques, true_altupwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(outputs, method="altupwards")
+
+    model_altUpwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_altUpwards[i].astype(int)) for i in
+                             range(len(model_sample_altUpwards))]
     correctness_model_altUpwards = sum(model_altUpwards_truthmask) / len(model_altUpwards_truthmask)
 
     true_altUpwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_altUpwards[i].astype(int)) for i in
-                                 range(len(true_sample_altUpwards))]
+                            range(len(true_sample_altUpwards))]
     correctness_true_altUpwards = sum(true_altUpwards_truthmask) / len(true_altUpwards_truthmask)
 
-    # breakpoint()
+    #breakpoint()
     As = [i.flatten() for i in As]
     result_dict = {"As": As,
-                   #
-                   "Argmax_Model_Trees": model_sample_argmax,
-                   "Argmax_True_Trees": true_sample_argmax,
-                   #
-                   "Argmax_Model_Mask": model_argmax_truthmask,
-                   "Argmax_True_Mask": true_argmax_truthmask,
-                   #
-                   "Argmax_Model_Accuracy": correctness_model_argmax,
-                   "Argmax_True_Accuracy": correctness_true_argmax,
-                   #
-                   ###
-                   #
-                   "Random_Model_Trees": model_sample_random,
-                   "Random_True_Trees": true_sample_random,
-                   #
-                   "Random_Model_Mask": model_random_truthmask,
-                   "Random_True_Mask": true_random_truthmask,
-                   #
-                   "Random_Model_Accuracy": correctness_model_random,
-                   "Random_True_Accuracy": correctness_true_random,
-                   #
-                   ###
-                   #
-                   "Upwards_Model_Trees": model_sample_upwards,
-                   "Upwards_True_Trees": true_sample_upwards,
-                   #
-                   "Upwards_Model_Mask": model_upwards_truthmask,
-                   "Upwards_True_Mask": true_upwards_truthmask,
-                   #
-                   "Upwards_Model_Accuracy": correctness_model_upwards,
-                   "Upwards_True_Accuracy": correctness_true_upwards,
+                 #
+                 "Argmax_Model_Trees": model_sample_argmax,
+                 "Argmax_True_Trees": true_sample_argmax,
+                 #
+                 "Argmax_Model_Mask": model_argmax_truthmask,
+                 "Argmax_True_Mask": true_argmax_truthmask,
+                 #
+                 "Argmax_Model_Accuracy": correctness_model_argmax,
+                 "Argmax_True_Accuracy": correctness_true_argmax,
+                 #
+                 ###
+                 #
+                 "Random_Model_Trees": model_sample_random,
+                 "Random_True_Trees": true_sample_random,
+                 #
+                 "Random_Model_Mask": model_random_truthmask,
+                 "Random_True_Mask": true_random_truthmask,
+                 #
+                 "Random_Model_Accuracy": correctness_model_random,
+                 "Random_True_Accuracy": correctness_true_random,
+                 #
+                 ###
+                 #
+                 "Upwards_Model_Trees": model_sample_upwards,
+                 "Upwards_True_Trees": true_sample_upwards,
+                 #
+                 "Upwards_Model_Mask": model_upwards_truthmask,
+                 "Upwards_True_Mask": true_upwards_truthmask,
+                 #
+                 "Upwards_Model_Accuracy": correctness_model_upwards,
+                 "Upwards_True_Accuracy": correctness_true_upwards,
 
-                   "Upwards_Model_Uniques": model_upwards_uniques,
-                   "Upwards_Model_Valids": model_upwards_valids,
+                 "Upwards_Model_Uniques": model_upwards_uniques,
+                 "Upwards_Model_Valids_Uniques" : model_upwards_valids_uniques,
+                 "Upwards_Model_Valids": model_upwards_valids,
 
-                   "Upwards_True_Uniques": true_upwards_uniques,
-                   "Upwards_True_Valids": true_upwards_valids,
-                   #
-                   ###
-                   #
-                   "altUpwards_Model_Trees": model_sample_altUpwards,
-                   "altUpwards_True_Trees": true_sample_altUpwards,
-                   #
-                   "altUpwards_Model_Mask": model_altUpwards_truthmask,
-                   "altUpwards_True_Mask": true_altUpwards_truthmask,
-                   #
-                   "altUpwards_Model_Accuracy": correctness_model_altUpwards,
-                   "altUpwards_True_Accuracy": correctness_true_altUpwards,
-                   }
-    # breakpoint()
+                 "Upwards_True_Uniques" : true_upwards_uniques,
+                 "Upwards_True_Valids_Uniques": true_upwards_valids_uniques,
+                 "Upwards_True_Valids" : true_upwards_valids,
+                 #
+                 ###
+                 #
+                 "altUpwards_Model_Trees": model_sample_altUpwards,
+                 "altUpwards_True_Trees": true_sample_altUpwards,
+                 #
+                 "altUpwards_Model_Mask": model_altUpwards_truthmask,
+                 "altUpwards_True_Mask": true_altUpwards_truthmask,
+                 #
+                 "altUpwards_Model_Accuracy": correctness_model_altUpwards,
+                 "altUpwards_True_Accuracy": correctness_true_altUpwards,
+
+                 "altUpwards_Model_Uniques": model_altupwards_uniques,
+                 "altUpwards_Model_Valids_Uniques": model_altupwards_valids_uniques,
+                 "altUpwards_Model_Valids": model_altupwards_valids,
+
+                 "altUpwards_True_Uniques": true_altupwards_uniques,
+                 "altUpwards_True_Valids_Uniques": true_altupwards_valids_uniques,
+                 "altUpwards_True_Valids": true_altupwards_valids,
+                 }
+    #breakpoint()
     result_df = pd.DataFrame.from_dict(result_dict)
     result_df.to_csv(filename + '.csv', encoding='utf-8', index=False)
 
