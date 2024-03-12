@@ -81,6 +81,7 @@ def beamsearch_extend_paths(A, probMatrix, beamwidth, path_guesses, path_costs):
 
     return longer_paths, longer_path_costs
 
+
 def grow_path_by_parent_probs(A, path, path_cost, parent_probs):
     # Extend candidate path by new parent, calculate cost
     new_parent = dfs_sampling.chooseUniformly(parent_probs)
@@ -94,8 +95,6 @@ def grow_path_by_parent_probs(A, path, path_cost, parent_probs):
         #breakpoint()
         cost_of_new_edge = np.inf
     new_cost = path_cost + cost_of_new_edge
-
-    return new_path, new_cost
 
 def select_best_path_from_s(s, best_path, best_cost, new_paths, new_costs):
     assert len(new_paths) == len(new_costs)
@@ -200,6 +199,28 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
     return pi
 
 
+def BF_greedysearch(A, s, probMatrix, beamwidth=3):
+    pi = np.zeros(len(probMatrix))
+    pi[s] = s
+
+    # sample parents for each non-source node
+    for i in range(len(probMatrix)):
+        if i != s:
+            # sample candidate parents, ensure at least one parent is plausible (there exists an edge (parent,i))
+            candidates_costs = np.full(beamwidth, np.inf)
+            while (candidates_costs == np.full(len(candidates_costs), np.inf)).all():
+                candidates = [dfs_sampling.chooseUniformly(probMatrix[i]) for j in range(beamwidth)]
+                candidates_costs =[A[candidate, i] for candidate in candidates]
+                # remove any parents without any edges to i
+                for k in range(len(candidates_costs)):
+                    if candidates_costs[k] == 0:
+                        candidates_costs[k] = np.inf
+
+            # choose lowest-cost parent
+            pi[i] = candidates[np.argmin(candidates_costs)]
+    return pi
+
+
 
 
 
@@ -216,6 +237,12 @@ if __name__ == '__main__':
            [3.3088622e-03, 1.5012523e-07, 3.4113563e-07, 2.7682628e-07,
             9.9669027e-01]])
 
+    pM_1 = np.array([[0., 0., 0., 1., 0.],
+       [0., 0., 1., 0., 0.],
+       [1., 0., 0., 0., 0.],
+       [0., 0., 0., 1., 0.],
+       [1., 0., 0., 0., 0.]])
+
     A = np.array([[1., 0., 1., 1., 1.],
                  [0., 0., 1., 0., 0.],
                  [1., 1., 0., 0., 0.],
@@ -223,6 +250,7 @@ if __name__ == '__main__':
                  [1., 0., 0., 0., 1.]])
 
     s = 3
+
 
     #confusion = beamsearch(A,s,pM)
     #confusionprime = BF_beamsearch(A,s,pM)
@@ -283,3 +311,8 @@ if __name__ == '__main__':
     dprime = BF_beamsearch(disconnect_A, disconnect_s, disconnect_pm)
     assert (d == dprime).all()
     assert (d == disconnect_expect).all()
+    result = BF_greedysearch(A,s,pM_1)
+    correct = graphs.bellman_ford(A,s)
+    print(correct)
+    print(result)
+    print(check_graphs.check_valid_BFpaths(A,s,result))

@@ -17,6 +17,7 @@ def sample_upwards(outsOrPreds):
         pi: the candidate parent-tree being built
     '''
     trees = []
+    #breakpoint()
     # PREPROCESS TO EXTRACT probMatrix
     for i in outsOrPreds:
         if type(i) == type({}):
@@ -84,6 +85,7 @@ def sample_random_list(outsOrPreds):
     '''Random Number for each row in probMatrix'''
     trees = []
     rng = np.random.default_rng()
+    #breakpoint()
     for i in outsOrPreds:
         if type(i) == type({}):
             distlist = i["pi"].data
