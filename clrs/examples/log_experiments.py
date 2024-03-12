@@ -6,7 +6,7 @@ import pandas as pd
 import clrs._src.dfs_sampling as dfs_sampling
 from clrs._src import dfs_uniqueness_check
 from clrs._src.algorithms import check_graphs
-from clrs._src.algorithms.BF_beamsearch import sample_beamsearch
+from clrs._src.algorithms.BF_beamsearch import sample_beamsearch, sample_greedysearch
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
 ###############################################################
@@ -97,7 +97,16 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     ########
     # greedy beam #
     ########
+    model_sample_greedy = sample_greedysearch(As, source_nodes, [preds])
+    true_sample_greedy = sample_greedysearch(As, source_nodes, outputs)
 
+    model_greedy_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], model_sample_greedy[i]) for i in
+                            range(len(model_sample_greedy))]
+    correctness_model_greedy = sum(model_greedy_truthmask) / len(model_greedy_truthmask)
+
+    true_greedy_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_greedy[i]) for i in
+                           range(len(model_sample_random))]
+    correctness_true_greedy = sum(true_greedy_truthmask) / len(true_greedy_truthmask)
 
 
     ### LOGGING ###
@@ -134,6 +143,17 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
                    #
                    "Beam_Model_Accuracy": correctness_model_beam,
                    "Beam_True_Accuracy": correctness_true_beam,
+                   #
+                   ###
+                   #
+                   "Greedy_Model_Trees": model_sample_greedy,
+                   "Greedy_True_Trees": true_sample_greedy,
+                   #
+                   "Greedy_Model_Mask": model_greedy_truthmask,
+                   "Greedy_True_Mask": true_greedy_truthmask,
+                   #
+                   "Greedy_Model_Accuracy": correctness_model_greedy,
+                   "Greedy_True_Accuracy": correctness_true_greedy,
                    #
                    }
     result_df = pd.DataFrame.from_dict(result_dict)

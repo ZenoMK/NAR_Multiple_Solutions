@@ -199,6 +199,18 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
     return pi
 
 
+def sample_greedysearch(As, Ss, outsOrPreds):
+    probMatrix_list = dfs_sampling.extract_probMatrices(outsOrPreds)
+    pi_trees = []
+    for ix in range(len(probMatrix_list)):
+        A = As[ix]
+        startNode = Ss[ix]
+        probMatrix = probMatrix_list[ix]
+        # build a pi-tree, sampling beam
+        pi_trees.append(BF_greedysearch(A, startNode, probMatrix))
+        breakpoint()
+    return pi_trees
+
 def BF_greedysearch(A, s, probMatrix, beamwidth=3):
     pi = np.zeros(len(probMatrix))
     pi[s] = s
@@ -209,6 +221,8 @@ def BF_greedysearch(A, s, probMatrix, beamwidth=3):
             # sample candidate parents, ensure at least one parent is plausible (there exists an edge (parent,i))
             candidates_costs = np.full(beamwidth, np.inf)
             while (candidates_costs == np.full(len(candidates_costs), np.inf)).all():
+                print(candidates_costs)
+                breakpoint()
                 candidates = [dfs_sampling.chooseUniformly(probMatrix[i]) for j in range(beamwidth)]
                 candidates_costs =[A[candidate, i] for candidate in candidates]
                 # remove any parents without any edges to i
