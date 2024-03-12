@@ -208,7 +208,7 @@ def sample_greedysearch(As, Ss, outsOrPreds):
         probMatrix = probMatrix_list[ix]
         # build a pi-tree, sampling beam
         pi_trees.append(BF_greedysearch(A, startNode, probMatrix))
-        breakpoint()
+        #breakpoint()
     return pi_trees
 
 def BF_greedysearch(A, s, probMatrix, beamwidth=3):
