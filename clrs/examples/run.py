@@ -383,7 +383,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
                  }
   result_df = pd.DataFrame.from_dict(result_dict)
   result_df.to_csv('bf_accuracy.csv', encoding='utf-8', index=False)'''
-  
+
   if extras:
     out.update(extras)
   return {k: unpack(v) for k, v in out.items()}
@@ -611,6 +611,7 @@ def create_samplers(rng, train_lengths: List[int]):
       val_sampler, val_samples, spec = make_multi_sampler(**val_args)
 
       test_args = dict(sizes=[FLAGS.test_length], #TODO vary, old code: sizes=[-1],
+      test_args = dict(sizes=[5], #TODO vary, old code: sizes=[-1], #Fixme! test with small size for poc
                        split='test',
                        batch_size=32,
                        multiplier=2 * mult,

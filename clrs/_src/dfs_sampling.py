@@ -60,6 +60,15 @@ def sample_upwards(outsOrPreds):
             trees.append(pi)
     return trees
 
+def sample_argmax(outsOrPreds):
+    trees = []
+    distlist = extract_probMatrices(outsOrPreds)
+    for probM in distlist:
+        amax = np.argmax(probM, axis=1)
+        trees.append(amax)
+    #breakpoint()
+    return trees
+
 def sample_argmax_listofdict(preds):
     trees = []
     for i in preds: # de-listify into dict, happens twice

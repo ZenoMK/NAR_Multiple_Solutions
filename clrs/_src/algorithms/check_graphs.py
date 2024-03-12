@@ -31,7 +31,6 @@ edge_to_zero_adj = np.array([
     [1,0]
 ])
 edge_to_zero_pi = [0,1]
-## BREAKS!!!
 
 
 def check_valid_dfsTree(np_input_array, pi):
@@ -163,6 +162,9 @@ def bellman_ford_cost(A, s):
   return d
 
 def check_valid_BFpaths(A,s, parentpath):
+    ''' 1. Computes true shortest path costs,
+        2. Builds BF parent-tree subgraph of graph, computes shortest path costs on subgraph (model's paths)
+    Note self-parent (pi[t] = t) is the default for no path s->t. '''
 
     true_costs = bellman_ford_cost(A,s)
     parentpath = np.array(parentpath).astype(int)
@@ -170,9 +172,10 @@ def check_valid_BFpaths(A,s, parentpath):
     # the adjacency matrix of the BF tree
     BF_tree_adj = np.zeros((len(parentpath),len(parentpath)))
     for i in range(len(parentpath)):
-        if parentpath[i] == i and i != s: # shortest path. forbids neg. weight cycle solutions
-            return False
-        if A[parentpath[i],i] == 0 and i != s:
+        #if parentpath[i] == i and i != s: # shortest path. forbids neg. weight cycle solutions
+        #    return False
+        #breakpoint()
+        if A[parentpath[i],i] == 0 and parentpath[i] != i: # you're allowed to pick self-parents for unreachable nodes
             return False
         else:
             BF_tree_adj[parentpath[i],i] = A[parentpath[i],i]
@@ -184,15 +187,6 @@ def check_valid_BFpaths(A,s, parentpath):
     else:
         return False
 
-
-def check_nohallucinations(A,BF_tree):
-
-    subtracted_adj = A - BF_tree
-    if (subtracted_adj < 0).any():
-        return False
-    else:
-        return True
-
 test_graph = np.array([[0,1,1],
               [0,0,1],
               [0,0,0]])
@@ -203,3 +197,11 @@ false_parentpath = [0,0,1]
 assert check_valid_BFpaths(test_graph,s,true_parentpath)
 assert not check_valid_BFpaths(test_graph,s,false_parentpath)
 
+d = np.array([
+    [0., 0.],
+    [0., 0.]])
+
+s = 0
+
+expect_d = [0,1]
+assert check_valid_BFpaths(d,s,expect_d)
