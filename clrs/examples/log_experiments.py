@@ -213,8 +213,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     model_sample_altUpwards = dfs_sampling.sample_altUpwards(preds)
     true_sample_altUpwards = dfs_sampling.sample_altUpwards(outputs)
 
-    model_altupwards_uniques, model_altupwards_valids_uniques, model_altupwards_valids = np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))#dfs_uniqueness_check.check_uniqueness_dfs(preds, method="altupwards")
-    true_altupwards_uniques, true_altupwards_valids_uniques, true_altupwards_valids  = np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)) #dfs_uniqueness_check.check_uniqueness_dfs(outputs, method="altupwards")
+    model_altupwards_uniques, model_altupwards_valids_uniques, model_altupwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(preds, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
+    true_altupwards_uniques, true_altupwards_valids_uniques, true_altupwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(outputs, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
 
     model_altUpwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_altUpwards[i].astype(int)) for i in
                              range(len(model_sample_altUpwards))]
