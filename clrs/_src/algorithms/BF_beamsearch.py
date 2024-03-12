@@ -1,6 +1,9 @@
 import numpy as np
 import clrs._src.dfs_sampling as dfs_sampling
 
+##
+# Two mostly-equivalent methods: beamsearch and BF_beamsearch. BF_beamsearch seems to return leastcostpathparents as ints, beamsearch as floats
+##
 def beamsearch(A, s, probMatrix, beamwidth=3):
     """
     nicely decomposed. calls path_to_i for each node. returns parent tree.
@@ -12,7 +15,10 @@ def beamsearch(A, s, probMatrix, beamwidth=3):
     for t in vertices:
         if t != s:
             least_cost_path = beamsearch_least_cost_path(A, s, t, probMatrix, beamwidth)
-            pi[t] = least_cost_path[1] # paths in reverse order [a,b,c] means [c->b->a]. Path ends at t: [t,parent,...]
+            if least_cost_path is not None:
+                pi[t] = least_cost_path[1] # paths in reverse order [a,b,c] means [c->b->a]. Path ends at t: [t,parent,...]
+            else:
+                pi[t] = t # consistent with samplers.py implementation, parent defaults to self, which can't be a shortest path parent (no neg. cycles). Condition caught in check_graphs
     return pi
 
 def beamsearch_least_cost_path(A, s, t, probMatrix, beamwidth):
@@ -112,7 +118,7 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
     # tune-beam
     # sample without replacement
     #try:
-    pi = np.zeros(len(probMatrix))
+    pi = np.arange(len(probMatrix))
 
     # make source its own parent
     pi[s] = s
@@ -176,7 +182,7 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
                 pi[t] = best_path_stemming_from_s[1] # node before i on best_path_found
             else:
                 print('no good path')
-                breakpoint() #oops! no good path
+                #breakpoint() #oops! no good path
     #except:
     #    print('other error')
     #    breakpoint()
@@ -208,8 +214,8 @@ if __name__ == '__main__':
 
     s = 3
 
-    #result = BF_beamsearch(A,s,pM)
-    #big = BF_beamsearch(easy_A_p3, easy_s, easy_PM_p3)
+    #confusion = beamsearch(A,s,pM)
+    #confusionprime = BF_beamsearch(A,s,pM)
 
     easy_PM_p3 = np.array([
         [1,0,0],
@@ -226,6 +232,7 @@ if __name__ == '__main__':
     expect_easy = [0,0,1]
 
     a = beamsearch(easy_A_p3, easy_s, easy_PM_p3)
+    aprime = BF_beamsearch(easy_A_p3, easy_s, easy_PM_p3)
 
     cycle_A = np.array([
         [0, 1, 0],
@@ -239,7 +246,24 @@ if __name__ == '__main__':
     ])
 
     cycle_s = 1
-
     cycle_expect = [2,1,1]
 
     c = beamsearch(cycle_A, cycle_s, cycle_pm)
+    cprime = BF_beamsearch(cycle_A, cycle_s, cycle_pm)
+
+    disconnect_A = np.array([
+        [0,0,0],
+        [0,0,0],
+        [0,0,0]
+    ])
+    disconnect_pm = np.array([
+        [0,0,0],
+        [0,0,0],
+        [0,0,0]
+    ])
+
+    disconnect_s = 2
+    disconnect_expect = [0,0,2]
+
+    d = beamsearch(disconnect_A, disconnect_s, disconnect_pm)
+    dprime = BF_beamsearch(disconnect_A, disconnect_s, disconnect_pm) #0,0,2
