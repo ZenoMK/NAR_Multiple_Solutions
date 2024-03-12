@@ -86,17 +86,15 @@ def are_valid_order_parents(np_input_array, pi):
         if pi[i] == i:
             for j in range(i): # crucially, this does not run when i=0, so the starting 0,0 self-loop always permitted
                 self_reachable_by_earlier_node = nx.has_path(g, j, i) # does this do it directed? lower-triangle?
-                #breakpoint()
                 if self_reachable_by_earlier_node:
                     return False
-        else: # not self-loop, so not a restart, make sure parents are reachable by lower_ix node
-            flag = False
+        else:  # not self-loop, so not a restart, make sure parents are reachable by lowest ix node from which i is reachable
             for j in range(i):
-                parent_reachable_by_earlier_node = nx.has_path(g, j, pi[i])
-                if parent_reachable_by_earlier_node:
-                    flag = True
-            if not flag: # parent wasn't reachable by lower_ix node
-                return False
+                if nx.has_path(g, j, i):  # lowest_ix node from which i is reachable
+                    if not nx.has_path(g, j, pi[i]):  # parent not reachable. Bad! (note nx considers each node as having a path to itself)
+                        return False
+                    else:
+                        break  # this parent is ok! advance to outermost for loop
     return True
 
 
@@ -172,8 +170,9 @@ def check_valid_BFpaths(A,s, parentpath):
     # the adjacency matrix of the BF tree
     BF_tree_adj = np.zeros((len(parentpath),len(parentpath)))
     for i in range(len(parentpath)):
-        print(parentpath[i],i)
-        if np.array(A)[parentpath[i],i] == 0 and i != s:
+        if parentpath[i] == i and i != s: # shortest path. forbids neg. weight cycle solutions
+            return False
+        if A[parentpath[i],i] == 0 and i != s:
             return False
         else:
             BF_tree_adj[parentpath[i],i] = A[parentpath[i],i]
