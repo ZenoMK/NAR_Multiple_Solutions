@@ -167,6 +167,7 @@ def check_valid_BFpaths(A,s, parentpath):
     Note self-parent (pi[t] = t) is the default for no path s->t. '''
 
     true_costs = bellman_ford_cost(A,s)
+    parentpath = np.array(parentpath).astype(int)
 
     # the adjacency matrix of the BF tree
     BF_tree_adj = np.zeros((len(parentpath),len(parentpath)))
