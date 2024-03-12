@@ -2,7 +2,7 @@ import numpy as np
 import clrs._src.dfs_sampling as dfs_sampling
 import clrs._src.algorithms.check_graphs as check_graphs
 
-def check_uniqueness_dfs(probMatrices, n_samples = 10, method = "upwards"):
+def check_uniqueness_dfs(probMatrices, n_samples = 5, method = "upwards"):
     uniques = []
     valids_uniques = []
     valids = []
