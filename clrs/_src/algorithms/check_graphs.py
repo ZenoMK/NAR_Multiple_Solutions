@@ -2,7 +2,7 @@ import graphlib as gl
 import networkx as nx
 import numpy as np
 import chex
-
+import copy
 ## f[0][0][1].data to get adjacency matrix from next(sampler) where sampler=test_samplers[0]
 
 # cyclic graph to test
@@ -35,7 +35,7 @@ edge_to_zero_pi = [0,1]
 
 def check_valid_dfsTree(np_input_array, pi):
     '''checks: acyclic, dangling, edge-validity, and valid-start'''
-    pi = pi[:] # copy pi. make sure don't mess with logging
+    pi = copy.deepcopy(pi) # copy pi. make sure don't mess with logging
     if pi[0] == 0: # correct start-node
         if are_valid_edges_parents(np_input_array, pi):
             if are_valid_order_parents(np_input_array, pi): # self-loops not reachable by lower_ix. Other parents reachable by ...

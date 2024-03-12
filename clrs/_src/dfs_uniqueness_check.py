@@ -24,13 +24,15 @@ def check_uniqueness_dfs(probMatrices, n_samples = 10, method = "upwards"):
         # code from here: https://stackoverflow.com/questions/26514179/set-of-list-of-lists-in-python
         unique_trees = [list(item) for item in set([tuple(row) for row in samples_matrix_i])]
 
+
         # save the fraction of unique samples
         uniques.append(len(unique_trees)/n_samples)
 
         valid_trees_of_uniques = [check_graphs.check_valid_dfsTree(probMatrices_format[i],j) for j in unique_trees]
-        valids_uniques.append(sum(valid_trees_of_uniques)/n_samples)
-        
+        valids_uniques.append(sum(valid_trees_of_uniques)/len(unique_trees))
+
         valid_trees= [check_graphs.check_valid_dfsTree(probMatrices_format[i], j) for j in samples_matrix_i]
         valids.append(sum(valid_trees) / n_samples)
+        #breakpoint()
 
     return uniques,valids_uniques, valids

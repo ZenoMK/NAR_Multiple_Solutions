@@ -44,7 +44,7 @@ from clrs._src import dfs_uniqueness_check
 pd.set_option("max_colwidth", None)
 np.set_printoptions(threshold=sys.maxsize)
 from clrs._src.algorithms import BF_beamsearch
-from clrs.examples.log_experiments import DFS_collect_and_eval, BF_collect_and_eval
+from clrs.examples.log_experiments import DFS_collect_and_eval#, BF_collect_and_eval
 
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
@@ -839,7 +839,7 @@ def main(unused_argv):
             functools.partial(eval_model.predict, algorithm_index=algo_idx),
             test_sample_counts[algo_idx],
             new_rng_key,
-            extras=common_extras, filename=FLAGS.filename)
+            extras=common_extras)#, filename=FLAGS.filename)
     elif FLAGS.algorithms[algo_idx] == 'bellman_ford':
         test_stats = BF_collect_and_eval(
             test_samplers[algo_idx],

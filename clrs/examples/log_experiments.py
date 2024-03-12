@@ -26,9 +26,9 @@ def unpack(v):
 # BF pipeline
 ###############################################################
 
-
 def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy'):
     """Collect batches of output and hint preds and evaluate them."""
+    
     processed_samples = 0
     preds = []
     outputs = []
@@ -77,7 +77,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
 
     true_beam_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_beam[i]) for i in range(len(model_sample_random))]
     correctness_true_beam = sum(true_beam_truthmask) / len(true_beam_truthmask)
-
+    
     #breakpoint()
     ########
     # Argmax #
@@ -143,7 +143,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
         out.update(extras)
     return {k: unpack(v) for k, v in out.items()}
 
-
+"""
 
 ###############################################################
 # DFS
