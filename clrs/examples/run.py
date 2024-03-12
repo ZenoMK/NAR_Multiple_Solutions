@@ -44,6 +44,7 @@ from clrs._src import dfs_uniqueness_check
 pd.set_option("max_colwidth", None)
 np.set_printoptions(threshold=sys.maxsize)
 from clrs._src.algorithms import BF_beamsearch
+from clrs.examples.log_experiments import DFS_collect_and_eval, BF_collect_and_eval
 
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
@@ -303,7 +304,6 @@ def collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   if extras:
     out.update(extras)
   return {k: unpack(v) for k, v in out.items()}
-
 
 def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   """Collect batches of output and hint preds and evaluate them."""
@@ -838,7 +838,7 @@ def main(unused_argv):
             functools.partial(eval_model.predict, algorithm_index=algo_idx),
             test_sample_counts[algo_idx],
             new_rng_key,
-            extras=common_extras)
+            extras=common_extras, filename=FLAGS.filename)
     elif FLAGS.algorithms[algo_idx] == 'bellman_ford':
         test_stats = BF_collect_and_eval(
             test_samplers[algo_idx],
@@ -848,11 +848,11 @@ def main(unused_argv):
             extras=common_extras)
     else:
         test_stats = collect_and_eval(
-        test_samplers[algo_idx],
-        functools.partial(eval_model.predict, algorithm_index=algo_idx),
-        test_sample_counts[algo_idx],
-        new_rng_key,
-        extras=common_extras)
+            test_samplers[algo_idx],
+            functools.partial(eval_model.predict, algorithm_index=algo_idx),
+            test_sample_counts[algo_idx],
+            new_rng_key,
+            extras=common_extras)
     logging.info('(test) algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
 
   if FLAGS.results_df:
