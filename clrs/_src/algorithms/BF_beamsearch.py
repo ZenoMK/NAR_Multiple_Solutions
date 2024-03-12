@@ -1,6 +1,16 @@
 import numpy as np
 import clrs._src.dfs_sampling as dfs_sampling
 
+def sample_beamsearch(As, Ss, outsOrPreds):
+    probMatrix_list = dfs_sampling.extract_probMatrices(outsOrPreds)
+    pi_trees = []
+    for ix in range(len(probMatrix_list)):
+        A = As[ix]
+        startNode = Ss[ix]
+        probMatrix = probMatrix_list[ix]
+        # build a pi-tree, sampling beam
+        pi_trees.append(beamsearch(A, startNode, probMatrix))
+    return pi_trees
 ##
 # Two mostly-equivalent methods: beamsearch and BF_beamsearch. BF_beamsearch seems to return leastcostpathparents as ints, beamsearch as floats
 ##
@@ -101,7 +111,7 @@ def select_best_path_from_s(s, best_path, best_cost, new_paths, new_costs):
 
 
 ########################################################################
-# All-in-one. Seems broken.
+# All-in-one. Seems works!
 ########################################################################
 
 def BF_beamsearch(A, s, probMatrix, beamwidth=3):
@@ -181,7 +191,7 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
             if best_path_stemming_from_s is not None:
                 pi[t] = best_path_stemming_from_s[1] # node before i on best_path_found
             else:
-                print('no good path')
+                print('no good path', s, '->', t)
                 #breakpoint() #oops! no good path
     #except:
     #    print('other error')
@@ -233,6 +243,8 @@ if __name__ == '__main__':
 
     a = beamsearch(easy_A_p3, easy_s, easy_PM_p3)
     aprime = BF_beamsearch(easy_A_p3, easy_s, easy_PM_p3)
+    assert (a == aprime).all()
+    assert (a == expect_easy).all()
 
     cycle_A = np.array([
         [0, 1, 0],
@@ -250,6 +262,8 @@ if __name__ == '__main__':
 
     c = beamsearch(cycle_A, cycle_s, cycle_pm)
     cprime = BF_beamsearch(cycle_A, cycle_s, cycle_pm)
+    assert(c == cprime).all()
+    assert(c == cycle_expect).all()
 
     disconnect_A = np.array([
         [0,0,0],
@@ -263,7 +277,9 @@ if __name__ == '__main__':
     ])
 
     disconnect_s = 2
-    disconnect_expect = [0,0,2]
+    disconnect_expect = [0,1,2]
 
     d = beamsearch(disconnect_A, disconnect_s, disconnect_pm)
-    dprime = BF_beamsearch(disconnect_A, disconnect_s, disconnect_pm) #0,0,2
+    dprime = BF_beamsearch(disconnect_A, disconnect_s, disconnect_pm)
+    assert (d == dprime).all()
+    assert (d == disconnect_expect).all()

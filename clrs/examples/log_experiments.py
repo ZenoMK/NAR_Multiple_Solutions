@@ -1,13 +1,16 @@
 import numpy as np
 import clrs     # for clrs.evaluate
-import clrs._src.dfs_sampling as dfs_sampling
 import jax
 import pandas as pd
 
+import clrs._src.dfs_sampling as dfs_sampling
 from clrs._src import dfs_uniqueness_check
 from clrs._src.algorithms import check_graphs
-#from clrs.examples.run import _concat, unpack
+#from clrs.examples.run import _concat, unpack  # circular import error!
 
+###############################################################
+# Methods needed, copy-pasted from run.py :(
+###############################################################
 def _concat(dps, axis):
   return jax.tree_util.tree_map(lambda *x: np.concatenate(x, axis), *dps)
 
@@ -16,6 +19,12 @@ def unpack(v):
     return v.item()  # DeviceArray
   except (AttributeError, ValueError):
     return v
+
+
+###############################################################
+# BF pipeline
+###############################################################
+
 
 def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
     """Collect batches of output and hint preds and evaluate them."""
@@ -37,6 +46,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
             np.argmax(feedback[0][0][1].data, axis=1))  # todo checkme. feedback[0][0][1] is 's', .data gives array
     outputs = _concat(outputs, axis=0)
     As = _concat(As, axis=0)  # concatenate batches
+    source_nodes = _concat(source_nodes, axis=0)
     # breakpoint()
     preds = _concat(preds, axis=0)
     out = clrs.evaluate(outputs, preds)
@@ -46,6 +56,34 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
     breakpoint()
     model_sample_random = dfs_sampling.sample_random_list([preds])
     true_sample_random = dfs_sampling.sample_random_list(outputs)
+
+    model_random_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], model_sample_random[i]) for i in range(len(model_sample_random))]
+    correctness_model_random = sum(model_random_truthmask) / len(model_random_truthmask)
+
+    true_random_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_random[i]) for i in range(len(true_sample_random))]
+    correctness_true_random = sum(true_random_truthmask) / len(true_random_truthmask)
+
+    ########
+    # BEAM #
+    ########
+    model_sample_beam = bf_sampling.sample_beamsearch(As, source_nodes, [preds])
+    true_sample_beam = bf_sampling.sample_beamsearch(As, source_nodes, outputs)
+
+    model_beam_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], model_sample_beam[i]) for i in range(len(model_sample_random))]
+    correctness_model_beam =
+
+
+    true_beam_truthmask =
+    correctness_true_beam
+
+    ########
+    # Argmax #
+    ########
+
+    ########
+    # greedy beam #
+    ########
+
 
     '''model_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_random[i]) for i in range(len(model_sample_random))]
     correctness_model_random = sum(model_random_truthmask) / len(model_random_truthmask)
@@ -100,6 +138,11 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
         out.update(extras)
     return {k: unpack(v) for k, v in out.items()}
 
+
+
+###############################################################
+# DFS
+###############################################################
 
 def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename = 'dfs_accuracy'):
     """Collect batch of output preds and evaluate them."""
