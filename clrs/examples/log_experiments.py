@@ -25,9 +25,9 @@ def unpack(v):
 # BF pipeline
 ###############################################################
 
-
+"""
 def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
-    """Collect batches of output and hint preds and evaluate them."""
+    #Collect batches of output and hint preds and evaluate them.
     processed_samples = 0
     preds = []
     outputs = []
@@ -73,8 +73,8 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
     correctness_model_beam =
 
 
-    true_beam_truthmask =
-    correctness_true_beam
+    #true_beam_truthmask =
+   # correctness_true_beam
 
     ########
     # Argmax #
@@ -138,7 +138,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
         out.update(extras)
     return {k: unpack(v) for k, v in out.items()}
 
-
+"""
 
 ###############################################################
 # DFS
