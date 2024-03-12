@@ -6,6 +6,7 @@ import pandas as pd
 import clrs._src.dfs_sampling as dfs_sampling
 from clrs._src import dfs_uniqueness_check
 from clrs._src.algorithms import check_graphs
+from clrs._src.algorithms.BF_beamsearch import sample_beamsearch
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
 ###############################################################
@@ -26,7 +27,7 @@ def unpack(v):
 ###############################################################
 
 
-def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
+def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy'):
     """Collect batches of output and hint preds and evaluate them."""
     processed_samples = 0
     preds = []
@@ -50,10 +51,11 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
     # breakpoint()
     preds = _concat(preds, axis=0)
     out = clrs.evaluate(outputs, preds)
-    # breakpoint()
-    # TODO sample from probabilities to values. Log Results
+    #breakpoint()
 
-    breakpoint()
+    ########
+    # RANDOM #
+    ########
     model_sample_random = dfs_sampling.sample_random_list([preds])
     true_sample_random = dfs_sampling.sample_random_list(outputs)
 
@@ -63,48 +65,41 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
     true_random_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_random[i]) for i in range(len(true_sample_random))]
     correctness_true_random = sum(true_random_truthmask) / len(true_random_truthmask)
 
+    #breakpoint()
     ########
     # BEAM #
     ########
-    model_sample_beam = bf_sampling.sample_beamsearch(As, source_nodes, [preds])
-    true_sample_beam = bf_sampling.sample_beamsearch(As, source_nodes, outputs)
+    model_sample_beam = sample_beamsearch(As, source_nodes, [preds])
+    true_sample_beam = sample_beamsearch(As, source_nodes, outputs)
 
-    model_beam_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], model_sample_beam[i]) for i in range(len(model_sample_random))]
-    correctness_model_beam =
+    model_beam_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], model_sample_beam[i]) for i in range(len(model_sample_beam))]
+    correctness_model_beam = sum(model_beam_truthmask) / len(model_beam_truthmask)
 
+    true_beam_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_beam[i]) for i in range(len(model_sample_random))]
+    correctness_true_beam = sum(true_beam_truthmask) / len(true_beam_truthmask)
 
-    true_beam_truthmask =
-    correctness_true_beam
-
+    #breakpoint()
     ########
     # Argmax #
     ########
+    model_sample_argmax = dfs_sampling.sample_argmax([preds]) # doesn't use A or s
+    true_sample_argmax = dfs_sampling.sample_argmax(outputs)
 
+    model_argmax_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], model_sample_argmax[i]) for i in
+                            range(len(model_sample_argmax))]
+    correctness_model_argmax = sum(model_argmax_truthmask) / len(model_argmax_truthmask)
+
+    true_argmax_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_argmax[i]) for i in
+                           range(len(model_sample_random))]
+    correctness_true_argmax = sum(true_argmax_truthmask) / len(true_argmax_truthmask)
+
+    breakpoint()
     ########
     # greedy beam #
     ########
 
 
-    '''model_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_random[i]) for i in range(len(model_sample_random))]
-    correctness_model_random = sum(model_random_truthmask) / len(model_random_truthmask)
-  
-    true_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_random[i]) for i in range(len(true_sample_random))]
-    correctness_true_random = sum(true_random_truthmask) / len(true_random_truthmask)
-  
-    ##### ARGMAX
-    ## remember to convert from jax arrays to lists for easy subsequent methods using .tolist()
-    model_sample_argmax = dfs_sampling.sample_argmax_listofdict(preds)
-    true_sample_argmax = dfs_sampling.sample_argmax_listofdatapoint(outputs)
-  
-    # compute the fraction of trees sampled from model output fulfilling the necessary conditions
-    model_argmax_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_argmax[i].tolist()) for i in range(len(model_sample_argmax))]
-    correctness_model_argmax = sum(model_argmax_truthmask) / len(model_argmax_truthmask)
-  
-    # compute the fraction of trees sampled from true distributions fulfilling the necessary conditions
-    true_argmax_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_argmax[i].tolist()) for i in range(len(true_sample_argmax))]
-    correctness_true_argmax = sum(true_argmax_truthmask) / len(true_argmax_truthmask)
-  
-  
+
     ### LOGGING ###
     As = [i.flatten() for i in As]
     result_dict = {"As": As,
@@ -130,9 +125,19 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
                    "Random_True_Accuracy": correctness_true_random,
                    #
                    ###
+                   #
+                   "Beam_Model_Trees": model_sample_beam,
+                   "Beam_True_Trees": true_sample_beam,
+                   #
+                   "Beam_Model_Mask": model_beam_truthmask,
+                   "Beam_True_Mask": true_beam_truthmask,
+                   #
+                   "Beam_Model_Accuracy": correctness_model_beam,
+                   "Beam_True_Accuracy": correctness_true_beam,
+                   #
                    }
     result_df = pd.DataFrame.from_dict(result_dict)
-    result_df.to_csv('bf_accuracy.csv', encoding='utf-8', index=False)'''
+    result_df.to_csv(filename + '.csv', encoding='utf-8', index=False)
 
     if extras:
         out.update(extras)

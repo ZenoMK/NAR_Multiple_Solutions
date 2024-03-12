@@ -370,7 +370,7 @@ def create_samplers(rng, train_lengths: List[int]):
                       **common_sampler_args)
       val_sampler, val_samples, spec = make_multi_sampler(**val_args)
 
-      test_args = dict(sizes=[64], #TODO vary, old code: sizes=[-1],
+      test_args = dict(sizes=[5], #TODO vary, old code: sizes=[-1], #Fixme! test with small size for poc
                        split='test',
                        batch_size=32,
                        multiplier=2 * mult,

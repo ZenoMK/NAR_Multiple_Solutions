@@ -9,7 +9,7 @@ def sample_beamsearch(As, Ss, outsOrPreds):
         startNode = Ss[ix]
         probMatrix = probMatrix_list[ix]
         # build a pi-tree, sampling beam
-        pi_trees.append(beamsearch(A, startNode, probMatrix))
+        pi_trees.append(BF_beamsearch(A, startNode, probMatrix))
     return pi_trees
 ##
 # Two mostly-equivalent methods: beamsearch and BF_beamsearch. BF_beamsearch seems to return leastcostpathparents as ints, beamsearch as floats
