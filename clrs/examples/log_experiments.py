@@ -269,8 +269,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     model_sample_altUpwards = dfs_sampling.sample_altUpwards(preds)
     true_sample_altUpwards = dfs_sampling.sample_altUpwards(outputs)
 
-    #model_altupwards_uniques, model_altupwards_valids_uniques, model_altupwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(As, preds, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
-    #true_altupwards_uniques, true_altupwards_valids_uniques, true_altupwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(As, outputs, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
+    model_altupwards_uniques, model_altupwards_valids_uniques, model_altupwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(As, preds, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
+    true_altupwards_uniques, true_altupwards_valids_uniques, true_altupwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(As, outputs, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
 
     model_altUpwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_altUpwards[i].astype(int)) for i in
                              range(len(model_sample_altUpwards))]
@@ -336,13 +336,13 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
                  "altUpwards_Model_Accuracy": correctness_model_altUpwards,
                  "altUpwards_True_Accuracy": correctness_true_altUpwards,
 
-                 #"altUpwards_Model_Uniques": model_altupwards_uniques,
-                 #"altUpwards_Model_Valids_Uniques": model_altupwards_valids_uniques,
-                # "altUpwards_Model_Valids": model_altupwards_valids,
+                 "altUpwards_Model_Uniques": model_altupwards_uniques,
+                 "altUpwards_Model_Valids_Uniques": model_altupwards_valids_uniques,
+                 "altUpwards_Model_Valids": model_altupwards_valids,
 
-                 #"altUpwards_True_Uniques": true_altupwards_uniques,
-                 #"altUpwards_True_Valids_Uniques": true_altupwards_valids_uniques,
-                 #"altUpwards_True_Valids": true_altupwards_valids,
+                 "altUpwards_True_Uniques": true_altupwards_uniques,
+                 "altUpwards_True_Valids_Uniques": true_altupwards_valids_uniques,
+                 "altUpwards_True_Valids": true_altupwards_valids,
                  }
     #breakpoint()
     result_df = pd.DataFrame.from_dict(result_dict)
