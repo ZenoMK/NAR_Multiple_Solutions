@@ -578,12 +578,13 @@ def main(unused_argv):
     step += 1
     length_idx = (length_idx + 1) % len(train_lengths)
 
-    train_end_time = time.time()
-    train_time = train_end_time-train_start_time # timing includes occasional validation and checkpointing
-
+  train_end_time = time.time()
+  train_time = train_end_time-train_start_time # timing includes occasional validation and checkpointing
+  print('train time (seconds)', train_time)
   logging.info('Restoring best model from checkpoint...')
   eval_model.restore_model('best.pkl', only_load_processor=False)
-
+  model_unpickle_time = time.time()
+  print('model restoring time (seconds)', model_unpickle_time-train_end_time)
 
  # print('run.py doing logging?')
   for algo_idx in range(len(train_samplers)):

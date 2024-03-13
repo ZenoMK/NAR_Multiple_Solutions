@@ -35,6 +35,10 @@ edge_to_zero_pi = [0,1]
 
 def check_valid_dfsTree(np_input_array, pi):
     '''checks: acyclic, dangling, edge-validity, and valid-start'''
+    '''
+        inputs: Adjacency Matrix (np_input_array), purported parent tree (pi)
+        returns: True iff (pi) is producible by run of DFS with random edge exploration but ordered restarts
+    '''
     pi = copy.deepcopy(pi) # copy pi. make sure don't mess with logging
     if pi[0] == 0: # correct start-node
         if are_valid_edges_parents(np_input_array, pi):
@@ -43,13 +47,17 @@ def check_valid_dfsTree(np_input_array, pi):
                 if is_acyclic(pi): # no funky hiding parents. Should be implied by lower-node reachability.
                     return True
                 else:
-                    print('cycle')
+                    pass
+                    #print('cycle')
             else:
-                print('oo')
+                pass
+                #print('oo')
         else:
-            print('not edges')
+            pass
+            #print('not edges')
     else:
-        print('wrong startnode')
+        pass
+        #print('wrong startnode')
     return False
 
 

@@ -140,6 +140,7 @@ def extract_probMatrices(outsOrPreds):
     handles ugly formatting difference: outs a list of dicts of datapoints,
     preds a list of datapoints
     '''
+    # what special here about preds/outputs different from list of npArrays which misbehave
     big_probmatrix_list = []
     for i in outsOrPreds:
         if type(i) == type({}):
@@ -147,6 +148,7 @@ def extract_probMatrices(outsOrPreds):
         else:
             distlist = i.data
         big_probmatrix_list.extend(distlist)
+    #breakpoint()
     return big_probmatrix_list
 
 def explore_upwards(orphan_ix, parent_guesses, probMatrix):

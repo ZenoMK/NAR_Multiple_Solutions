@@ -5,6 +5,7 @@ def sample_beamsearch(As, Ss, outsOrPreds):
     probMatrix_list = dfs_sampling.extract_probMatrices(outsOrPreds)
     pi_trees = []
     for ix in range(len(probMatrix_list)):
+        #breakpoint()
         A = As[ix]
         startNode = Ss[ix]
         probMatrix = probMatrix_list[ix]
@@ -160,6 +161,7 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
                     # Extend candidate path by new parent, calculate cost
                     # Store new path grown from this candidate, and its associated cost
                     for new_path_num in range(beamwidth):
+                        #breakpoint()
                         candidate_parent = dfs_sampling.chooseUniformly(parent_probs)
                         # extend & store path
                         new_path = np.append(candidate_path, candidate_parent) # concatenate parent to h, conceptually, adding a parent to path progenitor

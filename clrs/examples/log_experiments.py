@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import clrs     # for clrs.evaluate
 import jax
@@ -193,6 +195,7 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     # 2. run check_graphs on candidate tree (using A as groundtruth)
     # 3. Collect validity result into a dataframe.
 
+    t1 = time.time()
     ##### RANDOM
     model_sample_random = dfs_sampling.sample_random_list(preds)
     true_sample_random = dfs_sampling.sample_random_list(outputs)
@@ -203,6 +206,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     true_random_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_random[i]) for i in range(len(true_sample_random))]
     correctness_true_random = sum(true_random_truthmask) / len(true_random_truthmask)
 
+    t2 = time.time()
+    print('random checking in (seconds)', t2-t1)
     ##### ARGMAX
     ## remember to convert from jax arrays to lists for easy subsequent methods using .tolist()
     model_sample_argmax = dfs_sampling.sample_argmax_listofdict(preds)
@@ -216,12 +221,14 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     true_argmax_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_argmax[i].tolist()) for i in range(len(true_sample_argmax))]
     correctness_true_argmax = sum(true_argmax_truthmask) / len(true_argmax_truthmask)
 
+    t3 = time.time()
+    print('argmax checking in (seconds)', t3-t2)
     ##### UPWARDS
     model_sample_upwards = dfs_sampling.sample_upwards(preds)
     true_sample_upwards = dfs_sampling.sample_upwards(outputs)
 
-    model_upwards_uniques, model_upwards_valids_uniques, model_upwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(preds)
-    true_upwards_uniques, true_upwards_valids_uniques, true_upwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(outputs)
+    model_upwards_uniques, model_upwards_valids_uniques, model_upwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(As, preds)
+    true_upwards_uniques, true_upwards_valids_uniques, true_upwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(As, outputs)
 
     model_upwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_upwards[i].astype(int)) for i in range(len(model_sample_upwards))]
     correctness_model_upwards = sum(model_upwards_truthmask) / len(model_upwards_truthmask)
@@ -229,12 +236,14 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     true_upwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], true_sample_upwards[i].astype(int)) for i in range(len(true_sample_upwards))]
     correctness_true_upwards = sum(true_upwards_truthmask) / len(true_upwards_truthmask)
 
+    t4 = time.time()
+    print('upwards checking in (seconds)', t4 - t3)
     ##### ALTUPWARDS
     model_sample_altUpwards = dfs_sampling.sample_altUpwards(preds)
     true_sample_altUpwards = dfs_sampling.sample_altUpwards(outputs)
 
-    model_altupwards_uniques, model_altupwards_valids_uniques, model_altupwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(preds, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
-    true_altupwards_uniques, true_altupwards_valids_uniques, true_altupwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(outputs, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
+    model_altupwards_uniques, model_altupwards_valids_uniques, model_altupwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(As, preds, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
+    true_altupwards_uniques, true_altupwards_valids_uniques, true_altupwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(As, outputs, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
 
     model_altUpwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_altUpwards[i].astype(int)) for i in
                              range(len(model_sample_altUpwards))]
@@ -244,6 +253,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
                             range(len(true_sample_altUpwards))]
     correctness_true_altUpwards = sum(true_altUpwards_truthmask) / len(true_altUpwards_truthmask)
 
+    t5 = time.time()
+    print('altUpwards checking in (seconds)', t5 - t4)
     #breakpoint()
     As = [i.flatten() for i in As]
     result_dict = {"As": As,
