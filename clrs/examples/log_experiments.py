@@ -7,6 +7,7 @@ import clrs._src.dfs_sampling as dfs_sampling
 from clrs._src import dfs_uniqueness_check
 from clrs._src.algorithms import check_graphs
 from clrs._src.algorithms.BF_beamsearch import sample_beamsearch, sample_greedysearch
+from clrs._src.bf_uniqueness_check import check_uniqueness_bf
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
 ###############################################################
@@ -93,6 +94,11 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
                            range(len(model_sample_random))]
     correctness_true_argmax = sum(true_argmax_truthmask) / len(true_argmax_truthmask)
 
+    model_beam_uniques, model_beam_valids_uniques, model_beam_valids = check_uniqueness_bf(As, source_nodes,
+                                                                                                 preds, method="beam")
+    true_beam_uniques, true_beam_valids_uniques, true_beam_valids = check_uniqueness_bf(As, source_nodes,
+                                                                                              outputs, method="beam")
+
     #breakpoint()
     ########
     # greedy beam #
@@ -107,6 +113,13 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     true_greedy_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_greedy[i]) for i in
                            range(len(model_sample_random))]
     correctness_true_greedy = sum(true_greedy_truthmask) / len(true_greedy_truthmask)
+
+    model_greedy_uniques, model_greedy_valids_uniques, model_greedy_valids = check_uniqueness_bf(As, source_nodes,
+        preds, method = "greedy")
+    true_greedy_uniques, true_greedy_valids_uniques, true_greedy_valids = check_uniqueness_bf(As, source_nodes,
+        outputs, method = "greedy")
+
+
 
 
     ### LOGGING ###
@@ -143,6 +156,14 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
                    #
                    "Beam_Model_Accuracy": correctness_model_beam,
                    "Beam_True_Accuracy": correctness_true_beam,
+
+                   "Beam_Model_Uniques": model_beam_uniques,
+                   "Beam_Model_Valids_Uniques": model_beam_valids_uniques,
+                   "Beam_Model_Valids": model_beam_valids,
+
+                   "Beam_True_Uniques": true_beam_uniques,
+                   "Beam_True_Valids_Uniques": true_beam_valids_uniques,
+                   "Beam_True_Valids": true_beam_valids,
                    #
                    ###
                    #
@@ -154,6 +175,14 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
                    #
                    "Greedy_Model_Accuracy": correctness_model_greedy,
                    "Greedy_True_Accuracy": correctness_true_greedy,
+
+                   "Greedy_Model_Uniques":model_greedy_uniques,
+                   "Greedy_Model_Valids_Uniques": model_greedy_valids_uniques,
+                   "Greedy_Model_Valids": model_greedy_valids,
+
+                   "Greedy_True_Uniques": true_greedy_uniques,
+                   "Greedy_True_Valids_Uniques": true_greedy_valids_uniques,
+                   "Greedy_True_Valids": true_greedy_valids
                    #
                    }
     result_df = pd.DataFrame.from_dict(result_dict)
