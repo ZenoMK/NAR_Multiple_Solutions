@@ -78,7 +78,12 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
 
     true_beam_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_beam[i]) for i in range(len(model_sample_random))]
     correctness_true_beam = sum(true_beam_truthmask) / len(true_beam_truthmask)
-    
+
+    model_beam_uniques, model_beam_valids_uniques, model_beam_valids = check_uniqueness_bf(As=As, source_nodes=source_nodes,
+                                                                                           probMatrices = [preds], method="beam")
+    true_beam_uniques, true_beam_valids_uniques, true_beam_valids = check_uniqueness_bf(As=As, source_nodes=source_nodes,
+                                                                                           probMatrices = outputs, method="beam")
+
     #breakpoint()
     ########
     # Argmax #
@@ -93,11 +98,6 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     true_argmax_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_argmax[i]) for i in
                            range(len(model_sample_random))]
     correctness_true_argmax = sum(true_argmax_truthmask) / len(true_argmax_truthmask)
-
-    model_beam_uniques, model_beam_valids_uniques, model_beam_valids = check_uniqueness_bf(As, source_nodes,
-                                                                                                 preds, method="beam")
-    true_beam_uniques, true_beam_valids_uniques, true_beam_valids = check_uniqueness_bf(As, source_nodes,
-                                                                                              outputs, method="beam")
 
     #breakpoint()
     ########
@@ -114,10 +114,10 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
                            range(len(model_sample_random))]
     correctness_true_greedy = sum(true_greedy_truthmask) / len(true_greedy_truthmask)
 
-    model_greedy_uniques, model_greedy_valids_uniques, model_greedy_valids = check_uniqueness_bf(As, source_nodes,
-        preds, method = "greedy")
-    true_greedy_uniques, true_greedy_valids_uniques, true_greedy_valids = check_uniqueness_bf(As, source_nodes,
-        outputs, method = "greedy")
+    model_greedy_uniques, model_greedy_valids_uniques, model_greedy_valids = check_uniqueness_bf(As = As, source_nodes = source_nodes,
+        probMatrices=[preds], method = "greedy")
+    true_greedy_uniques, true_greedy_valids_uniques, true_greedy_valids = check_uniqueness_bf(As = As, source_nodes = source_nodes,
+        probMatrices=outputs, method = "greedy")
 
 
 
