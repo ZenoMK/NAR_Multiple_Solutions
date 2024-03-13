@@ -600,14 +600,14 @@ def main(unused_argv):
             functools.partial(eval_model.predict, algorithm_index=algo_idx),
             test_sample_counts[algo_idx],
             new_rng_key,
-            extras=common_extras)#, filename=FLAGS.filename)
+            extras=common_extras, filename=FLAGS.filename)
     elif FLAGS.algorithms[algo_idx] == 'bellman_ford':
         test_stats = BF_collect_and_eval(
             test_samplers[algo_idx],
             functools.partial(eval_model.predict, algorithm_index=algo_idx),
             test_sample_counts[algo_idx],
             new_rng_key,
-            extras=common_extras)
+            extras=common_extras, filename=FLAGS.filename)
     else:
         test_stats = collect_and_eval(
             test_samplers[algo_idx],

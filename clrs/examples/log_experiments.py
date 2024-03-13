@@ -9,6 +9,7 @@ import clrs._src.dfs_sampling as dfs_sampling
 from clrs._src import dfs_uniqueness_check
 from clrs._src.algorithms import check_graphs
 from clrs._src.algorithms.BF_beamsearch import sample_beamsearch, sample_greedysearch
+from clrs._src.bf_uniqueness_check import check_uniqueness_bf
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
 ###############################################################
@@ -79,7 +80,12 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
 
     true_beam_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_beam[i]) for i in range(len(model_sample_random))]
     correctness_true_beam = sum(true_beam_truthmask) / len(true_beam_truthmask)
-    
+
+    model_beam_uniques, model_beam_valids_uniques, model_beam_valids = check_uniqueness_bf(As=As, source_nodes=source_nodes,
+                                                                                           probMatrices = [preds], method="beam")
+    true_beam_uniques, true_beam_valids_uniques, true_beam_valids = check_uniqueness_bf(As=As, source_nodes=source_nodes,
+                                                                                           probMatrices = outputs, method="beam")
+
     #breakpoint()
     ########
     # Argmax #
@@ -109,6 +115,13 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     true_greedy_truthmask = [check_graphs.check_valid_BFpaths(As[i], source_nodes[i], true_sample_greedy[i]) for i in
                            range(len(model_sample_random))]
     correctness_true_greedy = sum(true_greedy_truthmask) / len(true_greedy_truthmask)
+
+    model_greedy_uniques, model_greedy_valids_uniques, model_greedy_valids = check_uniqueness_bf(As = As, source_nodes = source_nodes,
+        probMatrices=[preds], method = "greedy")
+    true_greedy_uniques, true_greedy_valids_uniques, true_greedy_valids = check_uniqueness_bf(As = As, source_nodes = source_nodes,
+        probMatrices=outputs, method = "greedy")
+
+
 
 
     ### LOGGING ###
@@ -145,6 +158,14 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
                    #
                    "Beam_Model_Accuracy": correctness_model_beam,
                    "Beam_True_Accuracy": correctness_true_beam,
+
+                   "Beam_Model_Uniques": model_beam_uniques,
+                   "Beam_Model_Valids_Uniques": model_beam_valids_uniques,
+                   "Beam_Model_Valids": model_beam_valids,
+
+                   "Beam_True_Uniques": true_beam_uniques,
+                   "Beam_True_Valids_Uniques": true_beam_valids_uniques,
+                   "Beam_True_Valids": true_beam_valids,
                    #
                    ###
                    #
@@ -156,6 +177,14 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
                    #
                    "Greedy_Model_Accuracy": correctness_model_greedy,
                    "Greedy_True_Accuracy": correctness_true_greedy,
+
+                   "Greedy_Model_Uniques":model_greedy_uniques,
+                   "Greedy_Model_Valids_Uniques": model_greedy_valids_uniques,
+                   "Greedy_Model_Valids": model_greedy_valids,
+
+                   "Greedy_True_Uniques": true_greedy_uniques,
+                   "Greedy_True_Valids_Uniques": true_greedy_valids_uniques,
+                   "Greedy_True_Valids": true_greedy_valids
                    #
                    }
     result_df = pd.DataFrame.from_dict(result_dict)
@@ -242,8 +271,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     model_sample_altUpwards = dfs_sampling.sample_altUpwards(preds)
     true_sample_altUpwards = dfs_sampling.sample_altUpwards(outputs)
 
-    model_altupwards_uniques, model_altupwards_valids_uniques, model_altupwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(As, preds, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
-    true_altupwards_uniques, true_altupwards_valids_uniques, true_altupwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(As, outputs, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
+    #model_altupwards_uniques, model_altupwards_valids_uniques, model_altupwards_valids = dfs_uniqueness_check.check_uniqueness_dfs(As, preds, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
+    #true_altupwards_uniques, true_altupwards_valids_uniques, true_altupwards_valids  = dfs_uniqueness_check.check_uniqueness_dfs(As, outputs, method="altupwards") #np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask)),np.zeros(len(true_argmax_truthmask))
 
     model_altUpwards_truthmask = [check_graphs.check_valid_dfsTree(As[i], model_sample_altUpwards[i].astype(int)) for i in
                              range(len(model_sample_altUpwards))]
@@ -309,13 +338,13 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
                  "altUpwards_Model_Accuracy": correctness_model_altUpwards,
                  "altUpwards_True_Accuracy": correctness_true_altUpwards,
 
-                 "altUpwards_Model_Uniques": model_altupwards_uniques,
-                 "altUpwards_Model_Valids_Uniques": model_altupwards_valids_uniques,
-                 "altUpwards_Model_Valids": model_altupwards_valids,
+                 #"altUpwards_Model_Uniques": model_altupwards_uniques,
+                 #"altUpwards_Model_Valids_Uniques": model_altupwards_valids_uniques,
+                # "altUpwards_Model_Valids": model_altupwards_valids,
 
-                 "altUpwards_True_Uniques": true_altupwards_uniques,
-                 "altUpwards_True_Valids_Uniques": true_altupwards_valids_uniques,
-                 "altUpwards_True_Valids": true_altupwards_valids,
+                 #"altUpwards_True_Uniques": true_altupwards_uniques,
+                 #"altUpwards_True_Valids_Uniques": true_altupwards_valids_uniques,
+                 #"altUpwards_True_Valids": true_altupwards_valids,
                  }
     #breakpoint()
     result_df = pd.DataFrame.from_dict(result_dict)
