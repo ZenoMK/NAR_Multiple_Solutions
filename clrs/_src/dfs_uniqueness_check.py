@@ -40,7 +40,7 @@ def check_uniqueness_dfs(As, probMatrices, n_samples = 5, method = "upwards"):
     return uniques,valids_uniques, valids
 
 
-
+'''
 def check_uniqueness_bf(As, Ss, probMatrices, n_samples = 5, method = "beam"):
     uniques = []
     valids_uniques = []
@@ -76,7 +76,7 @@ def check_uniqueness_bf(As, Ss, probMatrices, n_samples = 5, method = "beam"):
         valids.append(sum(valid_trees) / n_samples)
         #breakpoint()
 
-    return uniques,valids_uniques, valids
+    return uniques,valids_uniques, valids'''
 
 
 if __name__ == '__main__':

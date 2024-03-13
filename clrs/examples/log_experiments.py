@@ -122,8 +122,6 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
         probMatrices=outputs, method = "greedy")
 
 
-
-
     ### LOGGING ###
     As = [i.flatten() for i in As]
     result_dict = {"As": As,
