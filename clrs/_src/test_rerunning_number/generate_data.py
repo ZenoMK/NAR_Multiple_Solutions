@@ -14,10 +14,12 @@ def generate_data(algorithm = 'dfs', num_solutions = [20,40], min_size = 5, max_
         size = sizes[i]
         if algorithm == 'dfs':
             graphs = [random_er_graph(nb_nodes=size, directed=True) for k in range(graphs_per_size)]
+            distributions1 = [dfs(graph, num_solutions[0])[0] for graph in graphs]
+            distributions2 = [dfs(graph, num_solutions[1])[0] for graph in graphs]
         else:
-            graphs = [random_er_graph(nb_nodes=size, directed=True) for k in range(graphs_per_size)]
-        distributions1 = [dfs(graph,num_solutions[0])[0] for graph in graphs]
-        distributions2 = [dfs(graph,num_solutions[1])[0] for graph in graphs]
+            graphs = [random_er_graph(nb_nodes=size, directed=True, weighted=True) for k in range(graphs_per_size)]
+            distributions1 = [bellman_ford(graph,0,num_solutions[0])[0] for graph in graphs]
+            distributions2 = [bellman_ford(graph,0, num_solutions[1])[0] for graph in graphs]
         divergences = [torch.nn.functional.kl_div(torch.Tensor(distributions1[j]), torch.Tensor(distributions2[j])) for j in range(len(distributions1))]
         means[i] = np.mean(divergences)
         std[i] = np.std(divergences)
