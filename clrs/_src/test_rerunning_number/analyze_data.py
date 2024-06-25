@@ -1,4 +1,4 @@
-from generate_data import generate_data
+from clrs._src.test_rerunning_number.generate_data import generate_data
 import matplotlib.pyplot as plt
 from sciplotlib import style as spstyle
 import numpy as np
