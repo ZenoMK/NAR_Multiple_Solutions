@@ -1,6 +1,6 @@
 import numpy as np
 from clrs._src.samplers import DfsSampler
-from adapted_algorithms import dfs, bellman_ford
+from clrs._src.test_rerunning_number.adapted_algorithms import dfs, bellman_ford
 import torch
 _rng = np.random.RandomState()
 
