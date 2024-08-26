@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-print('YIKES 2, makes plot on test but uniqueness is incorrect')
+print('YIKES 2, works on dummy test but not hooked to main code')
 
 
 #------------------------------------------
@@ -24,14 +24,20 @@ print('YIKES 2, makes plot on test but uniqueness is incorrect')
 # GRAPH NUM UNIQUE by NUM SAMPLES
 # - test num solutions in distribution
 #------------------------------------------
-plt.plot([1], [2], 'o')
-plt.show()
 
 def plot1(df):
     plt.plot(df.index, df.unique_beam, 'o')
     plt.show()
+    return df
 
-    return 'crackers'
+def plotty(df):
+    # make df cum sum of num unique
+    df['total_unique_seen'] = df['unique_beam'].cumsum()
+    # plot
+    plt.plot(df.index+1, df.total_unique_seen, 'o')
+    plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.show()
+    return df
 
 def graph1(A, s, pred, num_sample_intervals):
     '''
@@ -83,10 +89,15 @@ def graph1(A, s, pred, num_sample_intervals):
 
 
         # how many times have we seen it before?
-
         hash_beam = hash(tuple(tree1))
         hash_greedy = hash(tuple(tree2))
+        #breakpoint()
 
+        # if not seen before, add 1. else add 0, so we can cumulatively sum df column
+        unique_beam.append(hash_beam not in beam_frequency_dict.keys())
+        unique_greedy.append(hash_greedy not in greedy_frequency_dict.keys())
+
+        # abcd?
         if hash_beam not in beam_frequency_dict.keys():
             beam_frequency_dict[hash_beam] = 1
         else:
@@ -99,10 +110,7 @@ def graph1(A, s, pred, num_sample_intervals):
 
         #times_found_beam.append()
         #times_found_greedy.append()
-        # TODO: SAVE THE DICTIONARY AT THE END
-
-        unique_beam.append(hash_beam in beam_frequency_dict.keys())
-        unique_greedy.append(hash_greedy in greedy_frequency_dict.keys())
+        # TODO: SAVE THE DICTIONARY AT THE END, with tree specifics
 
         num_samples_drawn += 1
     # FIXME interval code nonsense
@@ -113,8 +121,8 @@ def graph1(A, s, pred, num_sample_intervals):
     )
 
     #df.to_csv('../../results/figure_fodder')
-    breakpoint()
-    plot1(df)
+    #breakpoint()
+    plotty(df)
 
     return df
 
