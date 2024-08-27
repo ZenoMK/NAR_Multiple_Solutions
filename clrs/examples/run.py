@@ -149,6 +149,8 @@ flags.DEFINE_boolean('save_df', False,
                      'Whether to save model. !! Requires results_df=True !!')
 flags.DEFINE_boolean('save_model_to_file', False,
                      'Whether to save model to .pkl or similar, intended for kaggle')
+flags.DEFINE_boolean('validate_distributions', default=False,
+                     help='Whether to create #unique by #samples figure, implementing for BF')  #FIXME more implement
 
 
 FLAGS = flags.FLAGS
@@ -607,7 +609,7 @@ def main(unused_argv):
             functools.partial(eval_model.predict, algorithm_index=algo_idx),
             test_sample_counts[algo_idx],
             new_rng_key,
-            extras=common_extras, filename=FLAGS.filename)
+            extras=common_extras, filename=FLAGS.filename, vd_flag=FLAGS.validate_distributions)
     else:
         test_stats = collect_and_eval(
             test_samplers[algo_idx],

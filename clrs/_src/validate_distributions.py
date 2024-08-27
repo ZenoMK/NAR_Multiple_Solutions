@@ -1,6 +1,7 @@
-from algorithms.BF_beamsearch import BF_beamsearch, BF_greedysearch
+from clrs._src.algorithms.BF_beamsearch import BF_beamsearch, BF_greedysearch
 
-from algorithms.check_graphs import check_valid_BFpaths, check_valid_dfsTree
+from clrs._src.algorithms.check_graphs import check_valid_BFpaths, check_valid_dfsTree
+from clrs._src.dfs_sampling import extract_probMatrices
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -25,6 +26,19 @@ print('YIKES 2, works on dummy test but not hooked to main code')
 # - test num solutions in distribution
 #------------------------------------------
 
+def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting):
+    breakpoint()
+    probMatrix_list = extract_probMatrices(outsOrPreds)
+    dfs = []
+    for ix in range(len(probMatrix_list)):
+        #breakpoint()
+        A = As[ix]
+        startNode = Ss[ix]
+        probMatrix = probMatrix_list[ix]
+        # build a plot,
+        dfs.append(graph1(A=A, s=startNode, pred=probMatrix, num_solutions_extracted=numSolsExtracting))
+    return dfs
+
 def plot1(df):
     plt.plot(df.index, df.unique_beam, 'o')
     plt.show()
@@ -34,26 +48,33 @@ def plotty(df):
     # make df cum sum of num unique
     df['total_unique_seen'] = df['unique_beam'].cumsum()
     # plot
-    plt.plot(df.index+1, df.total_unique_seen, 'o')
+    plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
     plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
     plt.show()
     return df
 
-def graph1(A, s, pred, num_sample_intervals):
+def scheming(df):
+    # make df cum sum of num unique
+    df['total_unique_seen'] = df['unique_beam'].cumsum()
+    # plot
+    plt.figure()
+    plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
+    plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    return plt.gca()
+
+def graph1(A, s, pred, num_solutions_extracted):
     '''
 
     Args:
         A: an adjacency matrix
         s: starting node index (e.g. 5)
         pred: a predecessor array encoding a distribution of solutions (e.g. typical output of NN: [[],[],[]])
-        num_sample_intervals: a list of places where you want uniqueness evaluated (e.g. [5,25,100]
+        num_solutions_extracted: a list of places where you want uniqueness evaluated (e.g. [5,25,100]
 
     Returns:
         df: pandas dataframe carrying info needed for plot
 
     '''
-    pointer_in_intervals = 0
-    interval = num_sample_intervals[pointer_in_intervals]
     num_samples_drawn = 0
     #
     beam_frequency_dict = dict()
@@ -74,7 +95,7 @@ def graph1(A, s, pred, num_sample_intervals):
     times_found_greedy = []
     times_found_beam = []
 
-    while num_samples_drawn < interval:
+    while num_samples_drawn < num_solutions_extracted:
         # take a sample, see if it's unique.
         tree1 = BF_beamsearch(A, s, pred)
         tree2 = BF_greedysearch(A, s, pred)
@@ -119,10 +140,11 @@ def graph1(A, s, pred, num_sample_intervals):
             {'beam_sols': beam_trees_col, 'unique_beam':unique_beam, 'valid_beam':valid_beam,
              'investment_bankers': greedy_trees_col, 'unique_greedy': unique_greedy, 'valid_greedy': valid_greedy}
     )
+    df['total_unique_seen'] = df['unique_beam'].cumsum()
 
     #df.to_csv('../../results/figure_fodder')
     #breakpoint()
-    plotty(df)
+    #plotty(df)
 
     return df
 
@@ -156,6 +178,9 @@ if __name__ == '__main__':
         [0.4, 0.5, 0.1]
     ])
 
-    test_intervals = [5]
+    test_intervals = 50
 
-    graph1(A=test_A, s=test_s, pred=test_pred, num_sample_intervals=test_intervals)
+    df = graph1(A=test_A, s=test_s, pred=test_pred, num_solutions_extracted=test_intervals)
+    plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
+    plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.show()

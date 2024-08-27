@@ -12,6 +12,8 @@ from clrs._src.algorithms.BF_beamsearch import sample_beamsearch, sample_greedys
 from clrs._src.bf_uniqueness_check import check_uniqueness_bf
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
+from clrs._src.validate_distributions import validate_distributions
+
 ###############################################################
 # Methods needed, copy-pasted from run.py :(
 ###############################################################
@@ -29,9 +31,8 @@ def unpack(v):
 # BF pipeline
 ###############################################################
 
-def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy'):
+def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy', vd_flag=False):
     """Collect batches of output and hint preds and evaluate them."""
-    
     processed_samples = 0
     preds = []
     outputs = []
@@ -54,7 +55,12 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     # breakpoint()
     preds = _concat(preds, axis=0)
     out = clrs.evaluate(outputs, preds)
+
     #breakpoint()
+    if vd_flag:
+        print('log_exp.py, vd_flag working')
+        dfs = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100)    # note wrapping preds in list for extract_probmatrices to work
+        breakpoint()
 
     ########
     # RANDOM #
