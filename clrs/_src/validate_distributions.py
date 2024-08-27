@@ -7,7 +7,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-print('YIKES 2, works on dummy test but not hooked to main code')
+print('graph1 hooks to BF_collect_and_eval in log_experiments.py')
+print('graph2 works on dummy example')
+
+# TODO: make graph2 split by unique/valid trees
 
 
 #------------------------------------------
@@ -150,13 +153,99 @@ def graph1(A, s, pred, num_solutions_extracted):
 
 
 
-
-
 #------------------------------------------
 # GRAPH EDGE REUSE BY NUM SAMPLES
 # - test similarity among solutions
 #------------------------------------------
 
+def postprocess_graph2(matrix_list):
+    '''make ready for plot'''
+    # this is all for a single graph, where each matrix represents a subset of edges... perhaps in graph... extracted from parent tree
+    # at each interval, sum adjacency matrices, calculate frequency, report score
+    n_samples_list = []
+    median_list = []
+    mean_list = []
+    for ix in range(len(matrix_list)):
+        n_samples_list.append(ix+1)
+
+        # sum first how-many np.arrays
+        summing_list = matrix_list[:ix]
+        sum_matrix = np.sum(summing_list, axis=0)
+        frac_matrix = sum_matrix/(ix+1)
+
+        # compute summary stats
+        median = np.median(frac_matrix)
+        mean = np.mean(frac_matrix)
+
+        # save them
+        median_list.append(median)
+        mean_list.append(mean)
+
+    df = pd.DataFrame.from_dict(
+        {'n_samples': n_samples_list, 'medians': median_list, 'means': mean_list}
+        )
+
+    return df
+
+def plot_graph2(df):
+    plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
+    plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.show()
+
+def graph2(A, s, pred, num_solutions_extracted):
+    '''
+    plot edge reuse by num samples...
+
+    Args:
+        A:
+        s:
+        pred:
+        num_solutions_extracted:
+
+    Returns:
+        matrices: list of matrices with edges used in parent trees
+
+    '''
+    # gather many solutions
+    sol_counter = 0
+    matrices = []
+
+    while sol_counter < num_solutions_extracted:
+        sol_counter += 1
+        greedy_tree = BF_greedysearch(A, s, pred)
+
+        # convert tree to adjacency matrix
+        greedy_matrix = parent_tree_to_adj_matrix(greedy_tree)
+
+        # save tree adj matrix
+        matrices.append(greedy_matrix)
+
+    return matrices
+
+def parent_tree_to_adj_matrix(tree):
+    size = len(tree)    # n_vertices
+    M = np.zeros((size, size))
+    for ix in range(size):
+        M[int(tree[ix]), ix] = 1     # edge points tree[ix] to ix, bcuz parent tree
+    return M
+
+
+
+
+def graph3(A, s, pred, num_solutions_extracted):
+    '''
+    do it by edit distance
+
+    Args:
+        A:
+        s:
+        pred:
+        num_solutions_extracted:
+
+    Returns:
+
+    '''
+    raise NotImplementedError
 
 # solutions, ORIGINAL GRAPH (adj matrix).
 
@@ -181,6 +270,10 @@ if __name__ == '__main__':
     test_intervals = 50
 
     df = graph1(A=test_A, s=test_s, pred=test_pred, num_solutions_extracted=test_intervals)
-    plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
-    plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.show()
+    #plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
+    #plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    #plt.show()
+    ms = graph2(A=test_A, s=test_s, pred=test_pred, num_solutions_extracted=test_intervals)
+    df = postprocess_graph2(ms)
+
+    plot_graph2(df)
