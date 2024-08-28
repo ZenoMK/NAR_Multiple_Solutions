@@ -88,7 +88,7 @@ def descendants_children(G, children):
             if nx.has_path(G, child, i):
                 descs.append(i)
         descendant_dict[child] = descs
-    return descs
+    return descendant_dict
 
 def check_valid_dfsTree(np_input_array, pi):
     '''checks: acyclic, dangling, edge-validity, and valid-start'''
