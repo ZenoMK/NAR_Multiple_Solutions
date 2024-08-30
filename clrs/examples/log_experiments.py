@@ -12,7 +12,8 @@ from clrs._src.algorithms.BF_beamsearch import sample_beamsearch, sample_greedys
 from clrs._src.bf_uniqueness_check import check_uniqueness_bf
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
-from clrs._src.validate_distributions import validate_distributions
+from clrs._src.validate_distributions import (validate_distributions, postprocess_edge_reuse_matrix_list,make_edge_reuse_matrix_list,
+                                              plot_edge_reuse_matrix_list, plot_n_unique_by_n_extracted, make_n_unique_by_n_extracted_df)
 
 ###############################################################
 # Methods needed, copy-pasted from run.py :(
@@ -31,7 +32,7 @@ def unpack(v):
 # BF pipeline
 ###############################################################
 
-def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy', vd_flag=False):
+def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy', vd_flag=True):
     """Collect batches of output and hint preds and evaluate them."""
     processed_samples = 0
     preds = []
@@ -59,9 +60,14 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     #breakpoint()
     if vd_flag:
         print('log_exp.py, vd_flag working')
-        dataframes = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100,
+        dataframes,_,_ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100,
                                             flag='BF')    # note wrapping preds in list for extract_probmatrices to work
-        breakpoint()
+        plot_n_unique_by_n_extracted(dataframes, len(As[0]))
+        matrix_list = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100,
+                                            flag="dummy", edge_reuse_BF=True)
+        df = postprocess_edge_reuse_matrix_list(matrix_list)
+        plot_edge_reuse_matrix_list(df, len(As[0]))
+        #breakpoint()
 
     ########
     # RANDOM #

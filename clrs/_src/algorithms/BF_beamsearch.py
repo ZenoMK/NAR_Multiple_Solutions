@@ -194,8 +194,6 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
 
             if best_path_stemming_from_s is not None:
                 pi[t] = best_path_stemming_from_s[1] # node before i on best_path_found
-            else:
-                print('BF_beamsearch.py, no good path', s, '->', t)
                 #breakpoint() #oops! no good path
     #except:
     #    print('other error')
