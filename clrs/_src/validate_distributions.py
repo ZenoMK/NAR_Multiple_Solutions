@@ -1,4 +1,5 @@
 from clrs._src.algorithms.BF_beamsearch import BF_beamsearch, BF_greedysearch
+from clrs._src.dfs_sampling import get_parent_tree_upwards, single_sample_upwards
 
 from clrs._src.algorithms.check_graphs import check_valid_BFpaths, check_valid_dfsTree
 from clrs._src.dfs_sampling import extract_probMatrices
@@ -8,9 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 print('graph1 hooks to BF_collect_and_eval in log_experiments.py')
-print('graph2 works on dummy example')
+print('edge_reuse_matrix_list works on dummy example')
 
-# TODO: make graph2 split by unique/valid trees
+# TODO: make make_edge_reuse_matrix_list split by unique/valid trees
 
 
 #------------------------------------------
@@ -24,48 +25,145 @@ print('graph2 works on dummy example')
 # solution, beamOrGreedy?, valid?, unique?, how_many_times_found?, (maybe also adjacency matrix)
 
 
+def DFS_graph1_df(A, pred, num_solutions_extracted):
+    # columns for dataframe
+    upwards_trees = []
+    upwards_valid = []
+    upwards_unique = []
+
+    altUpwards_trees = []
+    altUpwards_valid = []
+    altUpwards_unique = []
+
+    # frequency dicts
+    upwards_dict = dict()
+    altUpwards_dict = dict()
+
+    # core routine
+    num_sampled = 0
+    while num_sampled < num_solutions_extracted:
+        num_sampled += 1
+        # extract new trees
+        up_tree = single_sample_upwards(pred)
+        alt_tree = get_parent_tree_upwards(pred)
+        # save them for later dataframe
+        upwards_trees.append(up_tree)
+        altUpwards_trees.append(alt_tree)
+
+        # valid?
+        upwards_valid.append(check_valid_dfsTree(A, up_tree))
+        altUpwards_valid.append(check_valid_dfsTree(A, alt_tree))
+
+        # unique?
+        hash_up = hash(tuple(up_tree))
+        upwards_unique.append(hash_up not in upwards_dict.keys())
+        hash_alt = hash(tuple(alt_tree))
+        altUpwards_unique.append(hash_alt not in altUpwards_dict.keys())
+
+        # update freq dict
+        if hash_up not in upwards_dict.keys():
+            upwards_dict[hash_up] = 1
+        else:
+            upwards_dict[hash_up] += 1
+
+        if hash_alt not in altUpwards_dict.keys():
+            altUpwards_dict[hash_alt] = 1
+        else:
+            altUpwards_dict[hash_alt] += 1
+
+    df = pd.DataFrame.from_dict(
+            {'up_trees': upwards_trees, 'unique_up': upwards_unique, 'valid_up': upwards_valid,
+             'alt_trees': altUpwards_trees, 'unique_alt': altUpwards_unique, 'valid_alt': altUpwards_valid}
+    )
+    df['total_unique_seen'] = df['unique_alt'].cumsum()
+    df['total_valid_seen'] = df['valid_alt'].cumsum()
+    df['unique_and_valid'] = (df['unique_alt'] & df['valid_alt']).cumsum()
+    print('validate...only doing alt')
+
+    return df, A, pred
+
+def average_dataframes(df_list):
+    breakpoint()
+    combined_df = pd.concat(df_list)
+    # u & v
+    mean_unique_and_valid = combined_df['unique_and_valid'].groupby(combined_df.index).mean()
+    median_unique_and_valid = combined_df['unique_and_valid'].groupby(combined_df.index).mean()
+    max_uv = combined_df['unique_and_valid'].groupby(combined_df.index).max()
+    min_uv = combined_df['unique_and_valid'].groupby(combined_df.index).min()
+    # just unique
+    mean_unique = combined_df['total_unique_seen'].groupby(combined_df.index).mean()
+    median_unique = combined_df['total_unique_seen'].groupby(combined_df.index).mean()
+    max_u = combined_df['total_unique_seen'].groupby(combined_df.index).max()
+    min_u = combined_df['total_unique_seen'].groupby(combined_df.index).min()
+    # just valid
+    mean_valid = combined_df['total_valid_seen'].groupby(combined_df.index).mean()
+    median_valid = combined_df['total_valid_seen'].groupby(combined_df.index).mean()
+    max_v = combined_df['total_valid_seen'].groupby(combined_df.index).max()
+    min_v = combined_df['total_valid_seen'].groupby(combined_df.index).min()
+    # summarize
+
+    df = pd.DataFrame.from_dict({'mean_unique_and_valid': mean_unique_and_valid,
+                                 'median_unique_and_valid': median_unique_and_valid,
+                                 'max_uv': max_uv,
+                                 'min_uv': min_uv,
+                                 'mean_unique': mean_unique,
+                                 'median_unique': median_unique,
+                                 'max_u': max_u,
+                                 'min_u': min_u,
+                                 'mean_valid': mean_valid,
+                                 'median_valid': median_valid,
+                                 'max_v': max_v,
+                                 'min_v': min_v
+                                 })
+    df['samples_seen'] = df.index+1
+    return df
+
+
+def DFS_plot(df):
+    plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
+    plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title('num_unique by num_sampled')
+    plt.xlabel('num_sampled')
+    plt.ylabel('num_unique')
+    plt.show()
+
+
 #------------------------------------------
 # GRAPH NUM UNIQUE by NUM SAMPLES
 # - test num solutions in distribution
 #------------------------------------------
 
-def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting):
-    breakpoint()
+def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag):
+    #breakpoint()
     probMatrix_list = extract_probMatrices(outsOrPreds)
-    dfs = []
+    dataframes = []
+    pMs = []
     for ix in range(len(probMatrix_list)):
         #breakpoint()
         A = As[ix]
         startNode = Ss[ix]
         probMatrix = probMatrix_list[ix]
         # build a plot,
-        dfs.append(graph1(A=A, s=startNode, pred=probMatrix, num_solutions_extracted=numSolsExtracting))
-    return dfs
+        if flag=='BF':
+            dataframes.append(make_n_unique_by_n_extracted_df(A=A, s=startNode, pred=probMatrix, num_solutions_extracted=numSolsExtracting))
+        elif flag=='DFS':
+            df, A, pM = DFS_graph1_df(A=A, pred=probMatrix, num_solutions_extracted=numSolsExtracting)
+            dataframes.append(df)
+            pMs.append(pM)
+        else:
+            raise ValueError('no flag given to validate_distributions')
+    return dataframes, As, pMs
 
-def plot1(df):
-    plt.plot(df.index, df.unique_beam, 'o')
-    plt.show()
-    return df
-
-def plotty(df):
-    # make df cum sum of num unique
-    df['total_unique_seen'] = df['unique_beam'].cumsum()
-    # plot
+def plot_n_unique_by_n_extracted(df):
+    '''df produced by make_n_unique_by_n_extracted_df'''
     plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
     plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title('num_unique by num_sampled')
+    plt.xlabel('num_sampled')
+    plt.ylabel('num_unique')
     plt.show()
-    return df
 
-def scheming(df):
-    # make df cum sum of num unique
-    df['total_unique_seen'] = df['unique_beam'].cumsum()
-    # plot
-    plt.figure()
-    plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
-    plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    return plt.gca()
-
-def graph1(A, s, pred, num_solutions_extracted):
+def make_n_unique_by_n_extracted_df(A, s, pred, num_solutions_extracted):
     '''
 
     Args:
@@ -144,12 +242,18 @@ def graph1(A, s, pred, num_solutions_extracted):
              'investment_bankers': greedy_trees_col, 'unique_greedy': unique_greedy, 'valid_greedy': valid_greedy}
     )
     df['total_unique_seen'] = df['unique_beam'].cumsum()
-
-    #df.to_csv('../../results/figure_fodder')
-    #breakpoint()
-    #plotty(df)
+    print('only tracking unique seen by beam')  #FIXME
 
     return df
+
+
+
+
+
+
+
+
+
 
 
 
@@ -158,7 +262,7 @@ def graph1(A, s, pred, num_solutions_extracted):
 # - test similarity among solutions
 #------------------------------------------
 
-def postprocess_graph2(matrix_list):
+def postprocess_edge_reuse_matrix_list(matrix_list):
     '''make ready for plot'''
     # this is all for a single graph, where each matrix represents a subset of edges... perhaps in graph... extracted from parent tree
     # at each interval, sum adjacency matrices, calculate frequency, report score
@@ -187,12 +291,15 @@ def postprocess_graph2(matrix_list):
 
     return df
 
-def plot_graph2(df):
+def plot_edge_reuse_matrix_list(df):
     plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
     plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title('median edge reuse by num sampled')
+    plt.ylabel('median edge reuse')
+    plt.xlabel('num sampled')
     plt.show()
 
-def graph2(A, s, pred, num_solutions_extracted):
+def make_edge_reuse_matrix_list(A, s, pred, num_solutions_extracted):
     '''
     plot edge reuse by num samples...
 
@@ -229,12 +336,9 @@ def parent_tree_to_adj_matrix(tree):
         M[int(tree[ix]), ix] = 1     # edge points tree[ix] to ix, bcuz parent tree
     return M
 
-
-
-
 def graph3(A, s, pred, num_solutions_extracted):
     '''
-    do it by edit distance
+    TODO: do it by edit distance
 
     Args:
         A:
@@ -247,10 +351,11 @@ def graph3(A, s, pred, num_solutions_extracted):
     '''
     raise NotImplementedError
 
-# solutions, ORIGINAL GRAPH (adj matrix).
+
 
 
 if __name__ == '__main__':
+
     print('testing _src/validate_distributions.py')
 
     test_A = np.array([
@@ -269,11 +374,19 @@ if __name__ == '__main__':
 
     test_intervals = 50
 
-    df = graph1(A=test_A, s=test_s, pred=test_pred, num_solutions_extracted=test_intervals)
-    #plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
-    #plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    #plt.show()
-    ms = graph2(A=test_A, s=test_s, pred=test_pred, num_solutions_extracted=test_intervals)
-    df = postprocess_graph2(ms)
+    '''
+    df1 = make_n_unique_by_n_extracted_df(A=test_A, s=test_s, pred=test_pred, num_solutions_extracted=test_intervals)
+    plot_n_unique_by_n_extracted(df1)
 
-    plot_graph2(df)
+    ms = make_edge_reuse_matrix_list(A=test_A, s=test_s, pred=test_pred, num_solutions_extracted=test_intervals)
+    df = postprocess_edge_reuse_matrix_list(ms)
+    plot_edge_reuse_matrix_list(df)
+    '''
+    df_list = []
+    for i in range(100):
+        df, A, pM = DFS_graph1_df(A=test_A, pred=test_pred, num_solutions_extracted=test_intervals)
+        df_list.append(df)
+    df = average_dataframes(df_list)
+
+
+    plt.plot(df.samples_seen, df.median_unique, marker='o', linestyle='-')

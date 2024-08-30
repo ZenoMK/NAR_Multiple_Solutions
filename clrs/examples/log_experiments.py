@@ -59,7 +59,8 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     #breakpoint()
     if vd_flag:
         print('log_exp.py, vd_flag working')
-        dfs = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100)    # note wrapping preds in list for extract_probmatrices to work
+        dataframes = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100,
+                                            flag='BF')    # note wrapping preds in list for extract_probmatrices to work
         breakpoint()
 
     ########
@@ -204,7 +205,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
 # DFS
 ###############################################################
 
-def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename = 'dfs_accuracy'):
+def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename = 'dfs_accuracy', vd_flag=False):
     """Collect batch of output preds and evaluate them."""
     processed_samples = 0
     preds = []
@@ -222,6 +223,12 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     outputs = _concat(outputs, axis=0)
     As = _concat(As, axis=0) # concatenate batches
     #breakpoint()
+
+    if vd_flag:
+        print('log_exp.py, vd_flag working')
+        dataframes, As, pMs = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds,
+                                            numSolsExtracting=100, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
+        breakpoint()
 
     ### We need preds and A. We want to
     # 1. Sample from preds a candidate tree

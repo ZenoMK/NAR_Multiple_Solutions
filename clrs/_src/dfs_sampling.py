@@ -62,6 +62,43 @@ def sample_random_list(outsOrPreds):
 # -------------------------------------------------------------------------------------
 # SAMPLE UPWARDS
 # -------------------------------------------------------------------------------------
+def single_sample_upwards(probMatrix):
+    '''copy-pasted brain from def sample_upwards'''
+    probMatrix = np.array(probMatrix)  # deepcopy to numpy so mutable
+
+    # sort by leafiness
+    leafiness = np.asarray(leafinessSort(probMatrix))  # shallowcopy jax array to numpy array so no problems indexing
+
+    # grab most leafy, find its parent, continue till already-discovered (self-parent or prev. iter).
+    pi = np.full(len(probMatrix), np.inf)
+    while sum(leafiness) > -len(leafiness):
+        altered_ProbMatrix = rowWiseProb(probMatrix)
+        leaf = leafiness[leafiness != -1][0]
+        # sample the leafs parent
+        parent = chooseUniformly(altered_ProbMatrix[leaf])
+        pi[leaf] = parent  # FIXME sometimes index error
+        leafiness[leaf] = -1
+        leafiness[parent] = -1
+        altered_ProbMatrix[:,leaf] = 0  # set leaf's column to 0: leaf should be nobody's parent, unless there's a restart, to avoid cycles... BREAKS
+
+        # sample up the tree until parent is the start node, a self-loop or already has a parent
+        while pi[parent] == np.inf:
+            # sample up the tree
+            leaf = parent
+            parent = chooseUniformly(altered_ProbMatrix[leaf])
+            pi[leaf] = parent
+            # remove parent as potential
+            leafiness[leaf] = -1
+            leafiness[parent] = -1
+            altered_ProbMatrix[:,leaf] = 0  # set leaf's column to 0: leaf should be nobody's parent, unless there's a restart, to avoid cycles
+
+    if sum(np.isin(pi, np.inf)) > 0:
+        raise ValueError("Leaf with no parent")
+
+    return pi
+
+
+
 def sample_upwards(outsOrPreds):
     '''
 
