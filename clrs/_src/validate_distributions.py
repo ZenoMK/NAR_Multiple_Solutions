@@ -150,7 +150,7 @@ def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag, edge_re
         # build a plot,
         if flag=='BF':
             dataframes.append(make_n_unique_by_n_extracted_df(A=A, s=startNode, pred=probMatrix, num_solutions_extracted=numSolsExtracting))
-        if edge_reuse_BF:
+        elif edge_reuse_BF:
             dataframes.append(make_edge_reuse_matrix_list(A, startNode, probMatrix,numSolsExtracting))
         elif flag=='DFS':
             df, A, pM = DFS_graph1_df(A=A, pred=probMatrix, num_solutions_extracted=numSolsExtracting)
@@ -182,8 +182,8 @@ def plot_n_unique_by_n_extracted(df, graphsize):
     plt.fill_between([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean - total_uv_seen_greedy_std,
                      total_uv_seen_greedy_mean + total_uv_seen_greedy_std, color="red", alpha=0.15)
     #plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
-    plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='x', linestyle='-',
-             color="red", label="Greedy")
+    plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_bf_mean, marker='v', linestyle='-',
+             color="green", label="Bellman-Ford")
     plt.fill_between([i for i in range(len(total_uv_seen_bf_mean))],
                      total_uv_seen_bf_mean - total_uv_seen_bf_std,
                      total_uv_seen_bf_mean + total_uv_seen_bf_std, color="red", alpha=0.15)
@@ -309,30 +309,38 @@ def make_n_unique_by_n_extracted_df(A, s, pred, num_solutions_extracted):
 # - test similarity among solutions
 #------------------------------------------
 
-def postprocess_edge_reuse_matrix_list(matrix_list):
+def postprocess_edge_reuse_matrix_list(matrix_lists):
     '''make ready for plot'''
     # this is all for a single graph, where each matrix represents a subset of edges... perhaps in graph... extracted from parent tree
     # at each interval, sum adjacency matrices, calculate frequency, report score
-    n_samples_list = []
-    median_list = []
-    mean_list = []
-    for ix in range(len(matrix_list)):
-        n_samples_list.append(ix+1)
 
-        # sum first how-many np.arrays
-        summing_list = matrix_list[:ix+1]
-        sum_matrix = np.sum(summing_list, axis=0)
-        frac_matrix = sum_matrix/(ix+1)
-        # compute summary stats
-        median = np.median(frac_matrix)
-        mean = np.mean(frac_matrix)
+    #n_samples_list = []
+    medians = []
+    means = []
+    for matrix_list in matrix_lists:
+        median_list = []
+        mean_list = []
+        for ix in range(len(matrix_list)):
+            #n_samples_list.append(ix+1)
 
-        # save them
-        median_list.append(median)
-        mean_list.append(mean)
+            # sum first how-many np.arrays
+            summing_list = matrix_list[:ix+1]
+            sum_matrix = np.sum(summing_list, axis=0)
+            frac_matrix = sum_matrix/(ix+1)
+            # compute summary stats
+            median = np.median(frac_matrix)
+            mean = np.mean(frac_matrix)
+
+            # save them
+            median_list.append(median)
+            mean_list.append(mean)
+        medians.append(median_list)
+        means.append(mean_list)
 
     df = pd.DataFrame.from_dict(
-        {'n_samples': n_samples_list, 'medians': median_list, 'means': mean_list}
+        {'greedy_medians': medians[0], 'greedy_means': means[0],
+         'beam_medians': medians[1], 'beam_means': means[1],
+         'bf_medians': medians[2], 'bf_means': means[2]}
         )
 
     return df
@@ -363,19 +371,27 @@ def make_edge_reuse_matrix_list(A, s, pred, num_solutions_extracted):
     '''
     # gather many solutions
     sol_counter = 0
-    matrices = []
+    greedy_matrices = []
+    beam_matrices = []
+    bf_matrices = []
 
     while sol_counter < num_solutions_extracted:
         sol_counter += 1
         greedy_tree = BF_greedysearch(A, s, pred)
+        beam_tree = BF_beamsearch(A, s, pred)
+        bf_tree = bellman_ford(A,s,deterministic=True)
 
         # convert tree to adjacency matrix
         greedy_matrix = parent_tree_to_adj_matrix(greedy_tree)
+        beam_matrix = parent_tree_to_adj_matrix(beam_tree)
+        bf_matrix = parent_tree_to_adj_matrix(bf_tree)
 
         # save tree adj matrix
-        matrices.append(greedy_matrix)
+        greedy_matrices.append(greedy_matrix)
+        beam_matrices.append(beam_matrix)
+        bf_matrices.append(bf_matrix)
 
-    return matrices
+    return [greedy_matrices, beam_matrices, bf_matrices]
 
 def parent_tree_to_adj_matrix(tree):
     size = len(tree)    # n_vertices
