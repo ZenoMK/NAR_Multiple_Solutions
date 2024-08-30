@@ -32,6 +32,63 @@ edge_to_zero_adj = np.array([
 ])
 edge_to_zero_pi = [0,1]
 
+def check_valid_dfsTree_new(A, pi):
+    '''checks: acyclic, dangling, edge-validity, and valid-start'''
+    '''
+        inputs: Adjacency Matrix (A), purported parent forest (pi)
+        returns: True iff (pi) is producible by run of DFS with random edge exploration but ordered restarts
+    '''
+    pi = copy.deepcopy(pi) # copy pi. make sure don't mess with logging
+
+    # build adjacency matrix of DFS forest
+    size = len(pi)  # n_vertices
+    M = np.zeros((size, size))
+    for ix in range(size):
+        M[int(pi[ix]), ix] = 1
+
+    G = nx.from_numpy_array(A, create_using=nx.DiGraph)
+    F = nx.from_numpy_array(M, create_using=nx.DiGraph)
+
+    # for each child of node 0 in G, identify all descendants (vertices reachable from child)
+    # find the children
+
+    children = []
+    for i in range(size):
+        if M[0, i] == 1:
+            children.append(i)
+
+    descendants_children_G = descendants_children(G, children)
+    descendants_children_F = descendants_children(F, children)
+
+    while G.number_of_nodes != 0:
+        changed = False
+        for child in children:
+            if descendants_children_G[child] == descendants_children_F[child]:
+                changed = True
+                for desc in descendants_children_G[child]:
+                    G.remove_node(desc)
+                    F.remove_node(desc)
+                children.remove(child)
+                descendants_children_G = descendants_children(G, children)
+                descendants_children_F = descendants_children(F, children)
+        if not changed:
+            return False
+    return True
+
+def descendants_children(G, children):
+    '''
+    Method to return the descendants of a list of vertices in a nx.DiGraph as a dictionary.
+    '''
+    size = G.number_of_nodes()
+
+    descendant_dict = {}
+    for child in children:
+        descs = []
+        for i in range(size):
+            if nx.has_path(G, child, i):
+                descs.append(i)
+        descendant_dict[child] = descs
+    return descendant_dict
 
 def check_valid_dfsTree(np_input_array, pi):
     '''checks: acyclic, dangling, edge-validity, and valid-start'''
