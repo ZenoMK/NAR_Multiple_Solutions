@@ -13,7 +13,7 @@ from clrs._src.bf_uniqueness_check import check_uniqueness_bf
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
 from clrs._src.validate_distributions import (validate_distributions, postprocess_edge_reuse_matrix_list,make_edge_reuse_matrix_list,
-                                              plot_edge_reuse_matrix_list, plot_n_unique_by_n_extracted, make_n_unique_by_n_extracted_df)
+                                              plot_edge_reuse_matrix_list_mean, plot_n_unique_by_n_extracted, make_n_unique_by_n_extracted_df)
 
 ###############################################################
 # Methods needed, copy-pasted from run.py :(
@@ -65,7 +65,8 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
         matrix_lists = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100,
                                             flag="dummy", edge_reuse_BF=True)
         df = postprocess_edge_reuse_matrix_list(matrix_lists)
-        plot_edge_reuse_matrix_list(df, len(As[0]))
+        #plot_edge_reuse_matrix_list_median(df, len(As[0]))
+        plot_edge_reuse_matrix_list_mean(df, len(As[0]))
         #breakpoint()
 
     ########

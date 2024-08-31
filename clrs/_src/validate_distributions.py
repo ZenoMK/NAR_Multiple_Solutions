@@ -345,15 +345,44 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
 
     return df
 
-def plot_edge_reuse_matrix_list(df, graphsize):
+def plot_edge_reuse_matrix_list_mean(df, graphsize):
     with plt.style.context(spstyle.get_style('nature-reviews')):
         fig, ax = plt.subplots(ncols=1, sharey=True)
+    df = pd.concat(df)
+    # u & v
+    mean_edge_reuse_beam_mean = df['beam_means'].groupby(df.index).mean()
+    mean_edge_reuse_beam_std = df['beam_means'].groupby(df.index).std()
+
+    mean_edge_reuse_greedy_mean = df['greedy_means'].groupby(df.index).mean()
+    mean_edge_reuse_greedy_std = df['greedy_means'].groupby(df.index).std()
+
+    mean_edge_reuse_bf_mean = df['bf_means'].groupby(df.index).mean()
+    mean_edge_reuse_bf_std = df['bf_means'].groupby(df.index).std()
+
+    plt.plot([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_beam_mean, marker='o', linestyle='-',
+             color="blue", label="Beamsearch")
+    plt.fill_between([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_beam_mean - mean_edge_reuse_beam_std,
+                     mean_edge_reuse_beam_mean + mean_edge_reuse_beam_std, color="blue", alpha=0.15)
+
+    plt.plot([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_greedy_mean, marker='x', linestyle='-',
+             color="red", label="Greedy")
+    plt.fill_between([i for i in range(len(mean_edge_reuse_beam_mean))],
+                     mean_edge_reuse_greedy_mean - mean_edge_reuse_greedy_std,
+                     mean_edge_reuse_greedy_mean + mean_edge_reuse_greedy_std, color="red", alpha=0.15)
+    # plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.plot([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_bf_mean, marker='v', linestyle='-',
+             color="green", label="Bellman-Ford")
+    plt.fill_between([i for i in range(len(mean_edge_reuse_beam_mean))],
+                     mean_edge_reuse_bf_mean - mean_edge_reuse_bf_std,
+                     mean_edge_reuse_bf_mean + mean_edge_reuse_bf_std, color="red", alpha=0.15)
+    plt.legend(loc="upper left")
     plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
     plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title('median edge reuse by num sampled')
-    plt.ylabel('median edge reuse')
-    plt.xlabel('num sampled')
-    plt.savefig("edge_reuse_"+str(graphsize)+".png")
+    plt.title('Mean average edge reuse by num sampled')
+    plt.ylabel('Mean average edge reuse')
+    plt.xlabel('Samples')
+    plt.savefig("edge_reuse_mean_"+str(graphsize)+".png")
+    plt.close()
 
 def make_edge_reuse_matrix_list(A, s, pred, num_solutions_extracted):
     '''
