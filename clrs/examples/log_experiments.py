@@ -12,8 +12,10 @@ from clrs._src.algorithms.BF_beamsearch import sample_beamsearch, sample_greedys
 from clrs._src.bf_uniqueness_check import check_uniqueness_bf
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
-from clrs._src.validate_distributions import (validate_distributions, postprocess_edge_reuse_matrix_list,make_edge_reuse_matrix_list,
-                                              plot_edge_reuse_matrix_list_mean, plot_n_unique_by_n_extracted, make_n_unique_by_n_extracted_df)
+from clrs._src.validate_distributions import (validate_distributions, postprocess_edge_reuse_matrix_list,
+                                              make_edge_reuse_matrix_list, plot_edge_reuse_matrix_list_mean,
+                                              plot_n_unique_by_n_extracted, make_n_unique_by_n_extracted_df,
+                                              line_plot)
 
 ###############################################################
 # Methods needed, copy-pasted from run.py :(
@@ -68,6 +70,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
         #plot_edge_reuse_matrix_list_median(df, len(As[0]))
         #breakpoint()
         plot_edge_reuse_matrix_list_mean(df, len(As[0]))
+        line_plot(df, len(As[0]))
         #breakpoint()
 
     ########
@@ -234,7 +237,7 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     if vd_flag:
         print('log_exp.py, vd_flag working')
         dataframes, As, pMs = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds,
-                                            numSolsExtracting=100, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
+                                            numSolsExtracting=5, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
         breakpoint()
 
     ### We need preds and A. We want to

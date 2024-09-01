@@ -16,17 +16,64 @@ print('edge_reuse_matrix_list works on dummy example')
 # TODO: make make_edge_reuse_matrix_list split by unique/valid trees
 
 
-#------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# HELPERS
+# ----------------------------------------------------------------------------------------------------------------------
+def parent_tree_to_adj_matrix(tree):
+    size = len(tree)    # n_vertices
+    M = np.zeros((size, size))
+    for ix in range(size):
+        M[int(tree[ix]), ix] = 1     # edge points tree[ix] to ix, bcuz parent tree
+    return M
+
+def adj_matrix_to_parent_tree(A):
+    size = len(A)
+    tree = np.zeros(size)
+    for i in range(size):
+        for j in range(size):
+            if A[i,j] == 1:
+                tree[j] = i
+    return tree
+
+# ----------------------------------------------------------------------------------------------------------------------
 # DO THE THING WITH LINE GRAPHS
 # GIVEN, a distribution "preds", and an adjacency matrix
 # 1. run sampling algorithms increasingly many times on preds
 # 2. count how many valid unique solutions
 # 3. count how many invalid unique solutions
-#------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 # solution, beamOrGreedy?, valid?, unique?, how_many_times_found?, (maybe also adjacency matrix)
-
-
+# ----------------------------------------------------------------------------------------------------------------------
+# MAIN FUNCTION... validate_distributions, calls BF or DFS depending on value of `flag`.
+# ----------------------------------------------------------------------------------------------------------------------
+def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag, edge_reuse_BF= False):
+    #breakpoint()
+    probMatrix_list = extract_probMatrices(outsOrPreds)
+    dataframes = []
+    pMs = []
+    for ix in range(len(probMatrix_list)):
+        #breakpoint()
+        A = As[ix]
+        startNode = Ss[ix]
+        probMatrix = probMatrix_list[ix]
+        # build a plot,
+        if flag=='BF':
+            dataframes.append(make_n_unique_by_n_extracted_df(A=A, s=startNode, pred=probMatrix, num_solutions_extracted=numSolsExtracting))
+        elif edge_reuse_BF:
+            matrix_lists = make_edge_reuse_matrix_list(A, startNode, probMatrix,numSolsExtracting)
+            df = postprocess_edge_reuse_matrix_list(matrix_lists)
+            dataframes.append(df)
+        elif flag=='DFS':
+            df, A, pM = DFS_graph1_df(A=A, pred=probMatrix, num_solutions_extracted=numSolsExtracting)
+            dataframes.append(df)
+            pMs.append(pM)
+        else:
+            raise ValueError('no flag given to validate_distributions')
+    return dataframes, As, pMs
+# ----------------------------------------------------------------------------------------------------------------------
+# DFS
+# ----------------------------------------------------------------------------------------------------------------------
 def DFS_graph1_df(A, pred, num_solutions_extracted):
     # columns for dataframe
     upwards_trees = []
@@ -120,7 +167,6 @@ def average_dataframes(df_list):
     df['samples_seen'] = df.index+1
     return df
 
-
 def DFS_plot(df):
     with plt.style.context(spstyle.get_style('nature-reviews')):
         fig, ax = plt.subplots(ncols=1, sharey=True)
@@ -131,73 +177,16 @@ def DFS_plot(df):
     plt.ylabel('num_unique')
     plt.show()
 
-
-#------------------------------------------
-# GRAPH NUM UNIQUE by NUM SAMPLES
-# - test num solutions in distribution
-#------------------------------------------
-
-def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag, edge_reuse_BF= False):
-    #breakpoint()
-    probMatrix_list = extract_probMatrices(outsOrPreds)
-    dataframes = []
-    pMs = []
-    for ix in range(len(probMatrix_list)):
-        #breakpoint()
-        A = As[ix]
-        startNode = Ss[ix]
-        probMatrix = probMatrix_list[ix]
-        # build a plot,
-        if flag=='BF':
-            dataframes.append(make_n_unique_by_n_extracted_df(A=A, s=startNode, pred=probMatrix, num_solutions_extracted=numSolsExtracting))
-        elif edge_reuse_BF:
-            matrix_lists = make_edge_reuse_matrix_list(A, startNode, probMatrix,numSolsExtracting)
-            df = postprocess_edge_reuse_matrix_list(matrix_lists)
-            dataframes.append(df)
-        elif flag=='DFS':
-            df, A, pM = DFS_graph1_df(A=A, pred=probMatrix, num_solutions_extracted=numSolsExtracting)
-            dataframes.append(df)
-            pMs.append(pM)
-        else:
-            raise ValueError('no flag given to validate_distributions')
-    return dataframes, As, pMs
-
-def plot_n_unique_by_n_extracted(df, graphsize):
-    '''df produced by make_n_unique_by_n_extracted_df'''
-    with plt.style.context(spstyle.get_style('nature-reviews')):
-        fig, ax = plt.subplots(ncols=1, sharey=True)
-    df = pd.concat(df)
-    # u & v
-    total_uv_seen_beam_mean = df['total_uv_seen_beam'].groupby(df.index).mean()
-    total_uv_seen_beam_std = df['total_uv_seen_beam'].groupby(df.index).std()
-
-    total_uv_seen_greedy_mean = df['total_uv_seen_greedy'].groupby(df.index).mean()
-    total_uv_seen_greedy_std = df['total_uv_seen_greedy'].groupby(df.index).std()
-
-    total_uv_seen_bf_mean = df['total_unique_seen_bf'].groupby(df.index).mean()
-    total_uv_seen_bf_std = df['total_unique_seen_bf'].groupby(df.index).std()
-
-    plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_beam_mean, marker='o', linestyle='-', color = "blue", label = "Beamsearch")
-    plt.fill_between([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_beam_mean-total_uv_seen_beam_std, total_uv_seen_beam_mean+total_uv_seen_beam_std, color = "blue", alpha = 0.15)
-
-    plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='x', linestyle='-', color="red", label = "Greedy")
-    plt.fill_between([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean - total_uv_seen_greedy_std,
-                     total_uv_seen_greedy_mean + total_uv_seen_greedy_std, color="red", alpha=0.15)
-    #plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
-    plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_bf_mean, marker='v', linestyle='-',
-             color="green", label="Bellman-Ford")
-    plt.fill_between([i for i in range(len(total_uv_seen_bf_mean))],
-                     total_uv_seen_bf_mean - total_uv_seen_bf_std,
-                     total_uv_seen_bf_mean + total_uv_seen_bf_std, color="red", alpha=0.15)
-    plt.legend(loc = "upper left")
-    #plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title('Unique solutions vs sampled solutions')
-    plt.xlabel('Sampled solutions')
-    plt.ylabel('Unique and valid solutions')
-    plt.savefig(f"plot_unique_by_extracted_{graphsize}.png")
+#-----------------------------------------------------------------------------------------------------------------------
+# BF GRAPH NUM UNIQUE by NUM SAMPLES
+# - GOAL: find the num unique solutions extractable from distribution
+# - WORKFLOW: Use `make_n_unique_by_n_extracted_df` to build df, then `plot_n_unique_by_n_extracted` to plot
+#-----------------------------------------------------------------------------------------------------------------------
 
 def make_n_unique_by_n_extracted_df(A, s, pred, num_solutions_extracted):
-    '''
+    """
+    Makes DF with columns (e.g. 'total_uv_seen_beam'), indicating the number of unique and valid solutions seen,
+    when `df.index`-many solutions have been extracted.
 
     Args:
         A: an adjacency matrix
@@ -208,7 +197,7 @@ def make_n_unique_by_n_extracted_df(A, s, pred, num_solutions_extracted):
     Returns:
         df: pandas dataframe carrying info needed for plot
 
-    '''
+    """
     num_samples_drawn = 0
     #
     bf_frequency_dict = dict()
@@ -292,29 +281,101 @@ def make_n_unique_by_n_extracted_df(A, s, pred, num_solutions_extracted):
     df['total_unique_seen_bf'] = df['unique_bf'].cumsum()
     df.index += 1
 
-
     return df
 
 
+def plot_n_unique_by_n_extracted(df, graphsize):
+    """Plots a df produced by make_n_unique_by_n_extracted_df"""
+    with plt.style.context(spstyle.get_style('nature-reviews')):
+        fig, ax = plt.subplots(ncols=1, sharey=True)
+    df = pd.concat(df)
+    # u & v
+    total_uv_seen_beam_mean = df['total_uv_seen_beam'].groupby(df.index).mean()
+    total_uv_seen_beam_std = df['total_uv_seen_beam'].groupby(df.index).std()
+
+    total_uv_seen_greedy_mean = df['total_uv_seen_greedy'].groupby(df.index).mean()
+    total_uv_seen_greedy_std = df['total_uv_seen_greedy'].groupby(df.index).std()
+
+    total_uv_seen_bf_mean = df['total_unique_seen_bf'].groupby(df.index).mean()
+    total_uv_seen_bf_std = df['total_unique_seen_bf'].groupby(df.index).std()
+
+    plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_beam_mean, marker='o', linestyle='-', color = "blue", label = "Beamsearch")
+    plt.fill_between([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_beam_mean-total_uv_seen_beam_std, total_uv_seen_beam_mean+total_uv_seen_beam_std, color = "blue", alpha = 0.15)
+
+    plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='x', linestyle='-', color="red", label = "Greedy")
+    plt.fill_between([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean - total_uv_seen_greedy_std,
+                     total_uv_seen_greedy_mean + total_uv_seen_greedy_std, color="red", alpha=0.15)
+    #plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_bf_mean, marker='v', linestyle='-',
+             color="green", label="Bellman-Ford")
+    plt.fill_between([i for i in range(len(total_uv_seen_bf_mean))],
+                     total_uv_seen_bf_mean - total_uv_seen_bf_std,
+                     total_uv_seen_bf_mean + total_uv_seen_bf_std, color="red", alpha=0.15)
+    plt.legend(loc = "upper left")
+    #plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title('Unique solutions vs sampled solutions')
+    plt.xlabel('Sampled solutions')
+    plt.ylabel('Unique and valid solutions')
+    plt.savefig(f"plot_unique_by_extracted_{graphsize}.png")
 
 
-
-
-
-
-
-
-
-
-#------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # GRAPH EDGE REUSE BY NUM SAMPLES
-# - test similarity among solutions
-#------------------------------------------
+# - GOAL: test similarity among solutions
+# - WORKFLOW: `make_edge_reuse_matrix_list` to `postprocess_edge_reuse_matrix_list` to
+#       `plot_edge_reuse_matrix_list_mean` for BAR CHART
+# ----------------------------------------------------------------------------------------------------------------------
+def make_edge_reuse_matrix_list(A, s, pred, num_solutions_extracted):
+    """
+    For a single graph & predicted probMatrix, plot Y-axis: edge reuse by X-axis: num samples
+
+    Args:
+        A: An adjacency matrix (np.array)
+        s: An integer (e.g. 4) representing the index of starting node
+        pred: A probability distribution (list of lists, floats in each entry)
+        num_solutions_extracted: An integer (e.g. 5) indicating the number of solutions to extract from pred
+
+    Returns:
+        matrices: list of adjacency matrices. Each adjacency matrix is a BF path (i.e. one solution).
+    """
+    # gather many solutions
+    sol_counter = 0
+    greedy_matrices = []
+    beam_matrices = []
+    bf_matrices = []
+
+    while sol_counter < num_solutions_extracted:
+        sol_counter += 1
+        greedy_tree = BF_greedysearch(A, s, pred)
+        beam_tree = BF_beamsearch(A, s, pred)
+        bf_matrix = bellman_ford(A, s, deterministic=True)[0]
+
+        # convert tree to adjacency matrix
+        greedy_matrix = parent_tree_to_adj_matrix(greedy_tree)
+        beam_matrix = parent_tree_to_adj_matrix(beam_tree)
+
+        # save tree adj matrix
+        greedy_matrices.append(greedy_matrix)
+        beam_matrices.append(beam_matrix)
+        bf_matrices.append(bf_matrix)
+    #breakpoint()
+
+    return [greedy_matrices, beam_matrices, bf_matrices]
+
 
 def postprocess_edge_reuse_matrix_list(matrix_lists):
-    '''make ready for plot'''
+    """
+    Convert many solutions (matrix_lists) from a single graph & predicted probMatrix, into a df of means by n_sols
+    Args:
+        matrix_lists: a list of lists [[greedy_list], [beam_list], [bf_list]]
+            each inner list (e.g. [greedy_list]) contains adjacency matrices. Each adjacency matrix is a BF path.
+
+    Returns:
+        df: pandas Dataframe with greedy, beam, and bf means and medians
+    """
     # this is all for a single graph, where each matrix represents a subset of edges... perhaps in graph... extracted from parent tree
     # at each interval, sum adjacency matrices, calculate frequency, report score
+    # TODO: filter by validity?
 
     #breakpoint()
     #n_samples_list = []
@@ -330,9 +391,12 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
             summing_list = matrix_list[:ix+1]
             sum_matrix = np.sum(summing_list, axis=0)
             frac_matrix = sum_matrix/(ix+1)
+            # exclude 0s
+            frac_matrix = frac_matrix[frac_matrix != 0]
             # compute summary stats
             median = np.median(frac_matrix)
             mean = np.mean(frac_matrix)
+            #breakpoint()
 
             # save them
             median_list.append(median)
@@ -349,7 +413,9 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
 
     return df
 
+
 def plot_edge_reuse_matrix_list_mean(df, graphsize):
+    """FIXME: .iloc[-1] is taking only the last number? after the max number of solutions."""
     with plt.style.context(spstyle.get_style('nature-reviews')):
         fig, ax = plt.subplots(ncols=1, sharey=True)
     df = pd.concat(df)
@@ -386,74 +452,57 @@ def plot_edge_reuse_matrix_list_mean(df, graphsize):
     plt.savefig("edge_reuse_mean_"+str(graphsize)+".png")
     plt.close()
 
-def make_edge_reuse_matrix_list(A, s, pred, num_solutions_extracted):
-    '''
-    plot edge reuse by num samples...
 
+def line_plot(df_list, graphsize):
+    """
+    Line Plots with Confidence Interval for this type of random graph (Confidence that mean lies within here) FIXME CIs are weird here
     Args:
-        A:
-        s:
-        pred:
-        num_solutions_extracted:
+        df_list: list of dfs, each df represents single graph, recording edge_reuse score over many samples
+        graphsize: helps name the file
 
-    Returns:
-        matrices: list of matrices with edges used in parent trees
+    Returns: None, just plots
+    """
+    # Need, at each df.index, a +/- for CI
+    num_graphs = len(df_list)   # sample size
 
-    '''
-    # gather many solutions
-    sol_counter = 0
-    greedy_matrices = []
-    beam_matrices = []
-    bf_matrices = []
-
-    while sol_counter < num_solutions_extracted:
-        sol_counter += 1
-        greedy_tree = BF_greedysearch(A, s, pred)
-        beam_tree = BF_beamsearch(A, s, pred)
-        bf_matrix = bellman_ford(A,s,deterministic=True)[0]
-
-        # convert tree to adjacency matrix
-        greedy_matrix = parent_tree_to_adj_matrix(greedy_tree)
-        beam_matrix = parent_tree_to_adj_matrix(beam_tree)
-
-        # save tree adj matrix
-        greedy_matrices.append(greedy_matrix)
-        beam_matrices.append(beam_matrix)
-        bf_matrices.append(bf_matrix)
+    with plt.style.context(spstyle.get_style('nature-reviews')):
+        fig, ax = plt.subplots(ncols=1, sharey=True)
+    df = pd.concat(df_list)
     #breakpoint()
+    # u & v
+    mean_edge_reuse_beam_mean = df['beam_means'].groupby(df.index).mean()
+    mean_edge_reuse_beam_std = df['beam_means'].groupby(df.index).std()
 
-    return [greedy_matrices, beam_matrices, bf_matrices]
+    mean_edge_reuse_greedy_mean = df['greedy_means'].groupby(df.index).mean()
+    mean_edge_reuse_greedy_std = df['greedy_means'].groupby(df.index).std()
 
-def parent_tree_to_adj_matrix(tree):
-    size = len(tree)    # n_vertices
-    M = np.zeros((size, size))
-    for ix in range(size):
-        M[int(tree[ix]), ix] = 1     # edge points tree[ix] to ix, bcuz parent tree
-    return M
+    mean_edge_reuse_bf_mean = df['bf_means'].groupby(df.index).mean()
+    mean_edge_reuse_bf_std = df['bf_means'].groupby(df.index).std()
 
-def adj_matrix_to_parent_tree(A):
-    size = len(A)
-    tree = np.zeros(size)
-    for i in range(size):
-        for j in range(size):
-            if A[i,j] == 1:
-                tree[j] = i
-    return tree
+    means = [mean_edge_reuse_beam_mean, mean_edge_reuse_greedy_mean, mean_edge_reuse_bf_mean]
+    std = [mean_edge_reuse_beam_std, mean_edge_reuse_greedy_std, mean_edge_reuse_bf_std]
 
-def graph3(A, s, pred, num_solutions_extracted):
-    '''
-    TODO: do it by edit distance
 
-    Args:
-        A:
-        s:
-        pred:
-        num_solutions_extracted:
+    plt.plot([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_beam_mean, marker='o', linestyle='-',color="blue", label="Beamsearch")
+    plt.fill_between([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_beam_mean - mean_edge_reuse_beam_std,mean_edge_reuse_beam_mean + mean_edge_reuse_beam_std, color="blue", alpha=0.15)
 
-    Returns:
+    plt.plot([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_greedy_mean, marker='x', linestyle='-', color="red", label="Greedy")
+    plt.fill_between([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_greedy_mean - mean_edge_reuse_greedy_std,mean_edge_reuse_greedy_mean + mean_edge_reuse_greedy_std, color="red", alpha=0.15)
+    #plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.plot([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_bf_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.fill_between([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)],mean_edge_reuse_bf_mean - mean_edge_reuse_bf_std,mean_edge_reuse_bf_mean + mean_edge_reuse_bf_std, color="green", alpha=0.15)
+    plt.legend(loc="upper left")
+    # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
+    # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title('Mean average edge reuse by sampling method')
+    plt.ylabel('Mean average edge reuse')
+    plt.xlabel('Number of solutions extracted')
+    plt.savefig("INPROGRESS" + str(graphsize) + ".png")
+    plt.close()
 
-    '''
-    raise NotImplementedError
+
+
+# TODO: graph edge reuse & sort it by algorithm training?
 
 
 
