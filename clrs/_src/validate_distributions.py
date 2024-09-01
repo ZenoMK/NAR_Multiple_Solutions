@@ -503,7 +503,8 @@ def line_plot(df_list, graphsize):
 
 
 # TODO: graph edge reuse & sort it by algorithm training?
-
+# TODO: measure total number of distinct edges or some other metric to see solution diversity?
+# TODO: change graph style or graph size...
 
 
 

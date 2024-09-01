@@ -237,7 +237,7 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     if vd_flag:
         print('log_exp.py, vd_flag working')
         dataframes, As, pMs = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds,
-                                            numSolsExtracting=5, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
+                                            numSolsExtracting=100, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
         breakpoint()
 
     ### We need preds and A. We want to
