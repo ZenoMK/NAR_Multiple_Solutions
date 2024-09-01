@@ -238,7 +238,7 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
         print('log_exp.py, vd_flag working')
         dataframes, As, pMs = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds,
                                             numSolsExtracting=100, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
-        breakpoint()
+        #breakpoint()
 
     ### We need preds and A. We want to
     # 1. Sample from preds a candidate tree
