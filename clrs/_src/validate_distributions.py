@@ -337,6 +337,7 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
         medians.append(median_list)
         means.append(mean_list)
 
+    #breakpoint()
     df = pd.DataFrame.from_dict(
         {'greedy_medians': medians[0], 'greedy_means': means[0],
          'beam_medians': medians[1], 'beam_means': means[1],
@@ -408,12 +409,11 @@ def make_edge_reuse_matrix_list(A, s, pred, num_solutions_extracted):
         sol_counter += 1
         greedy_tree = BF_greedysearch(A, s, pred)
         beam_tree = BF_beamsearch(A, s, pred)
-        bf_tree = bellman_ford(A,s,deterministic=True)
+        bf_matrix = bellman_ford(A,s,deterministic=True)[0]
 
         # convert tree to adjacency matrix
         greedy_matrix = parent_tree_to_adj_matrix(greedy_tree)
         beam_matrix = parent_tree_to_adj_matrix(beam_tree)
-        bf_matrix = parent_tree_to_adj_matrix(bf_tree)
 
         # save tree adj matrix
         greedy_matrices.append(greedy_matrix)
