@@ -151,7 +151,9 @@ def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag, edge_re
         if flag=='BF':
             dataframes.append(make_n_unique_by_n_extracted_df(A=A, s=startNode, pred=probMatrix, num_solutions_extracted=numSolsExtracting))
         elif edge_reuse_BF:
-            dataframes.append(make_edge_reuse_matrix_list(A, startNode, probMatrix,numSolsExtracting))
+            matrix_lists = make_edge_reuse_matrix_list(A, startNode, probMatrix,numSolsExtracting)
+            df = postprocess_edge_reuse_matrix_list(matrix_lists)
+            dataframes.append(df)
         elif flag=='DFS':
             df, A, pM = DFS_graph1_df(A=A, pred=probMatrix, num_solutions_extracted=numSolsExtracting)
             dataframes.append(df)
@@ -314,12 +316,13 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
     # this is all for a single graph, where each matrix represents a subset of edges... perhaps in graph... extracted from parent tree
     # at each interval, sum adjacency matrices, calculate frequency, report score
 
+    #breakpoint()
     #n_samples_list = []
     medians = []
     means = []
     for matrix_list in matrix_lists:
-        #median_list = []
-        #mean_list = []
+        median_list = []
+        mean_list = []
         for ix in range(len(matrix_list)):
             #n_samples_list.append(ix+1)
 
@@ -332,12 +335,12 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
             mean = np.mean(frac_matrix)
 
             # save them
-            #median_list.append(median)
-            #mean_list.append(mean)
-            medians.append(median)
-            means.append(mean)
+            median_list.append(median)
+            mean_list.append(mean)
+        medians.append(median_list)
+        means.append(mean_list)
 
-    breakpoint()
+    #breakpoint()
     df = pd.DataFrame.from_dict(
         {'greedy_medians': medians[0], 'greedy_means': means[0],
          'beam_medians': medians[1], 'beam_means': means[1],
@@ -349,11 +352,13 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
 def plot_edge_reuse_matrix_list_mean(df, graphsize):
     with plt.style.context(spstyle.get_style('nature-reviews')):
         fig, ax = plt.subplots(ncols=1, sharey=True)
-    breakpoint()
     df = pd.concat(df)
     # u & v
     mean_edge_reuse_beam_mean = df['beam_means'].groupby(df.index).mean()
     mean_edge_reuse_beam_std = df['beam_means'].groupby(df.index).std()
+    breakpoint()
+    plt.bar(mean_edge_reuse_beam_mean)
+    plt.errorbar(mean_edge_reuse_beam_mean, yerr = mean_edge_reuse_beam_std)
 
     mean_edge_reuse_greedy_mean = df['greedy_means'].groupby(df.index).mean()
     mean_edge_reuse_greedy_std = df['greedy_means'].groupby(df.index).std()
@@ -361,25 +366,17 @@ def plot_edge_reuse_matrix_list_mean(df, graphsize):
     mean_edge_reuse_bf_mean = df['bf_means'].groupby(df.index).mean()
     mean_edge_reuse_bf_std = df['bf_means'].groupby(df.index).std()
 
-    plt.plot([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_beam_mean, marker='o', linestyle='-',
-             color="blue", label="Beamsearch")
-    plt.fill_between([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_beam_mean - mean_edge_reuse_beam_std,
-                     mean_edge_reuse_beam_mean + mean_edge_reuse_beam_std, color="blue", alpha=0.15)
+    #plt.plot([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_beam_mean, marker='o', linestyle='-',color="blue", label="Beamsearch")
+    #plt.fill_between([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_beam_mean - mean_edge_reuse_beam_std,mean_edge_reuse_beam_mean + mean_edge_reuse_beam_std, color="blue", alpha=0.15)
 
-    plt.plot([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_greedy_mean, marker='x', linestyle='-',
-             color="red", label="Greedy")
-    plt.fill_between([i for i in range(len(mean_edge_reuse_beam_mean))],
-                     mean_edge_reuse_greedy_mean - mean_edge_reuse_greedy_std,
-                     mean_edge_reuse_greedy_mean + mean_edge_reuse_greedy_std, color="red", alpha=0.15)
+    #plt.plot([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_greedy_mean, marker='x', linestyle='-', color="red", label="Greedy")
+   # plt.fill_between([i for i in range(len(mean_edge_reuse_beam_mean))],mean_edge_reuse_greedy_mean - mean_edge_reuse_greedy_std,mean_edge_reuse_greedy_mean + mean_edge_reuse_greedy_std, color="red", alpha=0.15)
     # plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
-    plt.plot([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_bf_mean, marker='v', linestyle='-',
-             color="green", label="Bellman-Ford")
-    plt.fill_between([i for i in range(len(mean_edge_reuse_beam_mean))],
-                     mean_edge_reuse_bf_mean - mean_edge_reuse_bf_std,
-                     mean_edge_reuse_bf_mean + mean_edge_reuse_bf_std, color="red", alpha=0.15)
+    #plt.plot([i for i in range(len(mean_edge_reuse_beam_mean))], mean_edge_reuse_bf_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    #plt.fill_between([i for i in range(len(mean_edge_reuse_beam_mean))],mean_edge_reuse_bf_mean - mean_edge_reuse_bf_std,mean_edge_reuse_bf_mean + mean_edge_reuse_bf_std, color="red", alpha=0.15)
     plt.legend(loc="upper left")
-    plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
-    plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    #plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
+    #plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
     plt.title('Mean average edge reuse by num sampled')
     plt.ylabel('Mean average edge reuse')
     plt.xlabel('Samples')
@@ -420,6 +417,7 @@ def make_edge_reuse_matrix_list(A, s, pred, num_solutions_extracted):
         greedy_matrices.append(greedy_matrix)
         beam_matrices.append(beam_matrix)
         bf_matrices.append(bf_matrix)
+    #breakpoint()
 
     return [greedy_matrices, beam_matrices, bf_matrices]
 
