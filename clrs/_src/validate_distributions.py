@@ -318,8 +318,8 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
     medians = []
     means = []
     for matrix_list in matrix_lists:
-        median_list = []
-        mean_list = []
+        #median_list = []
+        #mean_list = []
         for ix in range(len(matrix_list)):
             #n_samples_list.append(ix+1)
 
@@ -332,12 +332,12 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
             mean = np.mean(frac_matrix)
 
             # save them
-            median_list.append(median)
-            mean_list.append(mean)
-        medians.append(median_list)
-        means.append(mean_list)
+            #median_list.append(median)
+            #mean_list.append(mean)
+            medians.append(median)
+            means.append(mean)
 
-    #breakpoint()
+    breakpoint()
     df = pd.DataFrame.from_dict(
         {'greedy_medians': medians[0], 'greedy_means': means[0],
          'beam_medians': medians[1], 'beam_means': means[1],
@@ -349,6 +349,7 @@ def postprocess_edge_reuse_matrix_list(matrix_lists):
 def plot_edge_reuse_matrix_list_mean(df, graphsize):
     with plt.style.context(spstyle.get_style('nature-reviews')):
         fig, ax = plt.subplots(ncols=1, sharey=True)
+    breakpoint()
     df = pd.concat(df)
     # u & v
     mean_edge_reuse_beam_mean = df['beam_means'].groupby(df.index).mean()
