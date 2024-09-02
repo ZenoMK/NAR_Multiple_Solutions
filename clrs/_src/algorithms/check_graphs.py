@@ -52,7 +52,7 @@ def check_valid_dfsTree_new(A, pi):
     # for each child of node 0 in G, identify all descendants (vertices reachable from child)
     # find the children
 
-    children = []
+    children = []   # children of source (node 0)
     for i in range(size):
         if M[0, i] == 1:
             children.append(i)
@@ -64,11 +64,17 @@ def check_valid_dfsTree_new(A, pi):
         changed = False
         for child in children:
             if descendants_children_G[child] == descendants_children_F[child]:
+                # A valid run of DFS can discover all these descendants, then backtrack to source
+                # So, remove all these descendants from graph (you don't have to worry about them, this part of forest is ok)
                 changed = True
                 for desc in descendants_children_G[child]:
                     G.remove_node(desc)
                     F.remove_node(desc)
+                    if desc in children:
+                        children.remove(desc)
                 children.remove(child)
+                #breakpoint()
+                # recompute descendants of first-layer children, with marked-descendants removed
                 descendants_children_G = descendants_children(G, children)
                 descendants_children_F = descendants_children(F, children)
         if not changed:
@@ -80,13 +86,17 @@ def descendants_children(G, children):
     Method to return the descendants of a list of vertices in a nx.DiGraph as a dictionary.
     '''
     size = G.number_of_nodes()
-
+    #breakpoint()
+    #print('G=',G.nodes())
+    #print('kids=', children)
+    #print('size=', size)
     descendant_dict = {}
     for child in children:
         descs = []
-        for i in range(size):
-            if nx.has_path(G, child, i):
-                descs.append(i)
+        for node_id in G.nodes():
+            if node_id != child:    # cant be self-parent if you're already child of source
+                if nx.has_path(G, child, node_id):
+                    descs.append(node_id)
         descendant_dict[child] = descs
     return descendant_dict
 
