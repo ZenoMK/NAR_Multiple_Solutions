@@ -69,7 +69,7 @@ def validate_distributions(As, Ss, outsOrPreds, flag, numSolsExtracting = 100, e
             dataframes.append(df)
             pMs.append(pM)
         elif edge_reuse_DFS:
-            matrix_lists = make_edge_reuse_matrix_list_dfs(A, startNode, probMatrix, numSolsExtracting)
+            matrix_lists = make_edge_reuse_matrix_list_dfs(A, probMatrix, numSolsExtracting)
             df = postprocess_edge_reuse_matrix_list_dfs(matrix_lists)
             dataframes.append(df)
         else:
@@ -459,23 +459,23 @@ def plot_n_unique_by_n_extracted_dfs(df, graphsize):
     total_uv_seen_dfs_mean = df['total_uv_seen_dfs'].groupby(df.index).mean()
     total_uv_seen_dfs_std = df['total_uv_seen_dfs'].groupby(df.index).std()
 
-    plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_upwards_mean, marker='o', linestyle='-',
-             color="blue", label="Upwardssearch")
-    plt.fill_between([i for i in range(len(total_uv_seen_upwards_mean))],
+    plt.plot([i for i in range(1, len(total_uv_seen_upwards_mean)+1)], total_uv_seen_upwards_mean, marker='o', linestyle='-',
+             color="blue", label="Upwards")
+    plt.fill_between([i for i in range(1, len(total_uv_seen_upwards_mean)+1)],
                      total_uv_seen_upwards_mean - total_uv_seen_upwards_std,
                      total_uv_seen_upwards_mean + total_uv_seen_upwards_std, color="blue", alpha=0.15)
 
-    plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='x', linestyle='-',
-             color="red", label="altUpwards")
-    plt.fill_between([i for i in range(len(total_uv_seen_upwards_mean))],
+    plt.plot([i for i in range(1, len(total_uv_seen_upwards_mean)+1)], total_uv_seen_alt_mean, marker='x', linestyle='-',
+             color="red", label="AltUpwards")
+    plt.fill_between([i for i in range(1, len(total_uv_seen_upwards_mean)+1)],
                      total_uv_seen_alt_mean - total_uv_seen_alt_std,
                      total_uv_seen_alt_mean + total_uv_seen_alt_std, color="red", alpha=0.15)
     # plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='v', linestyle='-', color="green", label="DFS")
-    plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_dfs_mean, marker='v', linestyle='-',
+    plt.plot([i for i in range(1, len(total_uv_seen_upwards_mean)+1)], total_uv_seen_dfs_mean, marker='v', linestyle='-',
              color="green", label="DFS")
-    plt.fill_between([i for i in range(len(total_uv_seen_dfs_mean))],
+    plt.fill_between([i for i in range(1, len(total_uv_seen_dfs_mean)+1)],
                      total_uv_seen_dfs_mean - total_uv_seen_dfs_std,
-                     total_uv_seen_dfs_mean + total_uv_seen_dfs_std, color="red", alpha=0.15)
+                     total_uv_seen_dfs_mean + total_uv_seen_dfs_std, color="green", alpha=0.15)
     plt.legend(loc="upper left")
     # plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
     plt.title(f'Unique and valid solutions vs sampled solutions for n = {graphsize} (DFS)')
@@ -513,13 +513,13 @@ def line_plot_dfs(df_list, graphsize):
     std = [mean_edge_reuse_upwards_std, mean_edge_reuse_alt_std, mean_edge_reuse_dfs_std]
 
 
-    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_upwards_mean, marker='o', linestyle='-',color="blue", label="Beamsearch")
+    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_upwards_mean, marker='o', linestyle='-',color="blue", label="Upwards")
     plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_upwards_mean - mean_edge_reuse_upwards_std,mean_edge_reuse_upwards_mean + mean_edge_reuse_upwards_std, color="blue", alpha=0.15)
 
-    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_alt_mean, marker='x', linestyle='-', color="red", label="Greedy")
+    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_alt_mean, marker='x', linestyle='-', color="red", label="AltUpwards")
     plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_alt_mean - mean_edge_reuse_alt_std,mean_edge_reuse_alt_mean + mean_edge_reuse_alt_std, color="red", alpha=0.15)
     #plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
-    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_dfs_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_dfs_mean, marker='v', linestyle='-', color="green", label="DFS")
     plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)],mean_edge_reuse_dfs_mean - mean_edge_reuse_dfs_std,mean_edge_reuse_dfs_mean + mean_edge_reuse_dfs_std, color="green", alpha=0.15)
     plt.legend(loc="upper left")
     # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
