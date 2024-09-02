@@ -50,7 +50,7 @@ _Out = Tuple[_Array, probing.ProbesDict]
 _OutputClass = specs.OutputClass
 
 
-def dfs(A: _Array) -> _Out:
+def dfs(A: _Array, deterministic = False) -> _Out:
   """Depth-first search (Moore, 1959)."""
 
   chex.assert_rank(A, 2)
@@ -58,6 +58,9 @@ def dfs(A: _Array) -> _Out:
   pies = []
 
   NUM_SOLUTIONS = 20
+
+  if deterministic:
+      NUM_SOLUTIONS = 1
 
   for i in range(NUM_SOLUTIONS):
 

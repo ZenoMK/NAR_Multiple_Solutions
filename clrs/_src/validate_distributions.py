@@ -47,7 +47,7 @@ def adj_matrix_to_parent_tree(A):
 # ----------------------------------------------------------------------------------------------------------------------
 # MAIN FUNCTION... validate_distributions, calls BF or DFS depending on value of `flag`.
 # ----------------------------------------------------------------------------------------------------------------------
-def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag, edge_reuse_BF= False):
+def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag, edge_reuse_BF= False, edge_reuse_DFS = False):
     #breakpoint()
     probMatrix_list = extract_probMatrices(outsOrPreds)
     dataframes = []
@@ -68,6 +68,10 @@ def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag, edge_re
             df, A, pM = DFS_graph1_df(A=A, pred=probMatrix, num_solutions_extracted=numSolsExtracting)
             dataframes.append(df)
             pMs.append(pM)
+        elif edge_reuse_DFS:
+            matrix_lists = make_edge_reuse_matrix_list_dfs(A, startNode, probMatrix, numSolsExtracting)
+            df = postprocess_edge_reuse_matrix_list_dfs(matrix_lists)
+            dataframes.append(df)
         else:
             raise ValueError('no flag given to validate_distributions')
     return dataframes, As, pMs
@@ -126,10 +130,297 @@ def DFS_graph1_df(A, pred, num_solutions_extracted):
     )
     df['total_unique_seen'] = df['unique_alt'].cumsum()
     df['total_valid_seen'] = df['valid_alt'].cumsum()
-    df['unique_and_valid'] = (df['unique_alt'] & df['valid_alt']).cumsum()
+    df['unique_and_valid_alt'] = (df['unique_alt'] & df['valid_alt']).cumsum()
+    df['unique_and_valid_up'] = (df['unique_up'] & df['valid_up']).cumsum()
+    df['unique_and_valid_dfs'] = df['unique_dfs'].cumsum()
     print('validate...only doing alt')
 
     return df, A, pred
+
+
+def plot_edge_reuse_matrix_list_mean_dfs(df, graphsize):
+    """FIXME: .iloc[-1] is taking only the last number? after the max number of solutions."""
+    with plt.style.context(spstyle.get_style('nature-reviews')):
+        fig, ax = plt.subplots(ncols=1, sharey=True)
+    df = pd.concat(df)
+    # u & v
+    mean_edge_reuse_upwards_mean = df['upwards_means'].groupby(df.index).mean().iloc[-1]
+    mean_edge_reuse_upwards_std = df['upwards_means'].groupby(df.index).std().iloc[-1]
+
+    mean_edge_reuse_alt_mean = df['alt_means'].groupby(df.index).mean().iloc[-1]
+    mean_edge_reuse_alt_std = df['alt_means'].groupby(df.index).std().iloc[-1]
+
+    mean_edge_reuse_dfs_mean = df['dfs_means'].groupby(df.index).mean().iloc[-1]
+    mean_edge_reuse_dfs_std = df['dfs_means'].groupby(df.index).std().iloc[-1]
+
+    means = [mean_edge_reuse_upwards_mean, mean_edge_reuse_alt_mean, mean_edge_reuse_dfs_mean]
+    std = [mean_edge_reuse_upwards_std, mean_edge_reuse_alt_std, mean_edge_reuse_dfs_std]
+
+    plt.bar(np.arange(len(means)), means, 0.4)
+    plt.errorbar(np.arange(len(means)), means, yerr=std, color="black", capsize=5, ls="None")
+    plt.xticks(np.arange(len(means)), ["Upwards", "altUpwards", "DFS"])
+
+    # plt.plot([i for i in range(len(mean_edge_reuse_upwards_mean))], mean_edge_reuse_upwards_mean, marker='o', linestyle='-',color="blue", label="Upwardssearch")
+    # plt.fill_between([i for i in range(len(mean_edge_reuse_upwards_mean))], mean_edge_reuse_upwards_mean - mean_edge_reuse_upwards_std,mean_edge_reuse_upwards_mean + mean_edge_reuse_upwards_std, color="blue", alpha=0.15)
+
+    # plt.plot([i for i in range(len(mean_edge_reuse_upwards_mean))], mean_edge_reuse_alt_mean, marker='x', linestyle='-', color="red", label="altUpwards")
+    # plt.fill_between([i for i in range(len(mean_edge_reuse_upwards_mean))],mean_edge_reuse_alt_mean - mean_edge_reuse_alt_std,mean_edge_reuse_alt_mean + mean_edge_reuse_alt_std, color="red", alpha=0.15)
+    # plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='v', linestyle='-', color="green", label="DFS")
+    # plt.plot([i for i in range(len(mean_edge_reuse_upwards_mean))], mean_edge_reuse_dfs_mean, marker='v', linestyle='-', color="green", label="DFS")
+    # plt.fill_between([i for i in range(len(mean_edge_reuse_upwards_mean))],mean_edge_reuse_dfs_mean - mean_edge_reuse_dfs_std,mean_edge_reuse_dfs_mean + mean_edge_reuse_dfs_std, color="red", alpha=0.15)
+    # plt.legend(loc="upper left")
+    # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
+    # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title(f'Mean average edge reuse for n = {graphsize}(100 samples per graph)')
+    plt.ylabel('Mean average edge reuse')
+    plt.savefig("edge_reuse_mean_" + str(graphsize) + ".png")
+    plt.close()
+
+
+def postprocess_edge_reuse_matrix_list_dfs(matrix_lists):
+    """
+    Convert many solutions (matrix_lists) from a single graph & predicted probMatrix, into a df of means by n_sols
+    Args:
+        matrix_lists: a list of lists [[alt_list], [upwards_list], [dfs_list]]
+            each inner list (e.g. [alt_list]) contains adjacency matrices. Each adjacency matrix is a BF path.
+
+    Returns:
+        df: pandas Dataframe with alt, upwards, and dfs means and medians
+    """
+    # this is all for a single graph, where each matrix represents a subset of edges... perhaps in graph... extracted from parent tree
+    # at each interval, sum adjacency matrices, calculate frequency, report score
+    # TODO: filter by validity?
+
+    # breakpoint()
+    # n_samples_list = []
+    medians = []
+    means = []
+    for matrix_list in matrix_lists:
+        median_list = []
+        mean_list = []
+        for ix in range(len(matrix_list)):
+            # n_samples_list.append(ix+1)
+
+            # sum first how-many np.arrays
+            summing_list = matrix_list[:ix + 1]
+            sum_matrix = np.sum(summing_list, axis=0)
+            frac_matrix = sum_matrix / (ix + 1)
+            # exclude 0s
+            frac_matrix = frac_matrix[frac_matrix != 0]
+            # compute summary stats
+            median = np.median(frac_matrix)
+            mean = np.mean(frac_matrix)
+            # breakpoint()
+
+            # save them
+            median_list.append(median)
+            mean_list.append(mean)
+        medians.append(median_list)
+        means.append(mean_list)
+
+    # breakpoint()
+    df = pd.DataFrame.from_dict(
+        {'alt_medians': medians[0], 'alt_means': means[0],
+         'upwards_medians': medians[1], 'upwards_means': means[1],
+         'dfs_medians': medians[2], 'dfs_means': means[2]}
+    )
+
+    return df
+
+
+def make_edge_reuse_matrix_list_dfs(A, pred, num_solutions_extracted):
+    """
+    For a single graph & predicted probMatrix, plot Y-axis: edge reuse by X-axis: num samples
+
+    Args:
+        A: An adjacency matrix (np.array)
+        pred: A probability distribution (list of lists, floats in each entry)
+        num_solutions_extracted: An integer (e.g. 5) indicating the number of solutions to extract from pred
+
+    Returns:
+        matrices: list of adjacency matrices. Each adjacency matrix is a BF path (i.e. one solution).
+    """
+    # gather many solutions
+    sol_counter = 0
+    alt_matrices = []
+    upwards_matrices = []
+    dfs_matrices = []
+
+    while sol_counter < num_solutions_extracted:
+        sol_counter += 1
+        alt_tree = get_parent_tree_upwards(pred)
+        upwards_tree = single_sample_upwards(pred)
+        dfs_matrix = dfs(A, deterministic=True)[0]
+
+        # convert tree to adjacency matrix
+        alt_matrix = parent_tree_to_adj_matrix(alt_tree)
+        upwards_matrix = parent_tree_to_adj_matrix(upwards_tree)
+
+        # save tree adj matrix
+        alt_matrices.append(alt_matrix)
+        upwards_matrices.append(upwards_matrix)
+        dfs_matrices.append(dfs_matrix)
+    # breakpoint()
+
+    return [alt_matrices, upwards_matrices, dfs_matrices]
+
+
+def DFS_plot(df):
+    with plt.style.context(spstyle.get_style('nature-reviews')):
+        fig, ax = plt.subplots(ncols=1, sharey=True)
+    plt.plot(df.index + 1, df.total_unique_seen, marker='o', linestyle='-')
+    plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title('num_unique by num_sampled')
+    plt.xlabel('num_sampled')
+    plt.ylabel('num_unique')
+    plt.show()
+
+
+# -----------------------------------------------------------------------------------------------------------------------
+# BF GRAPH NUM UNIQUE by NUM SAMPLES
+# - GOAL: find the num unique solutions extractable from distribution
+# - WORKFLOW: Use `make_n_unique_by_n_extracted_df` to build df, then `plot_n_unique_by_n_extracted` to plot
+# -----------------------------------------------------------------------------------------------------------------------
+
+def make_n_unique_by_n_extracted_df_dfs(A, s, pred, num_solutions_extracted):
+    """
+    Makes DF with columns (e.g. 'total_uv_seen_upwards'), indicating the number of unique and valid solutions seen,
+    when `df.index`-many solutions have been extracted.
+
+    Args:
+        A: an adjacency matrix
+        s: starting node index (e.g. 5)
+        pred: a predecessor array encoding a distribution of solutions (e.g. typical output of NN: [[],[],[]])
+        num_solutions_extracted: a list of places where you want uniqueness evaluated (e.g. [5,25,100]
+
+    Returns:
+        df: pandas dataframe carrying info needed for plot
+
+    """
+    num_samples_drawn = 0
+    #
+    dfs_frequency_dict = dict()
+    upwards_frequency_dict = dict()
+    alt_frequency_dict = dict()
+    alt_hashes = set()
+    upwards_hashes = set()
+    #
+    upwards_valid = None
+    alt_valid = None
+    #
+    dfs_trees_col = []
+    alt_trees_col = []
+    upwards_trees_col = []
+    valid_alt = []
+    valid_upwards = []
+    #
+    unique_dfs = []
+    unique_alt = []
+    unique_upwards = []
+    times_found_alt = []
+    times_found_upwards = []
+
+    while num_samples_drawn < num_solutions_extracted:
+        # take a sample, see if it's unique.
+        tree1 = single_sample_upwards(pred)
+        tree2 = get_parent_tree_upwards(pred)
+        tree3 = adj_matrix_to_parent_tree(bellman_ford(A, s, deterministic=True)[0])
+        #
+        upwards_trees_col.append(tree1)
+        alt_trees_col.append(tree2)
+        dfs_trees_col.append(tree3)
+        #
+
+        # is it valid?
+        valid_upwards.append(check_valid_BFpaths(A, s, tree1))
+        valid_alt.append(check_valid_BFpaths(A, s, tree2))
+
+        # how many times have we seen it before?
+        hash_upwards = hash(tuple(tree1))
+        hash_alt = hash(tuple(tree2))
+        hash_dfs = hash(tuple(tree3))
+        # breakpoint()
+
+        # if not seen before, add 1. else add 0, so we can cumulatively sum df column
+        unique_upwards.append(hash_upwards not in upwards_frequency_dict.keys())
+        unique_alt.append(hash_alt not in alt_frequency_dict.keys())
+        unique_dfs.append(hash_dfs not in dfs_frequency_dict.keys())
+
+        # abcd?
+        if hash_upwards not in upwards_frequency_dict.keys():
+            upwards_frequency_dict[hash_upwards] = 1
+        else:
+            upwards_frequency_dict[hash_upwards] += 1
+
+        if hash_alt not in alt_frequency_dict.keys():
+            alt_frequency_dict[hash_alt] = 1
+        else:
+            alt_frequency_dict[hash_alt] += 1
+
+        if hash_dfs not in dfs_frequency_dict.keys():
+            dfs_frequency_dict[hash_dfs] = 1
+        else:
+            dfs_frequency_dict[hash_dfs] += 1
+
+        # times_found_upwards.append()
+        # times_found_alt.append()
+        # TODO: SAVE THE DICTIONARY AT THE END, with tree specifics
+
+        num_samples_drawn += 1
+    # FIXME interval code nonsense
+
+    df = pd.DataFrame.from_dict(
+        {'upwards_sols': upwards_trees_col, 'unique_upwards': unique_upwards, 'valid_upwards': valid_upwards,
+         'investment_bankers': alt_trees_col, 'unique_alt': unique_alt, 'valid_alt': valid_alt,
+         'bellman_ford_sols': dfs_trees_col, 'unique_dfs': unique_dfs}
+    )
+    df['total_uv_seen_upwards'] = (df['unique_upwards'] & df['valid_upwards']).cumsum()
+    df['total_uv_seen_alt'] = (df['unique_alt'] & df['valid_alt']).cumsum()
+    df['total_unique_seen_dfs'] = df['unique_dfs'].cumsum()
+    df.index += 1
+
+    return df
+
+
+def plot_n_unique_by_n_extracted_dfs(df, graphsize):
+    """Plots a df produced by make_n_unique_by_n_extracted_df"""
+    with plt.style.context(spstyle.get_style('nature-reviews')):
+        fig, ax = plt.subplots(ncols=1, sharey=True)
+    df = pd.concat(df)
+    # u & v
+    total_uv_seen_upwards_mean = df['total_uv_seen_upwards'].groupby(df.index).mean()
+    total_uv_seen_upwards_std = df['total_uv_seen_upwards'].groupby(df.index).std()
+
+    total_uv_seen_alt_mean = df['total_uv_seen_alt'].groupby(df.index).mean()
+    total_uv_seen_alt_std = df['total_uv_seen_alt'].groupby(df.index).std()
+
+    total_uv_seen_dfs_mean = df['total_unique_seen_dfs'].groupby(df.index).mean()
+    total_uv_seen_dfs_std = df['total_unique_seen_dfs'].groupby(df.index).std()
+
+    plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_upwards_mean, marker='o', linestyle='-',
+             color="blue", label="Upwardssearch")
+    plt.fill_between([i for i in range(len(total_uv_seen_upwards_mean))],
+                     total_uv_seen_upwards_mean - total_uv_seen_upwards_std,
+                     total_uv_seen_upwards_mean + total_uv_seen_upwards_std, color="blue", alpha=0.15)
+
+    plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='x', linestyle='-',
+             color="red", label="altUpwards")
+    plt.fill_between([i for i in range(len(total_uv_seen_upwards_mean))],
+                     total_uv_seen_alt_mean - total_uv_seen_alt_std,
+                     total_uv_seen_alt_mean + total_uv_seen_alt_std, color="red", alpha=0.15)
+    # plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='v', linestyle='-', color="green", label="DFS")
+    plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_dfs_mean, marker='v', linestyle='-',
+             color="green", label="DFS")
+    plt.fill_between([i for i in range(len(total_uv_seen_dfs_mean))],
+                     total_uv_seen_dfs_mean - total_uv_seen_dfs_std,
+                     total_uv_seen_dfs_mean + total_uv_seen_dfs_std, color="red", alpha=0.15)
+    plt.legend(loc="upper left")
+    # plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title(f'Unique solutions vs sampled solutions for n = {graphsize}')
+    plt.xlabel('Sampled solutions')
+    plt.ylabel('Unique and valid solutions')
+    plt.savefig(f"plot_unique_by_extracted_{graphsize}.png")
+
 
 def average_dataframes(df_list):
     #breakpoint()
