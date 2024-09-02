@@ -376,7 +376,7 @@ def make_n_unique_by_n_extracted_df_dfs(A, s, pred, num_solutions_extracted):
     )
     df['total_uv_seen_upwards'] = (df['unique_upwards'] & df['valid_upwards']).cumsum()
     df['total_uv_seen_alt'] = (df['unique_alt'] & df['valid_alt']).cumsum()
-    df['total_unique_seen_dfs'] = df['unique_dfs'].cumsum()
+    df['total_uv_seen_dfs'] = df['unique_dfs'].cumsum()
     df.index += 1
 
     return df
