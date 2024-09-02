@@ -69,7 +69,7 @@ def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag, edge_re
             dataframes.append(df)
             pMs.append(pM)
         elif edge_reuse_DFS:
-            matrix_lists = make_edge_reuse_matrix_list_dfs(A, startNode, probMatrix, numSolsExtracting)
+            matrix_lists = make_edge_reuse_matrix_list_dfs(A, probMatrix, numSolsExtracting)
             df = postprocess_edge_reuse_matrix_list_dfs(matrix_lists)
             dataframes.append(df)
         else:
@@ -513,13 +513,13 @@ def line_plot_dfs(df_list, graphsize):
     std = [mean_edge_reuse_upwards_std, mean_edge_reuse_alt_std, mean_edge_reuse_dfs_std]
 
 
-    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_upwards_mean, marker='o', linestyle='-',color="blue", label="Beamsearch")
+    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_upwards_mean, marker='o', linestyle='-',color="blue", label="Upwards")
     plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_upwards_mean - mean_edge_reuse_upwards_std,mean_edge_reuse_upwards_mean + mean_edge_reuse_upwards_std, color="blue", alpha=0.15)
 
-    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_alt_mean, marker='x', linestyle='-', color="red", label="Greedy")
+    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_alt_mean, marker='x', linestyle='-', color="red", label="AltUpwards")
     plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_alt_mean - mean_edge_reuse_alt_std,mean_edge_reuse_alt_mean + mean_edge_reuse_alt_std, color="red", alpha=0.15)
     #plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
-    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_dfs_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_dfs_mean, marker='v', linestyle='-', color="green", label="DFS")
     plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)],mean_edge_reuse_dfs_mean - mean_edge_reuse_dfs_std,mean_edge_reuse_dfs_mean + mean_edge_reuse_dfs_std, color="green", alpha=0.15)
     plt.legend(loc="upper left")
     # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
