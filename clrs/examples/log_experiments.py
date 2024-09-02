@@ -63,9 +63,9 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     #breakpoint()
     if vd_flag:
         print('log_exp.py, vd_flag working')
-        #dataframes,_,_ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100, flag='BF')    # note wrapping preds in list for extract_probmatrices to work
-        #plot_n_unique_by_n_extracted(dataframes, len(As[0]))
-        df, _, _ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=NSE,
+        dataframes,_,_ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100, flag='BF')    # note wrapping preds in list for extract_probmatrices to work
+        plot_n_unique_by_n_extracted(dataframes, len(As[0]))
+        df, _, _ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100,
                                             flag="dummy", edge_reuse_BF=True)
 
         #plot_edge_reuse_matrix_list_median(df, len(As[0]))

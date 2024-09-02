@@ -313,7 +313,7 @@ def plot_n_unique_by_n_extracted(df, graphsize):
                      total_uv_seen_bf_mean + total_uv_seen_bf_std, color="red", alpha=0.15)
     plt.legend(loc = "upper left")
     #plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title('Unique solutions vs sampled solutions')
+    plt.title(f'Unique solutions vs sampled solutions for n = {graphsize}')
     plt.xlabel('Sampled solutions')
     plt.ylabel('Unique and valid solutions')
     plt.savefig(f"plot_unique_by_extracted_{graphsize}.png")
@@ -447,7 +447,7 @@ def plot_edge_reuse_matrix_list_mean(df, graphsize):
     #plt.legend(loc="upper left")
     #plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
     #plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title('Mean average edge reuse by sampling method (100 samples per graph)')
+    plt.title(f'Mean average edge reuse for n = {graphsize}(100 samples per graph)')
     plt.ylabel('Mean average edge reuse')
     plt.savefig("edge_reuse_mean_"+str(graphsize)+".png")
     plt.close()
@@ -494,10 +494,10 @@ def line_plot(df_list, graphsize):
     plt.legend(loc="upper left")
     # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
     # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title('Mean average edge reuse by sampling method')
+    plt.title(f'Mean average edge reuse by sampling method for n = {graphsize}')
     plt.ylabel('Mean average edge reuse')
     plt.xlabel('Number of solutions extracted')
-    plt.savefig("INPROGRESS" + str(graphsize) + ".png")
+    plt.savefig("edge_reuse_lineplot" + str(graphsize) + ".png")
     plt.close()
 
 

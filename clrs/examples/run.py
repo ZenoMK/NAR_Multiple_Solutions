@@ -56,7 +56,7 @@ flags.DEFINE_list('train_lengths', ['4', '7', '11', '13', '16'],
                   'Which training sizes to use. A size of -1 means '
                   'use the benchmark dataset.')
 flags.DEFINE_string("filename", "results", "The name of the file to be saved")
-flags.DEFINE_integer("test_length", 4, "Size of the graphs to be tested on")
+flags.DEFINE_integer("test_length", 5, "Size of the graphs to be tested on")
 flags.DEFINE_integer('length_needle', -8,
                      'Length of needle for training and validation '
                      '(not testing) in string matching algorithms. '
