@@ -497,7 +497,7 @@ def line_plot(df_list, graphsize):
     plt.title('Mean average edge reuse by sampling method')
     plt.ylabel('Mean average edge reuse')
     plt.xlabel('Number of solutions extracted')
-    plt.savefig("INPROGRESS" + str(graphsize) + ".png")
+    plt.savefig("edge_reuse_lineplot" + str(graphsize) + ".png")
     plt.close()
 
 
