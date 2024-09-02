@@ -47,7 +47,7 @@ def adj_matrix_to_parent_tree(A):
 # ----------------------------------------------------------------------------------------------------------------------
 # MAIN FUNCTION... validate_distributions, calls BF or DFS depending on value of `flag`.
 # ----------------------------------------------------------------------------------------------------------------------
-def validate_distributions(As, Ss, outsOrPreds, numSolsExtracting, flag, edge_reuse_BF= False, edge_reuse_DFS = False):
+def validate_distributions(As, Ss, outsOrPreds, flag, numSolsExtracting = 100, edge_reuse_BF= False, edge_reuse_DFS = False):
     #breakpoint()
     probMatrix_list = extract_probMatrices(outsOrPreds)
     dataframes = []
@@ -185,7 +185,7 @@ def plot_edge_reuse_matrix_list_mean_dfs(df, graphsize):
     # plt.legend(loc="upper left")
     # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
     # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title(f'Mean average edge reuse for n = {graphsize}(100 samples per graph)')
+    plt.title(f'Mean average edge reuse for n = {graphsize} (DFS)')
     plt.ylabel('Mean average edge reuse')
     plt.savefig("edge_reuse_mean_" + str(graphsize) + ".png")
     plt.close()
@@ -478,7 +478,7 @@ def plot_n_unique_by_n_extracted_dfs(df, graphsize):
                      total_uv_seen_dfs_mean + total_uv_seen_dfs_std, color="red", alpha=0.15)
     plt.legend(loc="upper left")
     # plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title(f'Unique solutions vs sampled solutions for n = {graphsize} (DFS)')
+    plt.title(f'Unique and valid solutions vs sampled solutions for n = {graphsize} (DFS)')
     plt.xlabel('Sampled solutions')
     plt.ylabel('Unique and valid solutions')
     plt.savefig(f"plot_unique_by_extracted_{graphsize}_dfs.png")
@@ -713,7 +713,7 @@ def plot_n_unique_by_n_extracted(df, graphsize):
                      total_uv_seen_bf_mean + total_uv_seen_bf_std, color="red", alpha=0.15)
     plt.legend(loc = "upper left")
     #plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title(f'Unique solutions vs sampled solutions for n = {graphsize} (BF)')
+    plt.title(f'Unique and valid solutions vs sampled solutions for n = {graphsize} (BF)')
     plt.xlabel('Sampled solutions')
     plt.ylabel('Unique and valid solutions')
     plt.savefig(f"plot_unique_by_extracted_{graphsize}.png")

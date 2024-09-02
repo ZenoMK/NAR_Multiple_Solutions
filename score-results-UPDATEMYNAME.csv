@@ -1,3 +1,3 @@
 0,1,2,3
 Train KlDiv,Mean 1-abs(error),Num Steps,Examples Seen
-0.41687614,0.8894011717218291,0,1
+0.4193394,0.6808381974260556,0,1

@@ -36,7 +36,7 @@ def unpack(v):
 # BF pipeline
 ###############################################################
 
-def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy', vd_flag=True):
+def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy', vd_flag=True, NSE = 100):
     """Collect batches of output and hint preds and evaluate them."""
     processed_samples = 0
     preds = []
@@ -217,7 +217,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
 # DFS
 ###############################################################
 
-def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename = 'dfs_accuracy', vd_flag=False):
+def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename = 'dfs_accuracy', vd_flag=False, NSE = NSE):
     """Collect batch of output preds and evaluate them."""
     processed_samples = 0
     preds = []
