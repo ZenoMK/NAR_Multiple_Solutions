@@ -84,6 +84,10 @@ def DFS_graph1_df(A, pred, num_solutions_extracted):
     upwards_valid = []
     upwards_unique = []
 
+    dfs_trees = []
+    dfs_valid = []
+    dfs_unique = []
+
     altUpwards_trees = []
     altUpwards_valid = []
     altUpwards_unique = []
@@ -91,6 +95,7 @@ def DFS_graph1_df(A, pred, num_solutions_extracted):
     # frequency dicts
     upwards_dict = dict()
     altUpwards_dict = dict()
+    dfs_dict = dict()
 
     # core routine
     num_sampled = 0
@@ -99,9 +104,11 @@ def DFS_graph1_df(A, pred, num_solutions_extracted):
         # extract new trees
         up_tree = single_sample_upwards(pred)
         alt_tree = get_parent_tree_upwards(pred)
+        dfs_tree = adj_matrix_to_parent_tree(dfs(A, deterministic=True)[0])
         # save them for later dataframe
         upwards_trees.append(up_tree)
         altUpwards_trees.append(alt_tree)
+        dfs_trees.append(dfs_tree)
 
         # valid?
         upwards_valid.append(check_valid_dfsTree(A, up_tree))
@@ -112,6 +119,8 @@ def DFS_graph1_df(A, pred, num_solutions_extracted):
         upwards_unique.append(hash_up not in upwards_dict.keys())
         hash_alt = hash(tuple(alt_tree))
         altUpwards_unique.append(hash_alt not in altUpwards_dict.keys())
+        hash_dfs = hash(tuple(dfs_tree))
+        dfs_unique.append(hash_dfs not in dfs_dict.keys())
 
         # update freq dict
         if hash_up not in upwards_dict.keys():
@@ -124,16 +133,21 @@ def DFS_graph1_df(A, pred, num_solutions_extracted):
         else:
             altUpwards_dict[hash_alt] += 1
 
+        if hash_dfs not in dfs_dict.keys():
+            dfs_dict[hash_dfs] = 1
+        else:
+            dfs_dict[hash_dfs] += 1
+
     df = pd.DataFrame.from_dict(
             {'up_trees': upwards_trees, 'unique_up': upwards_unique, 'valid_up': upwards_valid,
-             'alt_trees': altUpwards_trees, 'unique_alt': altUpwards_unique, 'valid_alt': altUpwards_valid}
+             'alt_trees': altUpwards_trees, 'unique_alt': altUpwards_unique, 'valid_alt': altUpwards_valid,
+             'dfs_trees' : dfs_trees, 'unique_dfs': dfs_unique}
     )
     df['total_unique_seen'] = df['unique_alt'].cumsum()
     df['total_valid_seen'] = df['valid_alt'].cumsum()
-    df['unique_and_valid_alt'] = (df['unique_alt'] & df['valid_alt']).cumsum()
-    df['unique_and_valid_up'] = (df['unique_up'] & df['valid_up']).cumsum()
-    df['unique_and_valid_dfs'] = df['unique_dfs'].cumsum()
-    print('validate...only doing alt')
+    df['total_uv_seen_alt'] = (df['unique_alt'] & df['valid_alt']).cumsum()
+    df['total_uv_seen_upwards'] = (df['unique_up'] & df['valid_up']).cumsum()
+    df['total_uv_seen_dfs'] = df['unique_dfs'].cumsum()
 
     return df, A, pred
 
@@ -263,6 +277,54 @@ def make_edge_reuse_matrix_list_dfs(A, pred, num_solutions_extracted):
     # breakpoint()
 
     return [alt_matrices, upwards_matrices, dfs_matrices]
+
+def line_plot(df_list, graphsize):
+    """
+    Line Plots with Confidence Interval for this type of random graph (Confidence that mean lies within here) FIXME CIs are weird here
+    Args:
+        df_list: list of dfs, each df represents single graph, recording edge_reuse score over many samples
+        graphsize: helps name the file
+
+    Returns: None, just plots
+    """
+    # Need, at each df.index, a +/- for CI
+    num_graphs = len(df_list)   # sample size
+
+    with plt.style.context(spstyle.get_style('nature-reviews')):
+        fig, ax = plt.subplots(ncols=1, sharey=True)
+    df = pd.concat(df_list)
+    #breakpoint()
+    # u & v
+    mean_edge_reuse_beam_mean = df['beam_means'].groupby(df.index).mean()
+    mean_edge_reuse_beam_std = df['beam_means'].groupby(df.index).std()
+
+    mean_edge_reuse_greedy_mean = df['greedy_means'].groupby(df.index).mean()
+    mean_edge_reuse_greedy_std = df['greedy_means'].groupby(df.index).std()
+
+    mean_edge_reuse_bf_mean = df['bf_means'].groupby(df.index).mean()
+    mean_edge_reuse_bf_std = df['bf_means'].groupby(df.index).std()
+
+    means = [mean_edge_reuse_beam_mean, mean_edge_reuse_greedy_mean, mean_edge_reuse_bf_mean]
+    std = [mean_edge_reuse_beam_std, mean_edge_reuse_greedy_std, mean_edge_reuse_bf_std]
+
+
+    plt.plot([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_beam_mean, marker='o', linestyle='-',color="blue", label="Beamsearch")
+    plt.fill_between([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_beam_mean - mean_edge_reuse_beam_std,mean_edge_reuse_beam_mean + mean_edge_reuse_beam_std, color="blue", alpha=0.15)
+
+    plt.plot([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_greedy_mean, marker='x', linestyle='-', color="red", label="Greedy")
+    plt.fill_between([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_greedy_mean - mean_edge_reuse_greedy_std,mean_edge_reuse_greedy_mean + mean_edge_reuse_greedy_std, color="red", alpha=0.15)
+    #plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.plot([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_bf_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.fill_between([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)],mean_edge_reuse_bf_mean - mean_edge_reuse_bf_std,mean_edge_reuse_bf_mean + mean_edge_reuse_bf_std, color="green", alpha=0.15)
+    plt.legend(loc="upper left")
+    # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
+    # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title(f'Mean average edge reuse by sampling method for n = {graphsize} (BF)')
+    plt.ylabel('Mean average edge reuse')
+    plt.xlabel('Number of solutions extracted')
+    plt.savefig("edge_reuse_lineplot" + str(graphsize) + ".png")
+    plt.close()
+
 
 
 def DFS_plot(df):
@@ -394,8 +456,8 @@ def plot_n_unique_by_n_extracted_dfs(df, graphsize):
     total_uv_seen_alt_mean = df['total_uv_seen_alt'].groupby(df.index).mean()
     total_uv_seen_alt_std = df['total_uv_seen_alt'].groupby(df.index).std()
 
-    total_uv_seen_dfs_mean = df['total_unique_seen_dfs'].groupby(df.index).mean()
-    total_uv_seen_dfs_std = df['total_unique_seen_dfs'].groupby(df.index).std()
+    total_uv_seen_dfs_mean = df['total_uv_seen_dfs'].groupby(df.index).mean()
+    total_uv_seen_dfs_std = df['total_uv_seen_dfs'].groupby(df.index).std()
 
     plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_upwards_mean, marker='o', linestyle='-',
              color="blue", label="Upwardssearch")
@@ -416,10 +478,57 @@ def plot_n_unique_by_n_extracted_dfs(df, graphsize):
                      total_uv_seen_dfs_mean + total_uv_seen_dfs_std, color="red", alpha=0.15)
     plt.legend(loc="upper left")
     # plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title(f'Unique solutions vs sampled solutions for n = {graphsize}')
+    plt.title(f'Unique solutions vs sampled solutions for n = {graphsize} (DFS)')
     plt.xlabel('Sampled solutions')
     plt.ylabel('Unique and valid solutions')
-    plt.savefig(f"plot_unique_by_extracted_{graphsize}.png")
+    plt.savefig(f"plot_unique_by_extracted_{graphsize}_dfs.png")
+
+def line_plot_dfs(df_list, graphsize):
+    """
+    Line Plots with Confidence Interval for this type of random graph (Confidence that mean lies within here) FIXME CIs are weird here
+    Args:
+        df_list: list of dfs, each df represents single graph, recording edge_reuse score over many samples
+        graphsize: helps name the file
+
+    Returns: None, just plots
+    """
+    # Need, at each df.index, a +/- for CI
+    num_graphs = len(df_list)   # sample size
+
+    with plt.style.context(spstyle.get_style('nature-reviews')):
+        fig, ax = plt.subplots(ncols=1, sharey=True)
+    df = pd.concat(df_list)
+    #breakpoint()
+    # u & v
+    mean_edge_reuse_upwards_mean = df['upwards_means'].groupby(df.index).mean()
+    mean_edge_reuse_upwards_std = df['upwards_means'].groupby(df.index).std()
+
+    mean_edge_reuse_alt_mean = df['alt_means'].groupby(df.index).mean()
+    mean_edge_reuse_alt_std = df['alt_means'].groupby(df.index).std()
+
+    mean_edge_reuse_dfs_mean = df['dfs_means'].groupby(df.index).mean()
+    mean_edge_reuse_dfs_std = df['dfs_means'].groupby(df.index).std()
+
+    means = [mean_edge_reuse_upwards_mean, mean_edge_reuse_alt_mean, mean_edge_reuse_dfs_mean]
+    std = [mean_edge_reuse_upwards_std, mean_edge_reuse_alt_std, mean_edge_reuse_dfs_std]
+
+
+    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_upwards_mean, marker='o', linestyle='-',color="blue", label="Beamsearch")
+    plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_upwards_mean - mean_edge_reuse_upwards_std,mean_edge_reuse_upwards_mean + mean_edge_reuse_upwards_std, color="blue", alpha=0.15)
+
+    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_alt_mean, marker='x', linestyle='-', color="red", label="Greedy")
+    plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_alt_mean - mean_edge_reuse_alt_std,mean_edge_reuse_alt_mean + mean_edge_reuse_alt_std, color="red", alpha=0.15)
+    #plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_dfs_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
+    plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)],mean_edge_reuse_dfs_mean - mean_edge_reuse_dfs_std,mean_edge_reuse_dfs_mean + mean_edge_reuse_dfs_std, color="green", alpha=0.15)
+    plt.legend(loc="upper left")
+    # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
+    # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
+    plt.title(f'Mean average edge reuse by sampling method for n = {graphsize} (DFS)')
+    plt.ylabel('Mean average edge reuse')
+    plt.xlabel('Number of solutions extracted')
+    plt.savefig(f"edge_reuse_lineplot{graphsize}_dfs.png")
+    plt.close()
 
 
 def average_dataframes(df_list):
@@ -604,7 +713,7 @@ def plot_n_unique_by_n_extracted(df, graphsize):
                      total_uv_seen_bf_mean + total_uv_seen_bf_std, color="red", alpha=0.15)
     plt.legend(loc = "upper left")
     #plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title(f'Unique solutions vs sampled solutions for n = {graphsize}')
+    plt.title(f'Unique solutions vs sampled solutions for n = {graphsize} (BF)')
     plt.xlabel('Sampled solutions')
     plt.ylabel('Unique and valid solutions')
     plt.savefig(f"plot_unique_by_extracted_{graphsize}.png")
@@ -738,7 +847,7 @@ def plot_edge_reuse_matrix_list_mean(df, graphsize):
     #plt.legend(loc="upper left")
     #plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
     #plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title(f'Mean average edge reuse for n = {graphsize}(100 samples per graph)')
+    plt.title(f'Mean average edge reuse for n = {graphsize} (BF)')
     plt.ylabel('Mean average edge reuse')
     plt.savefig("edge_reuse_mean_"+str(graphsize)+".png")
     plt.close()
@@ -785,7 +894,7 @@ def line_plot(df_list, graphsize):
     plt.legend(loc="upper left")
     # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
     # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
-    plt.title(f'Mean average edge reuse by sampling method for n = {graphsize}')
+    plt.title(f'Mean average edge reuse by sampling method for n = {graphsize} (BF)')
     plt.ylabel('Mean average edge reuse')
     plt.xlabel('Number of solutions extracted')
     plt.savefig("edge_reuse_lineplot" + str(graphsize) + ".png")
