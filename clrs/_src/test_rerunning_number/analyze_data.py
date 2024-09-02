@@ -8,7 +8,7 @@ with plt.style.context(spstyle.get_style('nature-reviews')):
 
 min_size = 5
 max_size = 64
-"""
+
 means20_50, std20_50 = generate_data(graphs_per_size=100, num_solutions=[20,50])
 print("here1")
 plt.plot([i for i in range(min_size, max_size + 1)], means20_50, label = "20 vs 50 re-runs")
@@ -28,7 +28,7 @@ plt.ylabel("KL-Divergence")
 plt.title("KL-div between distributions from varying numbers of DFS re-runs")
 plt.savefig("result_DFS.png", bbox_inches = 'tight')
 plt.close()
-"""
+
 
 with plt.style.context(spstyle.get_style('nature-reviews')):
     fig, ax = plt.subplots(ncols =1, sharey = True)
