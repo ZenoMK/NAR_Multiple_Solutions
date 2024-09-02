@@ -459,23 +459,23 @@ def plot_n_unique_by_n_extracted_dfs(df, graphsize):
     total_uv_seen_dfs_mean = df['total_uv_seen_dfs'].groupby(df.index).mean()
     total_uv_seen_dfs_std = df['total_uv_seen_dfs'].groupby(df.index).std()
 
-    plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_upwards_mean, marker='o', linestyle='-',
-             color="blue", label="Upwardssearch")
-    plt.fill_between([i for i in range(len(total_uv_seen_upwards_mean))],
+    plt.plot([i for i in range(1, len(total_uv_seen_upwards_mean)+1)], total_uv_seen_upwards_mean, marker='o', linestyle='-',
+             color="blue", label="Upwards")
+    plt.fill_between([i for i in range(1, len(total_uv_seen_upwards_mean)+1)],
                      total_uv_seen_upwards_mean - total_uv_seen_upwards_std,
                      total_uv_seen_upwards_mean + total_uv_seen_upwards_std, color="blue", alpha=0.15)
 
-    plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='x', linestyle='-',
-             color="red", label="altUpwards")
-    plt.fill_between([i for i in range(len(total_uv_seen_upwards_mean))],
+    plt.plot([i for i in range(1, len(total_uv_seen_upwards_mean)+1)], total_uv_seen_alt_mean, marker='x', linestyle='-',
+             color="red", label="AltUpwards")
+    plt.fill_between([i for i in range(1, len(total_uv_seen_upwards_mean)+1)],
                      total_uv_seen_alt_mean - total_uv_seen_alt_std,
                      total_uv_seen_alt_mean + total_uv_seen_alt_std, color="red", alpha=0.15)
     # plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='v', linestyle='-', color="green", label="DFS")
-    plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_dfs_mean, marker='v', linestyle='-',
+    plt.plot([i for i in range(1, len(total_uv_seen_upwards_mean)+1)], total_uv_seen_dfs_mean, marker='v', linestyle='-',
              color="green", label="DFS")
-    plt.fill_between([i for i in range(len(total_uv_seen_dfs_mean))],
+    plt.fill_between([i for i in range(1, len(total_uv_seen_dfs_mean)+1)],
                      total_uv_seen_dfs_mean - total_uv_seen_dfs_std,
-                     total_uv_seen_dfs_mean + total_uv_seen_dfs_std, color="red", alpha=0.15)
+                     total_uv_seen_dfs_mean + total_uv_seen_dfs_std, color="green", alpha=0.15)
     plt.legend(loc="upper left")
     # plt.axis((0, len(df), 0, len(df)))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
     plt.title(f'Unique solutions vs sampled solutions for n = {graphsize} (DFS)')
