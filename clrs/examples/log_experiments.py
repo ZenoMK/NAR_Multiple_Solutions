@@ -17,6 +17,7 @@ from clrs._src.validate_distributions import (validate_distributions, postproces
                                               plot_n_unique_by_n_extracted, make_n_unique_by_n_extracted_df,
                                               line_plot)
 
+NSE = 3 # constant for validate_distributions numSolsExtracting... 100 standard. runtime is expensive tho.
 ###############################################################
 # Methods needed, copy-pasted from run.py :(
 ###############################################################
@@ -237,7 +238,7 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     if vd_flag:
         print('log_exp.py, vd_flag working')
         dataframes, As, pMs = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds,
-                                            numSolsExtracting=100, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
+                                            numSolsExtracting=NSE, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
         #breakpoint()
 
     ### We need preds and A. We want to
