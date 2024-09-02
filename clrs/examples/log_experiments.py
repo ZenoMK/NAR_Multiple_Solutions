@@ -17,6 +17,7 @@ from clrs._src.validate_distributions import (validate_distributions, postproces
                                               plot_n_unique_by_n_extracted, make_n_unique_by_n_extracted_df,
                                               line_plot)
 
+NSE = 3 # constant for validate_distributions numSolsExtracting... 100 standard. runtime is expensive tho.
 ###############################################################
 # Methods needed, copy-pasted from run.py :(
 ###############################################################
@@ -64,7 +65,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
         print('log_exp.py, vd_flag working')
         #dataframes,_,_ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100, flag='BF')    # note wrapping preds in list for extract_probmatrices to work
         #plot_n_unique_by_n_extracted(dataframes, len(As[0]))
-        df, _, _ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100,
+        df, _, _ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=NSE,
                                             flag="dummy", edge_reuse_BF=True)
 
         #plot_edge_reuse_matrix_list_median(df, len(As[0]))
@@ -237,7 +238,7 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     if vd_flag:
         print('log_exp.py, vd_flag working')
         dataframes, As, pMs = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds,
-                                            numSolsExtracting=100, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
+                                            numSolsExtracting=NSE, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
         #breakpoint()
 
     ### We need preds and A. We want to
