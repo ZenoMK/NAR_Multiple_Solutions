@@ -56,7 +56,7 @@ flags.DEFINE_list('train_lengths', ['4', '7', '11', '13', '16'],
                   'Which training sizes to use. A size of -1 means '
                   'use the benchmark dataset.')
 flags.DEFINE_string("filename", "results", "The name of the file to be saved")
-flags.DEFINE_integer("test_length", 64, "Size of the graphs to be tested on")
+flags.DEFINE_integer("test_length", 4, "Size of the graphs to be tested on")
 flags.DEFINE_integer('length_needle', -8,
                      'Length of needle for training and validation '
                      '(not testing) in string matching algorithms. '
@@ -149,6 +149,8 @@ flags.DEFINE_boolean('save_df', False,
                      'Whether to save model. !! Requires results_df=True !!')
 flags.DEFINE_boolean('save_model_to_file', False,
                      'Whether to save model to .pkl or similar, intended for kaggle')
+flags.DEFINE_boolean('validate_distributions', default=False,
+                     help='Whether to create #unique by #samples figure, implementing for BF')  #FIXME more implement
 
 
 FLAGS = flags.FLAGS
@@ -544,8 +546,7 @@ def main(unused_argv):
             val_sample_counts[algo_idx],
             new_rng_key,
             extras=common_extras)
-        logging.info('(val) algo %s step %d: %s',
-                     FLAGS.algorithms[algo_idx], step, val_stats)
+        #logging.info('(val) algo %s step %d: %s',FLAGS.algorithms[algo_idx], step, val_stats)
         val_scores[algo_idx] = val_stats['score']
 
         if FLAGS.results_df:
@@ -570,10 +571,11 @@ def main(unused_argv):
           ['%s: %.3f' % (x, y) for (x, y) in zip(FLAGS.algorithms, val_scores)])
       if (sum(val_scores) > best_score) or step == 0:
         best_score = sum(val_scores)
-        logging.info('Checkpointing best model, %s', msg)
+        #logging.info('Checkpointing best model, %s', msg)
         train_model.save_model('best.pkl')
       else:
-        logging.info('Not saving new best model, %s', msg)
+        #logging.info('Not saving new best model, %s', msg)
+        pass
 
     step += 1
     length_idx = (length_idx + 1) % len(train_lengths)
@@ -598,16 +600,16 @@ def main(unused_argv):
         test_stats = DFS_collect_and_eval(
             test_samplers[algo_idx],
             functools.partial(eval_model.predict, algorithm_index=algo_idx),
-            test_sample_counts[algo_idx],
+            5,#test_sample_counts[algo_idx],
             new_rng_key,
-            extras=common_extras, filename=FLAGS.filename)
+            extras=common_extras, filename=FLAGS.filename, vd_flag=FLAGS.validate_distributions)
     elif FLAGS.algorithms[algo_idx] == 'bellman_ford':
         test_stats = BF_collect_and_eval(
             test_samplers[algo_idx],
             functools.partial(eval_model.predict, algorithm_index=algo_idx),
             test_sample_counts[algo_idx],
             new_rng_key,
-            extras=common_extras, filename=FLAGS.filename)
+            extras=common_extras, filename=FLAGS.filename, vd_flag=FLAGS.validate_distributions)
     else:
         test_stats = collect_and_eval(
             test_samplers[algo_idx],

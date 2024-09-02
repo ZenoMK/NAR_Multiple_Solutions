@@ -12,6 +12,11 @@ from clrs._src.algorithms.BF_beamsearch import sample_beamsearch, sample_greedys
 from clrs._src.bf_uniqueness_check import check_uniqueness_bf
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
+from clrs._src.validate_distributions import (validate_distributions, postprocess_edge_reuse_matrix_list,
+                                              make_edge_reuse_matrix_list, plot_edge_reuse_matrix_list_mean,
+                                              plot_n_unique_by_n_extracted, make_n_unique_by_n_extracted_df,
+                                              line_plot)
+
 ###############################################################
 # Methods needed, copy-pasted from run.py :(
 ###############################################################
@@ -29,9 +34,8 @@ def unpack(v):
 # BF pipeline
 ###############################################################
 
-def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy'):
+def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename='bf_accuracy', vd_flag=True):
     """Collect batches of output and hint preds and evaluate them."""
-    
     processed_samples = 0
     preds = []
     outputs = []
@@ -54,7 +58,20 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     # breakpoint()
     preds = _concat(preds, axis=0)
     out = clrs.evaluate(outputs, preds)
+
     #breakpoint()
+    if vd_flag:
+        print('log_exp.py, vd_flag working')
+        #dataframes,_,_ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100, flag='BF')    # note wrapping preds in list for extract_probmatrices to work
+        #plot_n_unique_by_n_extracted(dataframes, len(As[0]))
+        df, _, _ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100,
+                                            flag="dummy", edge_reuse_BF=True)
+
+        #plot_edge_reuse_matrix_list_median(df, len(As[0]))
+        #breakpoint()
+        plot_edge_reuse_matrix_list_mean(df, len(As[0]))
+        line_plot(df, len(As[0]))
+        #breakpoint()
 
     ########
     # RANDOM #
@@ -120,8 +137,6 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
         probMatrices=[preds], method = "greedy")
     true_greedy_uniques, true_greedy_valids_uniques, true_greedy_valids = check_uniqueness_bf(As = As, source_nodes = source_nodes,
         probMatrices=outputs, method = "greedy")
-
-
 
 
     ### LOGGING ###
@@ -200,7 +215,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
 # DFS
 ###############################################################
 
-def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename = 'dfs_accuracy'):
+def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename = 'dfs_accuracy', vd_flag=False):
     """Collect batch of output preds and evaluate them."""
     processed_samples = 0
     preds = []
@@ -218,6 +233,12 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
     outputs = _concat(outputs, axis=0)
     As = _concat(As, axis=0) # concatenate batches
     #breakpoint()
+
+    if vd_flag:
+        print('log_exp.py, vd_flag working')
+        dataframes, As, pMs = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds,
+                                            numSolsExtracting=100, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
+        #breakpoint()
 
     ### We need preds and A. We want to
     # 1. Sample from preds a candidate tree

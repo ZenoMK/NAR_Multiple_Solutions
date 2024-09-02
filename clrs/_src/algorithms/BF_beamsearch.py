@@ -17,6 +17,8 @@ def sample_beamsearch(As, Ss, outsOrPreds):
 ##
 def beamsearch(A, s, probMatrix, beamwidth=3):
     """
+    FIXME: AUG25 MAYBE DOESNT WORK AND UNUSED. INSTEAD USE BF_beamsearch... ORELSE JUST REQUIRES np.arrays
+
     nicely decomposed. calls path_to_i for each node. returns parent tree.
     LeastCost path parent tree is sufficient for all leastCost paths,  since if leastCost path s->pi[t]->t didn't use leastCost path s->pi[t], there would be a lowerCost path s->t using s->pi[t]
     """
@@ -91,6 +93,7 @@ def grow_path_by_parent_probs(A, path, path_cost, parent_probs):
     new_path = np.append(path, new_parent)  # concatenate parent to h, conceptually, adding a parent to path progenitor
 
     # calculate cost
+    breakpoint()
     cost_of_new_edge = A[new_parent, path[-1]]
     if cost_of_new_edge == 0:  # edge not in OG graph
         #breakpoint()
@@ -191,8 +194,6 @@ def BF_beamsearch(A, s, probMatrix, beamwidth=3):
 
             if best_path_stemming_from_s is not None:
                 pi[t] = best_path_stemming_from_s[1] # node before i on best_path_found
-            else:
-                print('no good path', s, '->', t)
                 #breakpoint() #oops! no good path
     #except:
     #    print('other error')

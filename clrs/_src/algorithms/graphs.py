@@ -1178,7 +1178,7 @@ def mst_prim(A: _Array, s: int) -> _Out:
   return pi, probes
 
 
-def bellman_ford(A: _Array, s: int) -> _Out:
+def bellman_ford(A: _Array, s: int, deterministic = False) -> _Out:
   """Bellman-Ford's single-source shortest path (Bellman, 1958)."""
 
   chex.assert_rank(A, 2)
@@ -1189,6 +1189,9 @@ def bellman_ford(A: _Array, s: int) -> _Out:
   probeslist = []
   pies = []
   NUM_SOLUTIONS = 20
+
+  if deterministic:
+      NUM_SOLUTIONS = 1
 
   for i in range(NUM_SOLUTIONS):
       probes = probing.initialize(specs.SPECS['bellman_ford'])
