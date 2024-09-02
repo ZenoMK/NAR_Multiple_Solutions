@@ -13,9 +13,10 @@ from clrs._src.bf_uniqueness_check import check_uniqueness_bf
 #from clrs.examples.run import _concat, unpack  # circular import error!
 
 from clrs._src.validate_distributions import (validate_distributions, postprocess_edge_reuse_matrix_list,
-                                              make_edge_reuse_matrix_list, plot_edge_reuse_matrix_list_mean,
-                                              plot_n_unique_by_n_extracted, make_n_unique_by_n_extracted_df,
-                                              line_plot)
+                                              make_edge_reuse_matrix_list, plot_edge_reuse_matrix_list_mean, plot_edge_reuse_matrix_list_mean_dfs,
+                                              plot_n_unique_by_n_extracted,plot_n_unique_by_n_extracted_dfs,
+                                              make_n_unique_by_n_extracted_df,
+                                              line_plot, line_plot_dfs)
 
 NSE = 3 # constant for validate_distributions numSolsExtracting... 100 standard. runtime is expensive tho.
 ###############################################################
@@ -63,9 +64,9 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     #breakpoint()
     if vd_flag:
         print('log_exp.py, vd_flag working')
-        dataframes,_,_ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100, flag='BF')    # note wrapping preds in list for extract_probmatrices to work
+        dataframes,_,_ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=NSE, flag='BF')    # note wrapping preds in list for extract_probmatrices to work
         plot_n_unique_by_n_extracted(dataframes, len(As[0]))
-        df, _, _ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=100,
+        df, _, _ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=NSE,
                                             flag="dummy", edge_reuse_BF=True)
 
         #plot_edge_reuse_matrix_list_median(df, len(As[0]))
@@ -240,6 +241,13 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
         dataframes, As, pMs = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds,
                                             numSolsExtracting=NSE, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
         #breakpoint()
+        plot_n_unique_by_n_extracted_dfs(dataframes, len(As[0]))
+        df, _, _ = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds, numSolsExtracting=NSE, edge_reuse_DFS=True, flag = "dummy")
+
+        # plot_edge_reuse_matrix_list_median(df, len(As[0]))
+        # breakpoint()
+        plot_edge_reuse_matrix_list_mean_dfs(df, len(As[0]))
+        line_plot_dfs(df, len(As[0]))
 
     ### We need preds and A. We want to
     # 1. Sample from preds a candidate tree
