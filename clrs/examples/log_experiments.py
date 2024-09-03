@@ -18,7 +18,6 @@ from clrs._src.validate_distributions import (validate_distributions, postproces
                                               make_n_unique_by_n_extracted_df,
                                               line_plot, line_plot_dfs)
 
-NSE = 3 # constant for validate_distributions numSolsExtracting... 100 standard. runtime is expensive tho.
 ###############################################################
 # Methods needed, copy-pasted from run.py :(
 ###############################################################

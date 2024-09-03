@@ -151,7 +151,7 @@ flags.DEFINE_boolean('save_model_to_file', False,
                      'Whether to save model to .pkl or similar, intended for kaggle')
 flags.DEFINE_boolean('validate_distributions', default=False,
                      help='Whether to create #unique by #samples figure, implementing for BF')  #FIXME more implement
-flags.DEFINE_integer('NSE', default = 100, help = "number of extracted solutions in distribution validation")
+flags.DEFINE_integer('NSE', default = 25, help = "number of extracted solutions in distribution validation")
 
 FLAGS = flags.FLAGS
 
