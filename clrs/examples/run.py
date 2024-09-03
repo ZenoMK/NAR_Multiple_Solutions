@@ -609,7 +609,7 @@ def main(unused_argv):
             functools.partial(eval_model.predict, algorithm_index=algo_idx),
             test_sample_counts[algo_idx],
             new_rng_key,
-            extras=common_extras, filename=FLAGS.filename, vd_flag=FLAGS.validate_distributions, NSE = FLAGS.nse)
+            extras=common_extras, filename=FLAGS.filename, vd_flag=FLAGS.validate_distributions, NSE = FLAGS.NSE)
     else:
         test_stats = collect_and_eval(
             test_samplers[algo_idx],

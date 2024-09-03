@@ -187,7 +187,7 @@ def plot_edge_reuse_matrix_list_mean_dfs(df, graphsize):
     # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
     plt.title(f'Mean average edge reuse for n = {graphsize} (DFS)')
     plt.ylabel('Mean average edge reuse')
-    plt.savefig("edge_reuse_mean_" + str(graphsize) + ".png")
+    plt.savefig("edge_reuse_mean_" + str(graphsize) + "_dfs.png")
     plt.close()
 
 
@@ -521,7 +521,8 @@ def line_plot_dfs(df_list, graphsize):
     #plt.plot([i for i in range(len(total_uv_seen_upwards_mean))], total_uv_seen_alt_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
     plt.plot([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)], mean_edge_reuse_dfs_mean, marker='v', linestyle='-', color="green", label="DFS")
     plt.fill_between([i for i in range(1, len(mean_edge_reuse_upwards_mean)+1)],mean_edge_reuse_dfs_mean - mean_edge_reuse_dfs_std,mean_edge_reuse_dfs_mean + mean_edge_reuse_dfs_std, color="green", alpha=0.15)
-    plt.legend(loc="upper left")
+    plt.legend(loc="lower left")
+    plt.axis((0, len(mean_edge_reuse_upwards_mean), 0, 1))
     # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
     # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
     plt.title(f'Mean average edge reuse by sampling method for n = {graphsize} (DFS)')
@@ -891,7 +892,8 @@ def line_plot(df_list, graphsize):
     #plt.plot([i for i in range(len(total_uv_seen_beam_mean))], total_uv_seen_greedy_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
     plt.plot([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)], mean_edge_reuse_bf_mean, marker='v', linestyle='-', color="green", label="Bellman-Ford")
     plt.fill_between([i for i in range(1, len(mean_edge_reuse_beam_mean)+1)],mean_edge_reuse_bf_mean - mean_edge_reuse_bf_std,mean_edge_reuse_bf_mean + mean_edge_reuse_bf_std, color="green", alpha=0.15)
-    plt.legend(loc="upper left")
+    plt.legend(loc="lower left")
+    plt.axis((0, len(mean_edge_reuse_beam_mean), 0,1))
     # plt.plot(df.n_samples, df.medians, marker='o', linestyle='-')
     # plt.axis((0, len(df), 0, 1))  # weird error, when I run in pycharm can't adjust axes, but works in terminal
     plt.title(f'Mean average edge reuse by sampling method for n = {graphsize} (BF)')
