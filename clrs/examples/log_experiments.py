@@ -216,7 +216,7 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
 # DFS
 ###############################################################
 
-def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename = 'dfs_accuracy', vd_flag=False, NSE = NSE):
+def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, filename = 'dfs_accuracy', vd_flag=False, NSE = 100):
     """Collect batch of output preds and evaluate them."""
     processed_samples = 0
     preds = []
