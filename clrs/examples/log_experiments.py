@@ -63,8 +63,13 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
     #breakpoint()
     if vd_flag:
         print('log_exp.py, vd_flag working')
-        print('log_exp.py, BF_collect_and_eval, only testing on 5 of the graphs')
-        As = As[:5]
+        print('log_exp.py, BF_collect_and_eval, only testing on 1 of the graphs')
+        #truncate to just one graph
+        As = As[:1]
+        source_nodes = source_nodes[:1]
+        outputs[0].data = outputs[0].data[:1]
+        preds['pi'].data = preds['pi'].data[:1]
+        #truncate
         dataframes,_,_ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=NSE, flag='BF')    # note wrapping preds in list for extract_probmatrices to work
         plot_n_unique_by_n_extracted(dataframes, len(As[0]))
         df, _, _ = validate_distributions(As=As, Ss=source_nodes, outsOrPreds=[preds], numSolsExtracting=NSE,
