@@ -244,6 +244,10 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
 
     if vd_flag:
         print('log_exp.py, vd_flag working')
+        print('truncating DFS_collect_and_eval to 10 graphs')
+        As = As[:10]
+        outputs[0].data = outputs[0].data[:10]
+        preds[0]['pi'].data = preds[0]['pi'].data[:10]
         dataframes, As, pMs = validate_distributions(As=As, Ss=[0]*len(As), outsOrPreds=preds,
                                             numSolsExtracting=NSE, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
         #breakpoint()
