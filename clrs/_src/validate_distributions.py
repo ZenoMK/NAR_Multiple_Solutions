@@ -172,7 +172,7 @@ def plot_edge_reuse_matrix_list_mean_dfs(df, graphsize):
 
     plt.bar(np.arange(len(means)), means, 0.4)
     plt.errorbar(np.arange(len(means)), means, yerr=std, color="black", capsize=5, ls="None")
-    plt.xticks(np.arange(len(means)), ["Upwards", "altUpwards", "DFS"])
+    plt.xticks(np.arange(len(means)), ["Upwards", "AltUpwards", "DFS"])
 
     # plt.plot([i for i in range(len(mean_edge_reuse_upwards_mean))], mean_edge_reuse_upwards_mean, marker='o', linestyle='-',color="blue", label="Upwardssearch")
     # plt.fill_between([i for i in range(len(mean_edge_reuse_upwards_mean))], mean_edge_reuse_upwards_mean - mean_edge_reuse_upwards_std,mean_edge_reuse_upwards_mean + mean_edge_reuse_upwards_std, color="blue", alpha=0.15)
