@@ -450,7 +450,7 @@ def main(unused_argv):
       hint_repred_mode=FLAGS.hint_repred_mode,
       nb_msg_passing_steps=FLAGS.nb_msg_passing_steps,
       )
-
+  print('run.py model params', model_params)
   eval_model = clrs.models.BaselineModel(
       spec=spec_list,
       dummy_trajectory=[next(t) for t in val_samplers],

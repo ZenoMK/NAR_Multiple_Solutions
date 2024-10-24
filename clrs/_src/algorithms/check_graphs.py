@@ -32,6 +32,22 @@ edge_to_zero_adj = np.array([
 ])
 edge_to_zero_pi = [0,1]
 
+
+def brute_force_dfsTree_validity(A, pi):
+    """builds all valid trees, checks if pi is one of them"""
+    trees = []
+    unmarked = [i for i in range(len(A)-1, -1, -1)]  # better locality, doing reverse
+    while unmarked != []:
+        node = unmarked[-1]
+        stack = [node]
+        while stack != []:
+            # check outgoing edges
+            a = l.pop()
+            # append next-node to each tree being built
+
+        ## recursion??
+
+
 def check_valid_dfsTree_new(A, pi):
     '''checks: acyclic, dangling, edge-validity, and valid-start'''
     '''
