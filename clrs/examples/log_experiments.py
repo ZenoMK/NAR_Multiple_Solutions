@@ -1,3 +1,4 @@
+import copy
 import time
 
 import numpy as np
@@ -67,10 +68,10 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
         #truncate to just 10 graph
         As_vd = As[:10]
         source_nodes_vd = source_nodes[:10]
-        outputs_vd = outputs
-        preds_vd = preds
-        outputs_vd[0].data = outputs[0].data[:10]
-        preds_vd['pi'].data = preds['pi'].data[:10]
+        outputs_vd = copy.deepcopy(outputs)
+        preds_vd = copy.deepcopy(preds)
+        outputs_vd[0].data = outputs_vd[0].data[:10]
+        preds_vd['pi'].data = preds_vd['pi'].data[:10]
         #truncate
         dataframes,_,_ = validate_distributions(As=As_vd, Ss=source_nodes_vd, outsOrPreds=[preds_vd], numSolsExtracting=NSE, flag='BF')    # note wrapping preds in list for extract_probmatrices to work
         plot_n_unique_by_n_extracted(dataframes, len(As[0]))
@@ -79,8 +80,8 @@ def BF_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, file
 
         #plot_edge_reuse_matrix_list_median(df, len(As[0]))
         #breakpoint()
-        plot_edge_reuse_matrix_list_mean(df, len(As[0]))
-        line_plot(df, len(As[0]))
+        plot_edge_reuse_matrix_list_mean(df, len(As_vd[0]))
+        line_plot(df, len(As_vd[0]))
         #breakpoint()
 
     ########
