@@ -72,7 +72,7 @@ flags.DEFINE_boolean('enforce_permutations', True,
                      'Whether to enforce permutation-type node pointers.')
 flags.DEFINE_boolean('enforce_pred_as_input', True,
                      'Whether to change pred_h hints into pred inputs.')
-flags.DEFINE_integer('batch_size', 1, 'Batch size used for training.')
+flags.DEFINE_integer('batch_size', 32, 'Batch size used for training.')
 flags.DEFINE_boolean('chunked_training', False,
                      'Whether to use chunking for training.')
 flags.DEFINE_integer('chunk_length', 16,
