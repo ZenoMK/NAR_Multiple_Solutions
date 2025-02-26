@@ -37,7 +37,7 @@ def ingest_resultfile(fpath='results/first5_dfs.csv'):  # fpath = 'results/first
         string_to_array(colname, df)
     return df
 
-df = ingest_resultfile('results/first5_dfs.csv')
+df = ingest_resultfile('results/second5_dfs.csv')
 
 def brute_force_column_validity(df, As_name, Pis_name):
     """assumes df with As and Pis"""
@@ -55,6 +55,7 @@ def brute_force_column_validity(df, As_name, Pis_name):
 # ------------------------------------------------------------
 def brute_force_dfs_validity(A, pi):
     """takes array, makes all valid trees, tests whether pi is a member of valid trees"""
+    # FIXME doesnt do restarts
     graph = nx.from_numpy_array(A, create_using=nx.DiGraph)
     valid_trees = generate_all_dfs_trees_from_start(graph, 0)
     pi_as_edge_rep = parent_rep_to_edges(pi)
@@ -71,19 +72,24 @@ e = parent_rep_to_edges(pi)
 
 # Function to perform DFS with a specific neighbor visiting order and build the DFS tree
 def dfs_tree_with_order(start_node, neighbor_order):
-    tree_edges = [(0, 0)]  # 0 always its own parent
+    tree_edges = []
     visited = set()
 
     def dfs(node):
-        visited.add(node)
-        neighbors = neighbor_order[node]
-        # breakpoint()
-        for neighbor in neighbors:
-            if neighbor not in visited:
-                tree_edges.append((node, neighbor))
-                dfs(neighbor)
+        if node not in visited:
+            visited.add(node)
+            neighbors = neighbor_order[node]
+            # breakpoint()
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    tree_edges.append((node, neighbor))
+                    dfs(neighbor)
 
-    dfs(start_node)
+    for node in range(len(neighbor_order)):
+        #print('searching from ', node)
+        if node not in visited:
+            tree_edges.append((node, node))
+            dfs(node)
     return set(tree_edges)  # return as set of edges for comparison
 
 
@@ -224,7 +230,7 @@ MASK_COLNAMES = ['Argmax_Model_Mask', 'Argmax_True_Mask',
 
 
 adf = discrepency_finder(df, ARRAY_COLNAMES, MASK_COLNAMES)
-xors =  adf.iloc[:, -8:]
+xors = adf.iloc[:, -8:]
 xor_sums = xors.sum()
 print(xor_sums)
 
@@ -238,12 +244,32 @@ frac_data = [np.array(xor_sums.tolist()) / np.array(old_sums.tolist())]  # nan m
 fracs = pd.DataFrame(data=frac_data, columns=olds.columns)
 
 
+## example of TP
 # df.iloc[6, :]['Upwards_True_Trees']
 # array([0, 1, 4, 0, 1])
 # df.iloc[6, :]['As']
-# array([[1, 0, 0, 1, 0],
-#        [0, 0, 1, 1, 1],
-#        [1, 0, 0, 1, 0],
-#        [1, 0, 0, 1, 0],
-#        [0, 0, 1, 0, 0]])
+M = np.array([[1, 0, 0, 1, 0],
+       [0, 0, 1, 1, 1],
+       [1, 0, 0, 1, 0],
+       [1, 0, 0, 1, 0],
+       [0, 0, 1, 0, 0]])
+
+G3 = nx.DiGraph(M)
+dfs_trees3 = generate_all_dfs_trees_from_start(G3, start_node)
+display_trees(dfs_trees3)
+## manually inspect discrepencies
+print(xors)
+
+
+# example of correctly-idenified FP
+# df['altUpwards_Model_Trees'].iloc[2]
+t = np.array([0, 4, 0, 0, 3])
+# df['As'].iloc[2]
+M = np.array([[0, 0, 1, 1, 1],
+       [1, 0, 1, 1, 0],
+       [0, 0, 1, 1, 1],
+       [1, 1, 0, 0, 1],
+       [0, 1, 0, 1, 1]])
+display_adj(M)
+display_trees([list(parent_rep_to_edges(t))])
 
