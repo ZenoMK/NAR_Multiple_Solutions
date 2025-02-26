@@ -245,7 +245,7 @@ def dfs_many_times(G, n_runs):
     return traversal_orders, trees
 
 def prolly_unique_dfs(G):
-    print('very approximate: the unique dfs trees of G. ok for small graphs (<10 nodes)')
+    print('very approximate: the unique dfs trees of G. ok for small graphs (<= 6 nodes)')
     orders, trees = dfs_many_times(G, 1000)
     unique_orders = set(orders)
     shortlist_trees = {order:trees[order] for order in unique_orders}
@@ -280,8 +280,8 @@ false = np.array([[0,1,1], [0,0,0], [0,0,0]])
 gfa, gfr = graphtest(G, henry)
 tfa, tfr = graphtest(T, henry)
 
-print('false g ', len(gfa))
-print('false t ', len(tfa))
+print('num false g: ', len(gfa))
+print('num false t: ', len(tfa))
 
 # for g in gfa:
 #     draw(g)
@@ -349,4 +349,4 @@ def Algo(G, F):
 
 A = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=int)
 reach_matrix = reachability_floyd_warshall(nx.from_numpy_array(A))
-print(reach_matrix)
+#print(reach_matrix)
