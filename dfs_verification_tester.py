@@ -29,6 +29,7 @@ def random_subgraphs(G,p,n):
     return [random_subgraph(G,p) for i in range(n)]
 
 def random_subgraph(G, p):
+    G = nx.DiGraph(G)
     subgraph = nx.DiGraph()
     subgraph.add_nodes_from(G.nodes())
     # keep each edge with probability p
@@ -93,7 +94,7 @@ def dfs(graph):
 
 def forest_from_traversal(G, O):
     '''discoverer is closest preceding in order with edge?'''
-    print('assuming order and graph uniquely determine tree')
+    #print('assuming order and graph uniquely determine tree')
     forest = np.zeros((len(G), len(G)))
     back = list(reversed(O))
     for ix in range(len(back)):
@@ -112,7 +113,24 @@ def forest_from_traversal(G, O):
 # ---------------------------------------------------------------------------------------------------------------------
 # FIXME: test this. not sure if it's legit.
 
+def preprocess(adj_matrix):
+    """ensure it's acyclic, nodes have at most 1 parent"""
+    if isinstance(adj_matrix, nx.Graph):
+        adj_matrix = nx.to_numpy_array(adj_matrix)
+    n = len(adj_matrix)
+    # Step 1: Count incoming edges for each node
+    in_degrees = np.sum(adj_matrix, axis=0)
+    # Step 2: Ensure nodes have no more than 1 parent
+    if not np.all((in_degrees == 1) | (in_degrees == 0)):
+        return False  # Each node must have either 0 (root) or 1 incoming edge
+    # Step 3: Ensure acyclic
+    F = nx.DiGraph(adj_matrix)
+    return nx.is_directed_acyclic_graph(F)
+
+
 def henry(G, F):
+    if not preprocess(F):
+        return False
     if isinstance(G, np.ndarray):
         G = nx.from_numpy_array(G, create_using=nx.DiGraph)
     if isinstance(F, np.ndarray):
@@ -183,8 +201,8 @@ def get_unique_adjacency_matrices(graphs):
     unique_graphs = []
 
     for G in graphs:
-        # Get the adjacency matrix as a NumPy array
-        adj_matrix = nx.adjacency_matrix(G).toarray()
+        # Get the adjacency matrix
+        adj_matrix = nx.to_numpy_array(G)
 
         # Convert matrix to a tuple of tuples (hashable format)
         matrix_tuple = tuple(map(tuple, adj_matrix))
@@ -258,7 +276,7 @@ tos, tts = prolly_unique_dfs(T)
 false = np.array([[0,1,1], [0,0,0], [0,0,0]])
 
 
-# TESTING
+# TESTING - "false acceptances" (gfa/tfa) should be visually correct trees when you draw them, orelse algo is wrong
 gfa, gfr = graphtest(G, henry)
 tfa, tfr = graphtest(T, henry)
 
@@ -270,12 +288,6 @@ print('false t ', len(tfa))
 #
 # for t in tfa:
 #     draw(t)
-# false accepting extra arrow. WEIRD. not subgraphing 0-2-1, also weird
-
-
-ls = get_unique_adjacency_matrices(random_subgraphs(T, p=0.5, n=1000))
-
-
 
 
 
