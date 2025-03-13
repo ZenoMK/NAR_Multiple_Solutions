@@ -166,6 +166,7 @@ def down(G, source, colors):
 
 
 def ccv(G, F, node, colors):
+    '''check child validity: which kid can go next, like a waterslide'''
     if down(G, node, colors) != down(F, node, colors):  # base case: this node can go
         return False
     colors[node] = 1  # passed the vibe check, green
@@ -181,7 +182,7 @@ def ccv(G, F, node, colors):
         if pd[kid] == ad[kid]:
             # this kid can go next
             if not ccv(G, F, kid, colors):  # blow-up if things are bad in the descendants
-                print('a')
+                #print('a')
                 return False
             i = 0  # otherwise, proceed to other top-level kids
             kids = notgreen(kids, colors)  # change the loop list
@@ -277,11 +278,11 @@ false = np.array([[0,1,1], [0,0,0], [0,0,0]])
 
 
 # TESTING - "false acceptances" (gfa/tfa) should be visually correct trees when you draw them, orelse algo is wrong
-gfa, gfr = graphtest(G, henry)
-tfa, tfr = graphtest(T, henry)
-
-print('num false g: ', len(gfa))
-print('num false t: ', len(tfa))
+# gfa, gfr = graphtest(G, henry)
+# tfa, tfr = graphtest(T, henry)
+#
+# print('num false accepts g: ', len(gfa))
+# print('num false accepts t: ', len(tfa))
 
 # for g in gfa:
 #     draw(g)
@@ -290,8 +291,51 @@ print('num false t: ', len(tfa))
 #     draw(t)
 
 
+def manual_sanity_check(graphsizes, verifier_algorithm):
+    """
+    for each size in graphsizes,
+        1. make a random graph,
+        2. run graphtest(G,verfier), which tests 1000 good trees and 1000 bad trees
+        3. assert no false rejects (all good trees are marked good)
+        4. store `probably false accepts` for manual inspection (bad trees are just random trees, they might be correct)
+    """
+    outcomes = []
+    for size in graphsizes:
+        for i in range(10):
+            G = er_graph(n=size, p=0.6) # slightly dense
+            fa, fr = graphtest(G, verifier_algorithm)
+            if len(fr) != 0:
+                print(f'Problems with verifier on size {size}')
+            outcomes.append((G, fa, fr))
+    return outcomes
 
 
+def automatic_sanity_check(n=64, verifier_algorithm=henry): # Todo: whats a graphsize where you should see a false accept? 6 with 1000 random trees
+    """
+    1. make 10 random graphs of size n,
+    2. create 1000 good trees and 1000 probably bad trees,
+    3. assert no false rejects
+    4. flag false accepts (should be very unlikely for sufficiently large n)
+    """
+    outcomes = []
+    for i in range(10):
+        G = er_graph(n=n, p=0.5)
+        false_accepts, false_rejects = graphtest(G, verifier_algorithm)
+        if len(false_rejects) != 0:
+            print(f'Problems with verifier on Graph {i}')
+        if len(false_accepts) != 0:
+            print(f'Manually inspect `false accept` on Graph {i}')
+        outcomes.append((G, false_accepts, false_rejects))
+    return outcomes
+
+def how_many_fa(outcomes):
+    ix=0
+    for triple in outcomes:
+        G = triple[0]
+        false_accepts = triple[1]
+        false_rejects = triple[2]
+        print(f'Graph {ix} has {len(false_accepts)} false accepts')
+        ix+=1
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
@@ -305,48 +349,48 @@ print('num false t: ', len(tfa))
     # the topological sort is new labeling
     # run deterministic DFS, un-relabel, check identity.
 
-
-def reachability_floyd_warshall(G):
-    '''1 at row x col y, iff path x->y. else 0. Nodes are self-reachable'''
-    adj_matrix = nx.to_numpy_array(G)
-    n = len(adj_matrix)
-    reach = adj_matrix.copy()
-
-    for k in range(n):
-        for i in range(n):
-            for j in range(n):
-                reach[i][j] = reach[i][j] or (reach[i][k] and reach[k][j])
-
-    return reach
-
-def orderings_from_reach_mats(gmat, fmat):
-    '''ordering_mat is matrix, (i,j)=1 iff i<j based on reachability'''
-    ordering_mat = np.zeros((len(gmat), len(gmat)))
-    for source_ix in range(len(gmat)):
-        for target_ix in range(len(gmat)):
-            if gmat[source_ix, target_ix] and fmat[source_ix, target_ix]:
-                # then source b4 target
-                ordering_mat[source_ix, target_ix] = 1
-            elif gmat[source_ix, target_ix] and not fmat[source_ix, target_ix]:
-                # target b4 source
-                ordering_mat[target_ix, source_ix] = 1
-            elif not gmat[source_ix, target_ix] and not fmat[source_ix, target_ix]:
-                # conclude nothing. not reachable
-                pass
-            else:
-                print('error, reachable in F but not G, illegal')
-    return ordering_mat - np.eye(len(gmat), len(gmat)) # remove self<self
-
-
-def Algo(G, F):
-    g_reach_matrix = reachability_floyd_warshall(G)
-    f_reach_matrix = reachability_floyd_warshall(F)
-    constraint_graph = orderings_from_reach_mats(g_reach_matrix, f_reach_matrix)
-    return constraint_graph
-    # toposort constraint graph for labelling
-
-#nx.to_numpy_array(G)
-
-A = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=int)
-reach_matrix = reachability_floyd_warshall(nx.from_numpy_array(A))
-#print(reach_matrix)
+#
+# def reachability_floyd_warshall(G):
+#     '''1 at row x col y, iff path x->y. else 0. Nodes are self-reachable'''
+#     adj_matrix = nx.to_numpy_array(G)
+#     n = len(adj_matrix)
+#     reach = adj_matrix.copy()
+#
+#     for k in range(n):
+#         for i in range(n):
+#             for j in range(n):
+#                 reach[i][j] = reach[i][j] or (reach[i][k] and reach[k][j])
+#
+#     return reach
+#
+# def orderings_from_reach_mats(gmat, fmat):
+#     '''ordering_mat is matrix, (i,j)=1 iff i<j based on reachability'''
+#     ordering_mat = np.zeros((len(gmat), len(gmat)))
+#     for source_ix in range(len(gmat)):
+#         for target_ix in range(len(gmat)):
+#             if gmat[source_ix, target_ix] and fmat[source_ix, target_ix]:
+#                 # then source b4 target
+#                 ordering_mat[source_ix, target_ix] = 1
+#             elif gmat[source_ix, target_ix] and not fmat[source_ix, target_ix]:
+#                 # target b4 source
+#                 ordering_mat[target_ix, source_ix] = 1
+#             elif not gmat[source_ix, target_ix] and not fmat[source_ix, target_ix]:
+#                 # conclude nothing. not reachable
+#                 pass
+#             else:
+#                 print('error, reachable in F but not G, illegal')
+#     return ordering_mat - np.eye(len(gmat), len(gmat)) # remove self<self
+#
+#
+# def Algo(G, F):
+#     g_reach_matrix = reachability_floyd_warshall(G)
+#     f_reach_matrix = reachability_floyd_warshall(F)
+#     constraint_graph = orderings_from_reach_mats(g_reach_matrix, f_reach_matrix)
+#     return constraint_graph
+#     # toposort constraint graph for labelling
+#
+# #nx.to_numpy_array(G)
+#
+# A = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=int)
+# reach_matrix = reachability_floyd_warshall(nx.from_numpy_array(A))
+# #print(reach_matrix)
