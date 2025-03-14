@@ -138,6 +138,7 @@ def henry(G, F):
     colors = [0] * len(G)
     for i in range(len(G)):  # outer restart loop
         if not ccv(G, F, i, colors):
+            #print(f'fails on node {i}')
             return False
     return True
 
@@ -164,13 +165,34 @@ def down(G, source, colors):
     descendants.discard(source)  # Exclude the source itself. If source not present (green at start) does nothing
     return descendants
 
+def treedown(G, source):
+    '''return set of all descendents of node in G''' # testing this in tree to deal with bug? PROBLEM, accepts disconnected bois
+    visited = set()
+    descendants = set()
+
+    def minidfs(node):
+        if node in visited:
+            return
+        visited.add(node)
+        descendants.add(node)
+        for neighbor in G.neighbors(node):
+            minidfs(neighbor)
+
+    minidfs(source)
+    descendants.discard(source)  # Exclude the source itself.
+    return descendants
+
 
 def ccv(G, F, node, colors):
-    '''check child validity: which kid can go next, like a waterslide'''
-    if down(G, node, colors) != down(F, node, colors):  # base case: this node can go
+    '''check child validity: which kid can go next, like a waterslide''' # FIXME: you can early-discover dead-ends, which can lead you to false rejecting bcuz not descendant in graph but yes in tree, fix by following tree-edges for kids, not graph-edges
+    if colors[node] == 1:   # you can only be greened by your kids being valid at some point, and once you're green you stay green
+        return True
+    if down(G, node, colors) != treedown(F, node): #down(F, node, colors):  # base case: this node can go
         return False
     colors[node] = 1  # passed the vibe check, green
-    kids = G.neighbors(node)
+    #print(f'greening node {node}')
+    #kids = G.neighbors(node)
+    kids = F.neighbors(node)
     kids = notgreen(kids, colors)  # green means visited, done
     i = 0
     while i < len(kids):
@@ -178,11 +200,12 @@ def ccv(G, F, node, colors):
         pd = dict()
         ad = dict()
         pd[kid] = down(G, kid, colors)  # possible descendants **through non-green paths**
-        ad[kid] = down(F, kid, colors)  # actual descendants **should this be thru non-green? it is**
+        ad[kid] = treedown(F, kid) #down(F, kid, colors)  # actual descendants **should this be thru non-green? it is**
+        #breakpoint()
         if pd[kid] == ad[kid]:
             # this kid can go next
             if not ccv(G, F, kid, colors):  # blow-up if things are bad in the descendants
-                #print('a')
+                #print('fails on descendants')
                 return False
             i = 0  # otherwise, proceed to other top-level kids
             kids = notgreen(kids, colors)  # change the loop list
@@ -200,10 +223,13 @@ def ccv(G, F, node, colors):
 def get_unique_adjacency_matrices(graphs):
     unique_matrices = set()
     unique_graphs = []
-
+    #breakpoint()
     for G in graphs:
-        # Get the adjacency matrix
-        adj_matrix = nx.to_numpy_array(G)
+        if isinstance(G, np.ndarray):
+            adj_matrix = G
+        else:
+            # Get the adjacency matrix
+            adj_matrix = nx.to_numpy_array(G)
 
         # Convert matrix to a tuple of tuples (hashable format)
         matrix_tuple = tuple(map(tuple, adj_matrix))
@@ -249,7 +275,7 @@ def prolly_unique_dfs(G):
     print('very approximate: the unique dfs trees of G. ok for small graphs (<= 6 nodes)')
     orders, trees = dfs_many_times(G, 1000)
     unique_orders = set(orders)
-    shortlist_trees = {order:trees[order] for order in unique_orders}
+    shortlist_trees = {order: trees[order] for order in unique_orders}
     return unique_orders, shortlist_trees
 
 
@@ -261,20 +287,20 @@ def draw(G):
 
 # three-arm graph (0->2->5, 0->1->3->6, 0->1->4,->7), 4 possibilities (do 1 first or do 0 first, swap47and36)
 # expect [0,2,5,1,4,7,3,6], [0,2,5,1,3,6,4,7], [0,1,3,6,4,7,2,5], [0,1,4,7,3,6,2,5],
-G = nx.Graph()
-#edges = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 5), (3, 6), (4, 7)]   # connected
-edges = [(0, 1), (0, 2), (1, 4), (2, 5), (3, 6), (4, 7)]            # disconnected
-G.add_edges_from(edges)
-to = dfs(G)    # rerunning gives new dfs's
-F = nx.from_numpy_array(forest_from_traversal(G, to), create_using=nx.DiGraph)
-
-# CLASSIC TRIANGLE
-T = nx.Graph()
-tedges = [(0,1), (0,2), (1,2)]
-T.add_edges_from(tedges)
-tos, tts = prolly_unique_dfs(T)
-
-false = np.array([[0,1,1], [0,0,0], [0,0,0]])
+# G = nx.Graph()
+# #edges = [(0, 1), (0, 2), (1, 3), (1, 4), (2, 5), (3, 6), (4, 7)]   # connected
+# edges = [(0, 1), (0, 2), (1, 4), (2, 5), (3, 6), (4, 7)]            # disconnected
+# G.add_edges_from(edges)
+# to = dfs(G)    # rerunning gives new dfs's
+# F = nx.from_numpy_array(forest_from_traversal(G, to), create_using=nx.DiGraph)
+#
+# # CLASSIC TRIANGLE
+# T = nx.Graph()
+# tedges = [(0,1), (0,2), (1,2)]
+# T.add_edges_from(tedges)
+# tos, tts = prolly_unique_dfs(T)
+#
+# false = np.array([[0,1,1], [0,0,0], [0,0,0]])
 
 
 # TESTING - "false acceptances" (gfa/tfa) should be visually correct trees when you draw them, orelse algo is wrong
@@ -290,6 +316,65 @@ false = np.array([[0,1,1], [0,0,0], [0,0,0]])
 # for t in tfa:
 #     draw(t)
 
+# TRICKY EXAMPLE FOUND BY SANITY CHECK: problem - T is giving initial nodes new parents
+A = np.array([
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0, 1],
+    [1, 0, 0, 1, 0, 0],
+    [1, 1, 0, 0, 0, 1],
+    [0, 1, 1, 0, 0, 1],
+    [0, 1, 0, 0, 0, 0]
+])
+
+T = np.array([
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0, 0],
+    [1, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 1],
+    [0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
+])
+
+
+A2 = np.array([
+    [0,0,0],
+    [1,0,0],
+    [0,1,0]
+])
+T2 = np.array([
+    [0,0,0],
+    [1,0,0],
+    [0,1,0]
+])
+
+A3 = np.array([
+    [0, 1, 1],
+    [1, 0, 1],
+    [0, 1, 0]
+])
+T3 = np.array([
+    [0, 1, 0],
+    [0, 0, 1],
+    [0, 0, 0]
+])
+
+
+FRA = np.array([
+    [0, 1, 0, 0, 1, 1],
+    [0, 0, 0, 1, 0, 1],
+    [0, 0, 0, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0],
+    [1, 0, 1, 1, 0, 1],
+    [1, 0, 1, 1, 1, 0]
+])
+FRT = np.array([
+    [0, 1, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 0, 0],
+    [0, 0, 0, 0, 1, 0]
+])
 
 def manual_sanity_check(graphsizes, verifier_algorithm):
     """
@@ -326,6 +411,7 @@ def automatic_sanity_check(n=64, verifier_algorithm=henry): # Todo: whats a grap
         if len(false_accepts) != 0:
             print(f'Manually inspect `false accept` on Graph {i}')
         outcomes.append((G, false_accepts, false_rejects))
+    how_many_fa(outcomes)
     return outcomes
 
 def how_many_fa(outcomes):
@@ -334,7 +420,7 @@ def how_many_fa(outcomes):
         G = triple[0]
         false_accepts = triple[1]
         false_rejects = triple[2]
-        print(f'Graph {ix} has {len(false_accepts)} false accepts')
+        print(f'Graph {ix} has {len(false_accepts)} possibly false accepts and {len(false_rejects)} false rejects')
         ix+=1
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
