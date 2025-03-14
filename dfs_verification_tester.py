@@ -14,10 +14,12 @@ import matplotlib.pyplot as plt     # visualize nx graphs
 import random                       # shuffle lists
 import numpy as np                  # adjacency matrices
 
+
 # ---------------------------------------------------------------------------------------------------------------------
 # -- Generating Random Graphs -- #
 # ---------------------------------------------------------------------------------------------------------------------
 random.seed(123)
+NUM_TO_TEST = 10**3
 
 def er_graph(n, p):
     # Generate random graph
@@ -246,7 +248,7 @@ def graphtest(G, verifier):
     false_approves = []
     false_rejects = []
     go, good_forests = prolly_unique_dfs(G)
-    bad_graphs = random_subgraphs(G, p=0.5, n=1000)
+    bad_graphs = random_subgraphs(G, p=0.5, n=NUM_TO_TEST)
     #breakpoint()
     #bad_forests = random_forestish(G)
     for g in good_forests.values():
@@ -255,7 +257,7 @@ def graphtest(G, verifier):
     for b in bad_graphs:
         if verifier(G,b):
             false_approves.append(b)
-    return get_unique_adjacency_matrices(false_approves), get_unique_adjacency_matrices(false_rejects)
+    return get_unique_adjacency_matrices(false_approves), get_unique_adjacency_matrices(false_rejects), len(go)
 
 #fa, fr = graphtest(G,henry)
 
@@ -272,8 +274,8 @@ def dfs_many_times(G, n_runs):
     return traversal_orders, trees
 
 def prolly_unique_dfs(G):
-    print('very approximate: the unique dfs trees of G. ok for small graphs (<= 6 nodes)')
-    orders, trees = dfs_many_times(G, 1000)
+    #print('very approximate: the unique dfs trees of G. ok for small graphs (<= 6 nodes)')
+    orders, trees = dfs_many_times(G, NUM_TO_TEST)
     unique_orders = set(orders)
     shortlist_trees = {order: trees[order] for order in unique_orders}
     return unique_orders, shortlist_trees
@@ -388,14 +390,14 @@ def manual_sanity_check(graphsizes, verifier_algorithm):
     for size in graphsizes:
         for i in range(10):
             G = er_graph(n=size, p=0.6) # slightly dense
-            fa, fr = graphtest(G, verifier_algorithm)
+            fa, fr, nu = graphtest(G, verifier_algorithm)
             if len(fr) != 0:
                 print(f'Problems with verifier on size {size}')
             outcomes.append((G, fa, fr))
     return outcomes
 
 
-def automatic_sanity_check(n=64, verifier_algorithm=henry): # Todo: whats a graphsize where you should see a false accept? 6 with 1000 random trees
+def automatic_sanity_check(n=64, verifier_algorithm=henry): # you should expect to randomly generate a correct tree on n=6 with 1000 random trees
     """
     1. make 10 random graphs of size n,
     2. create 1000 good trees and 1000 probably bad trees,
@@ -403,24 +405,27 @@ def automatic_sanity_check(n=64, verifier_algorithm=henry): # Todo: whats a grap
     4. flag false accepts (should be very unlikely for sufficiently large n)
     """
     outcomes = []
+    nums_unique_trees_found = []
     for i in range(10):
         G = er_graph(n=n, p=0.5)
-        false_accepts, false_rejects = graphtest(G, verifier_algorithm)
+        false_accepts, false_rejects, num_unique_true_trees_found = graphtest(G, verifier_algorithm)
         if len(false_rejects) != 0:
             print(f'Problems with verifier on Graph {i}')
-        if len(false_accepts) != 0:
-            print(f'Manually inspect `false accept` on Graph {i}')
+        #if len(false_accepts) != 0:
+        #    print(f'Manually inspect `false accept` on Graph {i}')
         outcomes.append((G, false_accepts, false_rejects))
-    how_many_fa(outcomes)
+        nums_unique_trees_found.append(num_unique_true_trees_found)
+    how_many_fa(outcomes, nums_unique_trees_found)
     return outcomes
 
-def how_many_fa(outcomes):
+def how_many_fa(outcomes, nus):
     ix=0
     for triple in outcomes:
+        nu = nus[ix]
         G = triple[0]
         false_accepts = triple[1]
         false_rejects = triple[2]
-        print(f'Graph {ix} has {len(false_accepts)} possibly false accepts and {len(false_rejects)} false rejects')
+        print(f'Graph {ix} has {len(false_accepts)} possibly false accepts and {len(false_rejects)} false rejects || for-context, we saw {nu} unique trees')
         ix+=1
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
