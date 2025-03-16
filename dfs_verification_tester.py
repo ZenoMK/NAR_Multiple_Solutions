@@ -127,7 +127,9 @@ def preprocess(adj_matrix):
         return False  # Each node must have either 0 (root) or 1 incoming edge
     # Step 3: Ensure acyclic
     F = nx.DiGraph(adj_matrix)
-    return nx.is_directed_acyclic_graph(F)
+
+    # TODO tell John about this
+    return nx.is_forest(F)
 
 
 def henry(G, F):
@@ -305,15 +307,15 @@ def draw(G):
 # false = np.array([[0,1,1], [0,0,0], [0,0,0]])
 
 
-# TESTING - "false acceptances" (gfa/tfa) should be visually correct trees when you draw them, orelse algo is wrong
-# gfa, gfr = graphtest(G, henry)
+#TESTING - "false acceptances" (gfa/tfa) should be visually correct trees when you draw them, orelse algo is wrong
+#gfa, gfr = graphtest(G, henry)
 # tfa, tfr = graphtest(T, henry)
 #
 # print('num false accepts g: ', len(gfa))
 # print('num false accepts t: ', len(tfa))
 
-# for g in gfa:
-#     draw(g)
+#for g in gfa:
+#    draw(g)
 #
 # for t in tfa:
 #     draw(t)
@@ -485,3 +487,4 @@ def how_many_fa(outcomes, nus):
 # A = np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=int)
 # reach_matrix = reachability_floyd_warshall(nx.from_numpy_array(A))
 # #print(reach_matrix)
+#outcomes = automatic_sanity_check(n=6)
