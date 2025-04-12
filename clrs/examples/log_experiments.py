@@ -251,8 +251,8 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
         As_vd = As[:10]
         outputs_vd = copy.deepcopy(outputs)
         preds_vd = copy.deepcopy(preds)
-        outputs_vd[0].data = outputs[0].data[:10]
-        preds_vd[0]['pi'].data = preds[0]['pi'].data[:10]
+        outputs_vd[0].data = outputs_vd[0].data[:10]
+        preds_vd[0]['pi'].data = preds_vd[0]['pi'].data[:10]
         dataframes, As, pMs = validate_distributions(As=As_vd, Ss=[0]*len(As_vd), outsOrPreds=preds_vd,
                                             numSolsExtracting=NSE, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
         #breakpoint()
