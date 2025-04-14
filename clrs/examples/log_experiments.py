@@ -253,11 +253,11 @@ def DFS_collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras, fil
         preds_vd = copy.deepcopy(preds)
         outputs_vd[0].data = outputs_vd[0].data[:10]
         preds_vd[0]['pi'].data = preds_vd[0]['pi'].data[:10]
-        dataframes, As, pMs = validate_distributions(As=As_vd, Ss=[0]*len(As_vd), outsOrPreds=preds_vd,
+        dataframes, _, _ = validate_distributions(As=As_vd, Ss=[0]*len(As_vd), outsOrPreds=preds_vd,
                                             numSolsExtracting=NSE, flag='DFS')  # note not wrapping preds in list for extract_probmatrices to work
         #breakpoint()
         plot_n_unique_by_n_extracted_dfs(dataframes, len(As[0]))
-        df, _, _ = validate_distributions(As=As_vd, Ss=[0]*len(As), outsOrPreds=preds_vd, numSolsExtracting=NSE, edge_reuse_DFS=True, flag = "dummy")
+        df, _, _ = validate_distributions(As=As_vd, Ss=[0]*len(As_vd), outsOrPreds=preds_vd, numSolsExtracting=NSE, edge_reuse_DFS=True, flag = "dummy")
 
         # plot_edge_reuse_matrix_list_median(df, len(As[0]))
         # breakpoint()
