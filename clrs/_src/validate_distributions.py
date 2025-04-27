@@ -27,6 +27,12 @@ def parent_tree_to_adj_matrix(tree):
         M[int(tree[ix]), ix] = 1     # edge points tree[ix] to ix, bcuz parent tree
     return M
 
+def no_self_loops_parent_tree_to_adj_matrix(tree):
+    """now root is just any node without parent"""
+    M = parent_tree_to_adj_matrix(tree)
+    np.fill_diagonal(a=M, val=0)
+    return M
+
 def adj_matrix_to_parent_tree(A):
     size = len(A)
     tree = np.zeros(size)
@@ -111,9 +117,10 @@ def DFS_graph1_df(A, pred, num_solutions_extracted):
         altUpwards_trees.append(alt_tree)
         dfs_trees.append(dfs_tree)
 
+        #breakpoint()
         # valid?
-        upwards_valid.append(henry(A, up_tree))
-        altUpwards_valid.append(henry(A, alt_tree))
+        upwards_valid.append(henry(A, no_self_loops_parent_tree_to_adj_matrix(up_tree)))
+        altUpwards_valid.append(henry(A, no_self_loops_parent_tree_to_adj_matrix(alt_tree)))
 
         # unique?
         hash_up = hash(tuple(up_tree))

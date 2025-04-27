@@ -15,6 +15,8 @@ import random                       # shuffle lists
 import numpy as np                  # adjacency matrices
 
 
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # -- Generating Random Graphs -- #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -113,7 +115,18 @@ def forest_from_traversal(G, O):
 # ---------------------------------------------------------------------------------------------------------------------
 # -- Henry's O(n^4) -- #
 # ---------------------------------------------------------------------------------------------------------------------
-# FIXME: test this. not sure if it's legit.
+#
+def parent_tree_to_adj_matrix(tree):
+    size = len(tree)    # n_vertices
+    M = np.zeros((size, size))
+    for ix in range(size):
+        M[int(tree[ix]), ix] = 1     # edge points tree[ix] to ix, bcuz parent tree
+    return M
+def no_self_loops_parent_tree_to_adj_matrix(tree):  # FIXME: duplicate code in validate_distributions cuz im lazy
+    """now root is just any node without parent"""
+    M = parent_tree_to_adj_matrix(tree)
+    np.fill_diagonal(a=M, val=0)
+    return M
 
 def preprocess(adj_matrix):
     """ensure it's acyclic, nodes have at most 1 parent"""
@@ -133,6 +146,9 @@ def preprocess(adj_matrix):
 
 
 def henry(G, F):
+    if isinstance(F, (list,np.ndarray)): # check if its a parent tree format, convert
+        if np.ndim(F) == 1:
+            F = no_self_loops_parent_tree_to_adj_matrix(F)
     if not preprocess(F):
         return False
     if isinstance(G, np.ndarray):
