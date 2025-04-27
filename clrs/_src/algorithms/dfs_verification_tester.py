@@ -110,20 +110,6 @@ def forest_from_traversal(G, O):
     return forest
 
 
-def safe_to_digraph(adj_matrix):
-    """
-    Safely convert an adjacency matrix or NetworkX graph into a DiGraph.
-    Always ensures input is 2D.
-    """
-    if isinstance(adj_matrix, nx.Graph):
-        adj_matrix = nx.to_numpy_array(adj_matrix)
-
-    adj_matrix = np.atleast_2d(adj_matrix)
-
-    if adj_matrix.ndim != 2 or adj_matrix.shape[0] != adj_matrix.shape[1]:
-        raise ValueError(f"Adjacency matrix must be square. Got shape {adj_matrix.shape}")
-
-    return nx.DiGraph(adj_matrix)
 # ---------------------------------------------------------------------------------------------------------------------
 # -- Henry's O(n^4) -- #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -140,8 +126,7 @@ def preprocess(adj_matrix):
     if not np.all((in_degrees == 1) | (in_degrees == 0)):
         return False  # Each node must have either 0 (root) or 1 incoming edge
     # Step 3: Ensure acyclic
-    F = safe_to_digraph(adj_matrix)
-
+    F = nx.DiGraph(adj_matrix)
 
     # TODO tell John about this
     return nx.is_forest(F)
