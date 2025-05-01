@@ -29,6 +29,9 @@ import numpy as np
 import requests
 import tensorflow as tf
 
+# logging
+import pandas as pd
+
 
 flags.DEFINE_list('algorithms', ['bfs'], 'Which algorithms to run.')
 flags.DEFINE_list('train_lengths', ['4', '7', '11', '13', '16'],
@@ -269,6 +272,75 @@ def collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   if extras:
     out.update(extras)
   return {k: unpack(v) for k, v in out.items()}
+
+
+def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key):
+    IDs = []
+    As = []
+    preds = []
+    perms = []
+    #breakpoint()
+    batch_size = ffs.inputs[0].data.shape[0]
+    for i in range(num_perms):
+        # prepare metadata
+        cur_As = ffs.inputs[1].data  # manipulations to cur_As will change the As inside ffs, bcuz reference
+        graph_size = len(cur_As[0])
+        cur_perm = np.random.permutation(graph_size)
+        cur_perms = [cur_perm] * batch_size
+        cur_IDs = [i for i in range(graph_num, graph_num+batch_size)]
+
+        # shuffle the node indices
+        cur_As = [A[np.ix_(cur_perm, cur_perm)] for A in cur_As]
+        cur_preds, _ = predict_fn(new_rng_key, ffs)
+        #breakpoint()
+        # STORE SHIT
+        IDs.extend(cur_IDs)
+        As.extend(cur_As)
+        preds.extend(cur_preds['pi'].data)
+        perms.extend(cur_perms)
+
+    return IDs, As, perms, preds
+
+def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
+  """Collect batches of output and hint preds and evaluate them."""
+  # 32 graphs in a batch?
+  # Do 5 permutations per graph
+  # compute accuracy and write to csv
+  processed_samples = 0
+  preds = []
+  As = []
+  IDs = []
+  perms = []
+  while processed_samples < sample_count: # do another batch
+    feedback = next(sampler)
+    batch_size = feedback.outputs[0].data.shape[0]
+    new_rng_key, rng_key = jax.random.split(rng_key)
+    # DO THE THING
+    batch_IDs, batch_As, batch_perms, batch_preds = predict_on_permuted_As(ffs=feedback.features, predict_fn=predict_fn, # batch x num_perms
+                                                                   num_perms=2, graph_num=processed_samples, new_rng_key=new_rng_key)
+    processed_samples += batch_size
+    # ADD
+    IDs.extend(batch_IDs)
+    As.extend(batch_As)
+    perms.extend(batch_perms)
+    preds.extend(batch_preds)
+
+  #breakpoint()
+  #preds = _concat(preds, axis=0)
+  # WRITE TO FILE
+  result_dict = {
+      'GraphID': IDs,
+      'As': As,
+      'Perms': perms,
+      'Preds': preds
+  }
+  result_df = pd.DataFrame.from_dict(result_dict)
+  breakpoint()
+  result_df.to_pickle(path='testingpermute.pkl') # read with pd.read_pickle('filename')
+  # if extras:
+  #   out.update(extras)
+  # return {k: unpack(v) for k, v in out.items()}
+
 
 
 def create_samplers(rng, train_lengths: List[int]):
@@ -522,11 +594,11 @@ def main(unused_argv):
                      'algorithm': FLAGS.algorithms[algo_idx]}
 
     new_rng_key, rng_key = jax.random.split(rng_key)
-    test_stats = collect_and_eval(
-        test_samplers[algo_idx],
-        functools.partial(eval_model.predict, algorithm_index=algo_idx),
-        test_sample_counts[algo_idx],
-        new_rng_key,
+    test_stats = permute_eval_and_record(
+        sampler=test_samplers[algo_idx],
+        predict_fn=functools.partial(eval_model.predict, algorithm_index=algo_idx),
+        sample_count=test_sample_counts[algo_idx],
+        rng_key=new_rng_key,
         extras=common_extras)
     logging.info('(test) algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
 
