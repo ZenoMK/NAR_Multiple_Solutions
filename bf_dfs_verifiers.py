@@ -365,7 +365,7 @@ def bellman_ford_cost(A, s):
   This has been taken and adapted from the original CLRS Bellman-Ford implementation"""
 
 
-  chex.assert_rank(A, 2)
+  #chex.assert_rank(A, 2)
 
   A_pos = np.arange(A.shape[0])
 

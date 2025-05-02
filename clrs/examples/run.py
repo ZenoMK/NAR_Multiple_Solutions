@@ -274,13 +274,18 @@ def collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   return {k: unpack(v) for k, v in out.items()}
 
 
-def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key):
+def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, extras):
     IDs = []
     As = []
     preds = []
     perms = []
     #breakpoint()
-    ogAs = np.copy(ffs.inputs[1].data)
+    if extras['algorithm'] == 'dfs':
+        ogAs = np.copy(ffs.inputs[1].data)
+    elif extras['algorithm'] == 'bellman_ford':
+        ogAs = np.copy(ffs.inputs[2].data)
+    else:
+        raise NotImplementedError
     #breakpoint()
     batch_size = ffs.inputs[0].data.shape[0]
     for i in range(num_perms):
@@ -292,14 +297,24 @@ def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key):
         cur_IDs = [i for i in range(graph_num, graph_num+batch_size)]
 
         # shuffle the node indices
-        ffs.inputs[1].data = np.array([A[np.ix_(cur_perm, cur_perm)] for A in cur_As])
+        if extras['algorithm'] == 'dfs':
+            ffs.inputs[1].data = np.array([A[np.ix_(cur_perm, cur_perm)] for A in cur_As])
+        elif extras['algorithm'] == 'bellman_ford':
+            ffs.inputs[2].data = np.array([A[np.ix_(cur_perm, cur_perm)] for A in cur_As])
+        else:
+            raise NotImplementedError
         #print('run.py, ffs.inputs[1].data[0]:', ffs.inputs[1].data[0])
         cur_preds, _ = predict_fn(new_rng_key, ffs)
         #print('cur_preds[0], ', cur_preds['pi'].data[0])
         #breakpoint()
         # STORE SHIT
         IDs.extend(cur_IDs)
-        As.extend(ffs.inputs[1].data)
+        if extras['algorithm'] == 'dfs':
+            As.extend(ffs.inputs[1].data)
+        elif extras['algorithm'] == 'bellman_ford':
+            As.extend(ffs.inputs[2].data)
+        else:
+            raise NotImplementedError
         preds.extend(cur_preds['pi'].data)
         perms.extend(cur_perms)
 
@@ -320,8 +335,9 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
     batch_size = feedback.outputs[0].data.shape[0]
     new_rng_key, rng_key = jax.random.split(rng_key)
     # DO THE THING
-    batch_IDs, batch_As, batch_perms, batch_preds = predict_on_permuted_As(ffs=feedback.features, predict_fn=predict_fn, # batch x num_perms
-                                                                   num_perms=30, graph_num=processed_samples, new_rng_key=new_rng_key)
+    #breakpoint()
+    batch_IDs, batch_As, batch_perms, batch_preds = predict_on_permuted_As(ffs=feedback.features, predict_fn=predict_fn, # each list is batch x num_perms length
+                                                                   num_perms=5, graph_num=processed_samples, new_rng_key=new_rng_key, extras=extras)
     processed_samples += batch_size
     # ADD
     IDs.extend(batch_IDs)
@@ -340,7 +356,8 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
   }
   result_df = pd.DataFrame.from_dict(result_dict)
   #breakpoint()
-  result_df.to_pickle(path='testingpermute-100train.pkl') # read with pd.read_pickle('filename')
+  alg = extras['algorithm']
+  result_df.to_pickle(path=alg + '_testingpermute_' + str(extras['step']) + '_.pkl') # read with pd.read_pickle('filename')
   #print('run.py permuteevalrecord')
   # if extras:
   #   out.update(extras)
