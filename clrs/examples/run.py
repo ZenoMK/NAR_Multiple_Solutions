@@ -280,22 +280,26 @@ def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key):
     preds = []
     perms = []
     #breakpoint()
+    ogAs = np.copy(ffs.inputs[1].data)
+    #breakpoint()
     batch_size = ffs.inputs[0].data.shape[0]
     for i in range(num_perms):
         # prepare metadata
-        cur_As = ffs.inputs[1].data  # manipulations to cur_As will change the As inside ffs, bcuz reference
+        cur_As = ogAs
         graph_size = len(cur_As[0])
         cur_perm = np.random.permutation(graph_size)
         cur_perms = [cur_perm] * batch_size
         cur_IDs = [i for i in range(graph_num, graph_num+batch_size)]
 
         # shuffle the node indices
-        cur_As = [A[np.ix_(cur_perm, cur_perm)] for A in cur_As]
+        ffs.inputs[1].data = np.array([A[np.ix_(cur_perm, cur_perm)] for A in cur_As])
+        #print('run.py, ffs.inputs[1].data[0]:', ffs.inputs[1].data[0])
         cur_preds, _ = predict_fn(new_rng_key, ffs)
+        #print('cur_preds[0], ', cur_preds['pi'].data[0])
         #breakpoint()
         # STORE SHIT
         IDs.extend(cur_IDs)
-        As.extend(cur_As)
+        As.extend(ffs.inputs[1].data)
         preds.extend(cur_preds['pi'].data)
         perms.extend(cur_perms)
 
@@ -317,7 +321,7 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
     new_rng_key, rng_key = jax.random.split(rng_key)
     # DO THE THING
     batch_IDs, batch_As, batch_perms, batch_preds = predict_on_permuted_As(ffs=feedback.features, predict_fn=predict_fn, # batch x num_perms
-                                                                   num_perms=2, graph_num=processed_samples, new_rng_key=new_rng_key)
+                                                                   num_perms=30, graph_num=processed_samples, new_rng_key=new_rng_key)
     processed_samples += batch_size
     # ADD
     IDs.extend(batch_IDs)
@@ -335,8 +339,9 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
       'Preds': preds
   }
   result_df = pd.DataFrame.from_dict(result_dict)
-  breakpoint()
-  result_df.to_pickle(path='testingpermute.pkl') # read with pd.read_pickle('filename')
+  #breakpoint()
+  result_df.to_pickle(path='testingpermute-100train.pkl') # read with pd.read_pickle('filename')
+  #print('run.py permuteevalrecord')
   # if extras:
   #   out.update(extras)
   # return {k: unpack(v) for k, v in out.items()}
@@ -410,7 +415,7 @@ def create_samplers(rng, train_lengths: List[int]):
                       **common_sampler_args)
       val_sampler, val_samples, spec = make_multi_sampler(**val_args)
 
-      test_args = dict(sizes=[-1],
+      test_args = dict(sizes= [4], #Fixme: revert to [-1],
                        split='test',
                        batch_size=32,
                        multiplier=2 * mult,
