@@ -274,11 +274,19 @@ def collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   return {k: unpack(v) for k, v in out.items()}
 
 
+# cur_preds, _ = predict_fn(new_rng_key, ffs)
+# cur_preds['pi'].data
+# # permute smth
+# # call again
+# cur_preds, _ = predict_fn(new_rng_key, ffs)
+# cur_preds['pi'].data
+
 def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, extras):
     IDs = []
     As = []
     preds = []
     perms = []
+    Ss = []
     #breakpoint()
     if extras['algorithm'] == 'dfs':
         ogAs = np.copy(ffs.inputs[1].data)
@@ -292,18 +300,48 @@ def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, e
         # prepare metadata
         cur_As = ogAs
         graph_size = len(cur_As[0])
-        cur_perm = np.random.permutation(graph_size)
+        cur_perm = np.random.permutation(graph_size) #np.arange(graph_size)
         cur_perms = [cur_perm] * batch_size
         cur_IDs = [i for i in range(graph_num, graph_num+batch_size)]
+        temp_s = ffs.inputs[1].data[0]
 
         # shuffle the node indices
         if extras['algorithm'] == 'dfs':
             ffs.inputs[1].data = np.array([A[np.ix_(cur_perm, cur_perm)] for A in cur_As])
+            cur_Ss = [0]*batch_size # DFSO always 0 starts
         elif extras['algorithm'] == 'bellman_ford':
             ffs.inputs[2].data = np.array([A[np.ix_(cur_perm, cur_perm)] for A in cur_As])
+            ffs.inputs[1].data = np.array([arr[cur_perm] for arr in ffs.inputs[1].data]) # shuffle the s just like the A
+            #breakpoint()
+            cur_Ss = [np.argmax(mask) for mask in ffs.inputs[1].data]
         else:
             raise NotImplementedError
+        print('ogA \n', ogAs[0])
+        print('s: ', temp_s)
+        print('perm:', cur_perm)
+        print('permA \n', ffs.inputs[2].data[0])
+        print('permS \n', ffs.inputs[1].data[0])
         #print('run.py, ffs.inputs[1].data[0]:', ffs.inputs[1].data[0])
+        # TESTING WHAT CAN BE SHUFFLED: BF
+        #ffs.inputs[0].data = np.array([row[::-1] for row in ffs.inputs[0].data]) # reverse pos, doenst matter
+        #ffs.inputs[1].data = np.array([row[::-1] for row in ffs.inputs[1].data]) # reverse s, matters
+        #ffs.inputs[2].data = np.array([A[np.ix_([3,2,1,0], [3,2,1,0])] for A in ffs.inputs[2].data]) # reverse A, doesnt matter??
+        #ffs.inputs[3].data = np.array([A[np.ix_([3,2,1,0], [3,2,1,0])] for A in ffs.inputs[3].data]) # reverse adj *AFFECTS*
+        #------ ffs.hints, they're all shape(4,32,4)
+        # ffs.hints[0].data = ffs.hints[0].data[..., ::-1] # reverse pi_h, doesnt matter
+        # ffs.hints[1].data = ffs.hints[1].data[..., ::-1] # reverse d, doesnt matter
+        # ffs.hints[2].data = ffs.hints[2].data[..., ::-1] # reverse msk, doesnt matter
+        # ffs[2] = np.array(ffs[2][::-1]) # cant change :( due to Features type
+
+        # TESTING WHAT CAN BE SHUFFLED: DFS
+        # ffs.inputs[0].data = np.array([row[::-1] for row in ffs.inputs[0].data])  # reverse pos, CHANGES A LOT
+        # ffs.inputs[1].data = np.array([A[np.ix_([3,2,1,0], [3,2,1,0])] for A in ffs.inputs[1].data])  # reverse A, CHANGES A BIT
+        # ffs.inputs[2].data = np.array([A[np.ix_([3,2,1,0], [3,2,1,0])] for A in ffs.inputs[2].data])  # reverse adj, CHANGES A BIT
+        # ------ ffs.hints, they're all shape(12,32,4)
+        # ffs.hints[0].data = ffs.hints[0].data[..., ::-1] all 10 hints dont matter with hint_mode --none, can matter if you reverse all with hints encoded_decoded
+
+        # ffs[2] = np.array(ffs[2][::-1]) # cant change :( due to Features type
+
         cur_preds, _ = predict_fn(new_rng_key, ffs)
         #print('cur_preds[0], ', cur_preds['pi'].data[0])
         #breakpoint()
@@ -317,8 +355,9 @@ def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, e
             raise NotImplementedError
         preds.extend(cur_preds['pi'].data)
         perms.extend(cur_perms)
+        Ss.extend(cur_Ss)
 
-    return IDs, As, perms, preds
+    return IDs, As, perms, preds, Ss
 
 def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
   """Collect batches of output and hint preds and evaluate them."""
@@ -330,13 +369,14 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
   As = []
   IDs = []
   perms = []
+  Ss = []
   while processed_samples < sample_count: # do another batch
     feedback = next(sampler)
     batch_size = feedback.outputs[0].data.shape[0]
     new_rng_key, rng_key = jax.random.split(rng_key)
     # DO THE THING
     #breakpoint()
-    batch_IDs, batch_As, batch_perms, batch_preds = predict_on_permuted_As(ffs=feedback.features, predict_fn=predict_fn, # each list is batch x num_perms length
+    batch_IDs, batch_As, batch_perms, batch_preds, batch_Ss = predict_on_permuted_As(ffs=feedback.features, predict_fn=predict_fn, # each list is batch x num_perms length
                                                                    num_perms=5, graph_num=processed_samples, new_rng_key=new_rng_key, extras=extras)
     processed_samples += batch_size
     # ADD
@@ -344,6 +384,8 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
     As.extend(batch_As)
     perms.extend(batch_perms)
     preds.extend(batch_preds)
+    Ss.extend(batch_Ss)
+    #breakpoint()
 
   #breakpoint()
   #preds = _concat(preds, axis=0)
@@ -352,7 +394,8 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
       'GraphID': IDs,
       'As': As,
       'Perms': perms,
-      'Preds': preds
+      'Preds': preds,
+      'Ss': Ss
   }
   result_df = pd.DataFrame.from_dict(result_dict)
   #breakpoint()
@@ -432,7 +475,7 @@ def create_samplers(rng, train_lengths: List[int]):
                       **common_sampler_args)
       val_sampler, val_samples, spec = make_multi_sampler(**val_args)
 
-      test_args = dict(sizes= [16], #Fixme: revert to [-1],
+      test_args = dict(sizes= [4],#[16], #Fixme: revert to [-1],
                        split='test',
                        batch_size=32,
                        multiplier=2 * mult,

@@ -363,8 +363,6 @@ def how_many_fa(outcomes, nus):
 def bellman_ford_cost(A, s):
   """Bellman-Ford's single-source shortest path (Bellman, 1958).
   This has been taken and adapted from the original CLRS Bellman-Ford implementation"""
-
-
   #chex.assert_rank(A, 2)
 
   A_pos = np.arange(A.shape[0])

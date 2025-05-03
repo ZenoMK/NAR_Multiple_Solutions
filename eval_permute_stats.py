@@ -1,5 +1,40 @@
 # Fixme: smth weird with bellman ford correctness to OG graph. Should be the same,
-#  since relabeling graph shouldnt affect path length or path structure
+#  since relabeling graph shouldnt affect path length or path structure ||| OHHH THE START NODE GOTTA CHANGE TOO
+
+# SANITY: when you make everything the identity permutation, you get back to the same result dfs and bellman ford
+# TRY: permuting other parts of feedback.features?
+# ---- BELLMAN FORD
+#   1) reversing pos seems to do nothing to bellman_ford n=4
+#   2) reversing s definitely affects bellman_ford
+#   3) reversing A seems to do nothing to bellman_ford n=4
+#   4) reversing adj seems to affect bellman_ford n=4 # fixme: this seems important
+#   5) GIVEN --hint_mode none, no hints matter ||| hints can matter slightly with encoded_decoded
+
+# ---- DFS
+#   1) reversing pos seems to do lots (pos is meant to encode sequential data)
+#   2) reversing A does something
+#   3) reversing adj does something
+#   4) GIVEN --hint_mode none, no hints matter ||| hints can matter slightly with encoded_decoded
+#
+
+# TODO: what should be shuffled to maximize accuracy?
+#   you could compute each possible combo on small graphs, but that would be a fair amount of work, you'd a grid search
+#   JUST GUESSING, you might try flipping everything consistently
+
+# WHY/WHAT ARE A,adj,pos for in both algorithms. What are they meant to be for, and what seems to happen?
+
+# 50 training steps, with hints, no permutations n=4
+# 0.20 DFS, 0.48 BF
+# 50 training steps, with no hints, no permutations n=4
+# 0.33 DFS, 0.30 BF
+
+# 50 training steps, with no hints, permuting A, n=4
+# 0.28 DFStoOG 0.12DFStoInput, 0.32BFtoOG, 0.18BFtoInput
+
+
+# fixme: how do we get scalar s from vector in bellman_ford??
+
+# fixme: why cant run multiple with flags bellman_ford dfs
 
 import pandas as pd
 import numpy as np
@@ -13,10 +48,20 @@ from bf_dfs_verifiers import henry, check_valid_BFpaths
 
 # ----- GOAL: GET ACCURACY AND UNIQUENESS FOR n=5, n=16, n=64 ----- #
 # that means, run this 3 times, reading in files for n=5,16,64
-def invert_pred(pred, perm):
+def apply_perm_to_pred(pred, perm): # fixme: explain why applying using invperm and inverting uses reg perm || does it make more sense if you pred[perm] instead?
     inv_perm = np.argsort(perm)
     return [inv_perm[x] for x in pred]
 
+def invert_pred(pred, perm):
+    return [perm[x] for x in pred]
+
+
+# A = np.array([[0,1,2],
+#               [3,4,5],
+#               [6,7,8]])
+# perm = [2,0,1]
+# A_perm = A[np.ix_(perm, perm)]
+# print(A_perm)
 
 def preprocess(df):
     df['Perms'] = df['Perms'].apply(lambda A: A.tolist())           # get rid of jax array impl
@@ -32,20 +77,24 @@ def preprocess(df):
 def compute_bf_stats(df):
     df = preprocess(df)
     # figure out where source got mapped to
-    df['source'] = df['Perms'].apply(lambda perm: perm[0])
+    df['p_inv'] = df['Perms'].apply(lambda perm: np.argsort(perm))
+    df['ogS'] = df.apply(lambda row: row['Perms'][row['Ss']], axis=1)
+    #df['source'] = df['Perms'].apply(lambda perm: perm[0])
 
-    df['BFvalid'] = df.apply(lambda row: check_valid_BFpaths(A=row['As'], s=row['source'], parentpath=row['Preds']), axis=1)
-    df['ogBFvalid'] = df.apply(lambda row: check_valid_BFpaths(A=row['ogA'], s=0, parentpath=row['Preds']), axis=1) # this should be same cuz permutation
+    df['ogBFvalid'] = df.apply(lambda row: check_valid_BFpaths(A=row['ogA'], s=row['ogS'], parentpath=row['fakeOGpred']), axis=1) # this should be same cuz permutation NOPE NOT ALL START 0
+    df['BFvalid'] = df.apply(lambda row: check_valid_BFpaths(A=row['As'], s=row['Ss'], parentpath=row['Preds']), axis=1)
+    breakpoint() #rn S and pred are consistent. A? also looks consistent, yet different check_bf results #FIXME PLEASE
 
     print('Graph Size: ', len(df['Perms'][0]))
     print('validity relative to OG graph', df['ogBFvalid'].mean())
     print('validity relative to input (permuted) graph', df['BFvalid'].mean())
+    #print('validity of P_inv pred relative to OG graph', )
     distinct = df.groupby('GraphID')['hashablePreds'].nunique().mean()
     print('uniqueness, ', distinct)
 
     inflated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
     print('werid uniqueness', inflated_distinct)
-    return
+    return df
 
 
 def compute_dfs_stats(df):
@@ -64,21 +113,52 @@ def compute_dfs_stats(df):
 
 
 if __name__ == '__main__':
-    print('DFS BAByyyy ============')
-
-    dfs_df = pd.read_pickle('dfs_testingpermute_10_.pkl')
-    dfs_stats = compute_dfs_stats(dfs_df)
+    # print('DFS BAByyyy ============')
+    #
+    # dfs_df = pd.read_pickle('dfs_testingpermute_50_.pkl')
+    # dfs_stats = compute_dfs_stats(dfs_df)
 
     print('Bellman Ford ============')
 
-    bf_df = pd.read_pickle('bellman_ford_testingpermute_10_.pkl')
+    bf_df = pd.read_pickle('bellman_ford_testingpermute_50_.pkl')
     bf_stats = compute_bf_stats(bf_df)
 
 
+#bf_df = pd.read_pickle('bellman_ford_testingpermute_50_.pkl')
 
 # ----------------------------------------------------------------------------------------------------------------------
 # SCRATCH N SNIFF ------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
+
+# def sanity_check_permuting_bf(A1, s1, perm, path):
+#     """test to see if permuting stuff works with check_valid_BF_paths"""
+#     pass
+#
+# perm = [2, 0, 3, 1]
+# p_inv = np.argsort(perm)
+# s = np.argmax([0, 0, 1, 0])
+# permS = np.argmax([1, 0, 0, 0])
+# unpermS = perm[permS]
+#
+#
+# print(unpermS, s)
+#
+#
+# ogA = np.array(
+# [[0.79427108, 0., 0.81151536, 0.44486781],
+#  [0., 0., 0.78179651, 0.21992143],
+# [0.81151536, 0.78179651, 0.08532829, 0.],
+# [0.44486781, 0.21992143, 0., 0.07875175]])
+#
+# permA = np.array(
+#  [[0.08532829, 0.81151536, 0.,         0.78179651],
+#  [0.81151536, 0.79427108, 0.44486781, 0.        ],
+#  [0.,         0.44486781, 0.07875175, 0.21992143],
+#  [0.78179651, 0.,         0.21992143, 0.        ]]
+# )
+
+
+
 
 
 #
