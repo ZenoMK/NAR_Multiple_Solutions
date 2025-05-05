@@ -49,7 +49,7 @@ def draw_graph_with_highlights(adj_matrix, highlight_edges_indices):
 # draw_graph_with_highlights(adj, highlight_array)
 
 
-oga = np.array(
+false_neg_oga = np.array(
     [[1, 1, 0, 1],
      [0, 1, 0, 0],
      [1, 0, 1, 0],
@@ -64,33 +64,36 @@ oga = np.array(
 
 Perms = [3, 1, 2, 0]
 actual = [0, 0, 2, 0]
-og = [3, 3, 2, 3]
+false_neg_og = [3, 3, 2, 3]
 
 
-#agnostic_henry(oga, og) # TRUE & fixed
+print(agnostic_henry(false_neg_oga, false_neg_og)) # TRUE & fixed
 
 # ----------------------------------------------------------------------------
-oga = np.array(
+true_neg_ogA = np.array(
 [[1, 1, 0, 0],
  [1, 1, 0, 1],
  [1, 0, 0, 0],
  [1, 1, 1, 0]]
 )
 
-As = np.array(
+false_pos_A = np.array(
     [[1, 1, 0, 1],
      [1, 0, 1, 1],
      [0, 0, 0, 1],
      [1, 0, 0, 1]]
 )
-Perms = [3, 0, 2, 1]
-actual = [0, 0, 0, 1]
-og = [3, 1, 1, 1]
+Perms2 = [3, 0, 2, 1]
+false_pos_actual = [0, 0, 0, 1]
+true_neg_og = [3, 1, 1, 1]
 # ---- both should be false
 # OG: False
 # actual True
 
-#draw_graph_with_highlights(As, actual) # should be false bcuz 1 should discover 2, but rn 0->2
-#print(agnostic_henry(As, actual)) # should be false bcuz 1 should discover 2
-#draw_graph_with_highlights(oga, og)
-#agnostic_henry(oga, og) # NO we want alll  highlighted edges to be tree edges
+#draw_graph_with_highlights(false_pos_A, false_pos_actual) # should be false bcuz 1 should discover 2, but rn 0->2
+#print(agnostic_henry(false_pos_A, false_pos_actual)) # should be false bcuz 1 should discover 2
+
+#draw_graph_with_highlights(true_neg_ogA, true_neg_og)
+#agnostic_henry(true_neg_ogA, true_neg_og) # NO we want alll  highlighted edges to be tree edges
+
+
