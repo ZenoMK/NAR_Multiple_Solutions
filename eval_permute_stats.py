@@ -1,6 +1,9 @@
 # TODO: CHANGE HOW PARENTPATHS ARE MANIPULATED? MAKE SURE THEY RESPECT ADJ
 
 
+# todo: find out how/why permutations out of sync had higher accuracies on the first small examples - does this hold for big bois too?
+# todo: ^ compare to randomization for sanity check
+
 # Fixme: smth weird with bellman ford correctness to OG graph. Should be the same,
 #  since relabeling graph shouldnt affect path length or path structure ||| OHHH THE START NODE GOTTA CHANGE TOO
 
@@ -44,9 +47,10 @@ import numpy as np
 from torch.utils.hipify.hipify_python import compute_stats
 
 
-from bf_dfs_verifiers import henry, check_valid_BFpaths, bellman_ford_cost
+from bf_dfs_verifiers import henry, check_valid_BFpaths, bellman_ford_cost, agnostic_henry
 from test_permute import *
 
+from scratch import draw_graph_with_highlights
 
 # TODO: print num permutations, dfs_df.groupby('GraphID').size()[0]
 
@@ -121,8 +125,33 @@ def compute_dfs_stats(df):
 
     df['ogDFSvalid'] = df.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1)
     df['DFSvalid'] = df.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
+    df['TESTvalid'] = df.apply(lambda row: henry(G=row['ogA'], F=row['fakeOGpred']), axis=1) # TODO: these can vary, since order matters so permutation affects correctness
+
+
+    # Fixme: these are different so either agnostic henry is scuffed, or permuting is scuffed for DFS :O
+    df['onestat'] = df.apply(lambda row: agnostic_henry(G=row['ogA'], F=row['fakeOGpred']), axis=1)
+    df['twostat'] = df.apply(lambda row: agnostic_henry(G=row['As'], F=row['Preds']), axis=1)
+    print(df['onestat'].mean())
+    print(df['twostat'].mean())
+    diff_df = df[df['onestat']!=df['twostat']] # ToDo: draw each graph
+    breakpoint()
+    print('oga', diff_df['ogA'].iloc[0])
+    print('As', diff_df['As'].iloc[0])
+    print('Perms', diff_df['Perms'].iloc[0])
+    print('actual', diff_df['Preds'].iloc[0])
+    print('og', diff_df['fakeOGpred'].iloc[0])
+
+    print('OG:', diff_df['onestat'].iloc[0])
+    draw_graph_with_highlights(diff_df['ogA'].iloc[0], diff_df['fakeOGpred'].iloc[0])
+    print('actual', diff_df['twostat'].iloc[0])
+    draw_graph_with_highlights(diff_df['As'].iloc[0], diff_df['Preds'].iloc[0])
+    #test_adj(diff_df['ogA'].iloc[0], diff_df['As'].iloc[0], diff_df['Perms'].iloc[0])
+    #test_parent_paths(diff_df['ogA'].iloc[0], diff_df['fakeOGpred'].iloc[0], diff_df['As'].iloc[0], diff_df['Preds'].iloc[0], diff_df['Perms'].iloc[0])
+    breakpoint()
+
 
     print('validity relative to OG graph', df['ogDFSvalid'].mean())
+    print('validity of OG graph;**', df['TESTvalid'].mean())
     print('validity relative to input (permuted) graph', df['DFSvalid'].mean())
     distinct = df.groupby('GraphID')['hashablePreds'].nunique().mean()
     print('uniqueness, ', distinct)
@@ -135,13 +164,13 @@ if __name__ == '__main__':
     pass
     # print('DFS BAByyyy ============')
     #
-    # dfs_df = pd.read_pickle('dfs_testingpermute_50_.pkl')
-    # dfs_stats = compute_dfs_stats(dfs_df)
+    dfs_df = pd.read_pickle('dfs_testingpermute_50_.pkl')
+    dfs_stats = compute_dfs_stats(dfs_df)
 
     # print('Bellman Ford ============')
     #
-    bf_df = pd.read_pickle('bellman_ford_testingpermute_50_.pkl')
-    bf_stats = compute_bf_stats(bf_df)
+    # bf_df = pd.read_pickle('bellman_ford_testingpermute_50_.pkl')
+    # bf_stats = compute_bf_stats(bf_df)
 
 
 #bf_df = pd.read_pickle('bellman_ford_testingpermute_50_.pkl')

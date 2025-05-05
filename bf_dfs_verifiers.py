@@ -15,7 +15,9 @@ import random                       # shuffle lists
 import numpy as np                  # adjacency matrices
 
 
-
+# TODO: what goes wrong when you make Treedown exclude green nodes?
+# TODO: rigorously test notgreen Treedown (needed for scratch ex.1 to be true)
+    # you can build a tough example for henry and test it
 
 # ---------------------------------------------------------------------------------------------------------------------
 # -- Generating Random Graphs -- #
@@ -112,6 +114,39 @@ def forest_from_traversal(G, O):
     return forest
 
 
+
+# ---------------------------------------------------------------------------------------------------------------------
+# -- Henry's O(n^4) -- #
+# ---------------------------------------------------------------------------------------------------------------------
+# fixme: how does regular henry deal with stuff like the false negative agnostic screenshot
+
+def agnostic_henry(G,F):
+    """supposed to be henry but order doesnt matter?""" # fixme: gotta start at possible roots (no parents)
+    if isinstance(F, (list, np.ndarray)): # check if it's a parent tree format, convert
+        if np.ndim(F) == 1:
+            F = no_self_loops_parent_tree_to_adj_matrix(F)
+    if not preprocess(F):
+        return False
+    if isinstance(G, np.ndarray):
+        G = nx.from_numpy_array(G, create_using=nx.DiGraph)
+    if isinstance(F, np.ndarray):
+        F = nx.from_numpy_array(F, create_using=nx.DiGraph)
+    colors = np.array([0] * len(G))
+    # find all rooties, (no incoming edges)
+    possible_starts = [node for node, deg in F.in_degree() if deg == 0] #np.where(np.all(adj_matrix == 0, axis=0))
+    #print('poss starts', possible_starts)
+    i = 0
+    while i < len(possible_starts): # only if you go through all your options and none can be good, its over
+        node = possible_starts[i]
+        old_colors = np.copy(colors)
+        if ccv(G, F, node, colors):
+            if (old_colors != colors).any(): # new change, recheck
+                i=-1 # will be 0
+        i+=1
+    #print('colors at end', colors)
+    return (colors == [1]*len(G)).all()
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # -- Henry's O(n^4) -- #
 # ---------------------------------------------------------------------------------------------------------------------
@@ -185,7 +220,24 @@ def down(G, source, colors):
     descendants.discard(source)  # Exclude the source itself. If source not present (green at start) does nothing
     return descendants
 
-def treedown(G, source):
+def notgreen_treedown(G, source, colors): # FIXME: test this bb
+    '''return set of all descendents of node in G''' # testing this in tree to deal with bug? PROBLEM, accepts disconnected bois
+    visited = set()
+    descendants = set()
+
+    def minidfs(node):
+        if node in visited or colors[node]==1:
+            return
+        visited.add(node)
+        descendants.add(node)
+        for neighbor in G.neighbors(node):
+            minidfs(neighbor)
+
+    minidfs(source)
+    descendants.discard(source)  # Exclude the source itself.
+    return descendants
+
+def treedown(G, source): # FIXME: what goes wrong if we exclude green nodes? SEEMS BETTER FOR agnostic, at least || and fine for henry??
     '''return set of all descendents of node in G''' # testing this in tree to deal with bug? PROBLEM, accepts disconnected bois
     visited = set()
     descendants = set()
@@ -204,12 +256,16 @@ def treedown(G, source):
 
 
 def ccv(G, F, node, colors):
-    '''check child validity: which kid can go next, like a waterslide''' # FIXME: you can early-discover dead-ends, which can lead you to false rejecting bcuz not descendant in graph but yes in tree, fix by following tree-edges for kids, not graph-edges
+    '''check child validity: which kid can go next, like a waterslide'''
+    #print('checking ', node)
     if colors[node] == 1:   # you can only be greened by your kids being valid at some point, and once you're green you stay green
         return True
-    if down(G, node, colors) != treedown(F, node): #down(F, node, colors):  # base case: this node can go
+    if down(G, node, colors) != notgreen_treedown(F, node, colors): #down(F, node, colors):  # base case: this node can go
+        #print('Gdown', down(G, node, colors))
+        #print('Tdown', notgreen_treedown(F, node, colors))
         return False
     colors[node] = 1  # passed the vibe check, green
+    #print('visiting', node)
     #print(f'greening node {node}')
     #kids = G.neighbors(node)
     kids = F.neighbors(node)
@@ -352,6 +408,8 @@ def how_many_fa(outcomes, nus):
         print(f'Graph {ix} has {len(false_accepts)} possibly false accepts and {len(false_rejects)} false rejects || for-context, we saw {nu} unique trees')
         ix+=1
 
+#o = automatic_sanity_check(5, henry)
+
 
 ##################################################################################################################
 # BELLMAN-FORD CHECKER
@@ -401,14 +459,13 @@ def check_valid_BFpaths(A,s, parentpath):
         #    return False
         #breakpoint()
         if A[parentpath[i],i] == 0 and parentpath[i] != i: # you're allowed to pick self-parents for unreachable nodes
-            # fixme: this is the bug to understand and fix
-            print('S', s)
-            print('A \n', A)
-            print('ppi', parentpath[i])
-            print('i', i)
-            print('A[ppi, i]', A[parentpath[i],i])
-            print('A[ppi, i] == 0', A[parentpath[i],i] == 0)
-            print('bf_dfsv.py self parent exclusion')
+            # print('S', s)
+            # print('A \n', A)
+            # print('ppi', parentpath[i])
+            # print('i', i)
+            # print('A[ppi, i]', A[parentpath[i],i])
+            # print('A[ppi, i] == 0', A[parentpath[i],i] == 0)
+            # print('bf_dfsv.py self parent exclusion')
             return False
         else:
             BF_tree_adj[parentpath[i],i] = A[parentpath[i],i]
