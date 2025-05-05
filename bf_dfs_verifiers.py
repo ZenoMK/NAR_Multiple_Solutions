@@ -401,11 +401,20 @@ def check_valid_BFpaths(A,s, parentpath):
         #    return False
         #breakpoint()
         if A[parentpath[i],i] == 0 and parentpath[i] != i: # you're allowed to pick self-parents for unreachable nodes
+            # fixme: this is the bug to understand and fix
+            print('S', s)
+            print('A \n', A)
+            print('ppi', parentpath[i])
+            print('i', i)
+            print('A[ppi, i]', A[parentpath[i],i])
+            print('A[ppi, i] == 0', A[parentpath[i],i] == 0)
+            print('bf_dfsv.py self parent exclusion')
             return False
         else:
             BF_tree_adj[parentpath[i],i] = A[parentpath[i],i]
 
     model_costs = bellman_ford_cost(BF_tree_adj, s)
+    #breakpoint()
 
     if (true_costs == model_costs).all():
         return True

@@ -32,6 +32,7 @@ import tensorflow as tf
 # logging
 import pandas as pd
 
+from test_permute import invert_permutation, permute_adjacency_matrix, permute_parentpath # Fixme: fragile to dir of run command
 
 flags.DEFINE_list('algorithms', ['bfs'], 'Which algorithms to run.')
 flags.DEFINE_list('train_lengths', ['4', '7', '11', '13', '16'],
@@ -301,26 +302,27 @@ def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, e
         cur_As = ogAs
         graph_size = len(cur_As[0])
         cur_perm = np.random.permutation(graph_size) #np.arange(graph_size)
+        inv_perm = invert_permutation(cur_perm) # used in adj matrix so that A[i,j] = PI(A)[PI(i),PI(j)]
         cur_perms = [cur_perm] * batch_size
         cur_IDs = [i for i in range(graph_num, graph_num+batch_size)]
         temp_s = ffs.inputs[1].data[0]
 
         # shuffle the node indices
         if extras['algorithm'] == 'dfs':
-            ffs.inputs[1].data = np.array([A[np.ix_(cur_perm, cur_perm)] for A in cur_As])
+            ffs.inputs[1].data = np.array([A[np.ix_(inv_perm, inv_perm)] for A in cur_As]) # use inv so that A[i,j] = PI(A)[PI(i),PI(j)]
             cur_Ss = [0]*batch_size # DFSO always 0 starts
         elif extras['algorithm'] == 'bellman_ford':
-            ffs.inputs[2].data = np.array([A[np.ix_(cur_perm, cur_perm)] for A in cur_As])
-            ffs.inputs[1].data = np.array([arr[cur_perm] for arr in ffs.inputs[1].data]) # shuffle the s just like the A
+            ffs.inputs[2].data = np.array([A[np.ix_(inv_perm, inv_perm)] for A in cur_As])
+            ffs.inputs[1].data = np.array([arr[cur_perm] for arr in ffs.inputs[1].data]) # shuffle the s just like the A # fixme untested
             #breakpoint()
             cur_Ss = [np.argmax(mask) for mask in ffs.inputs[1].data]
         else:
             raise NotImplementedError
-        print('ogA \n', ogAs[0])
-        print('s: ', temp_s)
-        print('perm:', cur_perm)
-        print('permA \n', ffs.inputs[2].data[0])
-        print('permS \n', ffs.inputs[1].data[0])
+        # print('ogA \n', ogAs[0])
+        # print('s: ', temp_s)
+        # print('perm:', cur_perm)
+        # print('permA \n', ffs.inputs[2].data[0])
+        # print('permS \n', ffs.inputs[1].data[0])
         #print('run.py, ffs.inputs[1].data[0]:', ffs.inputs[1].data[0])
         # TESTING WHAT CAN BE SHUFFLED: BF
         #ffs.inputs[0].data = np.array([row[::-1] for row in ffs.inputs[0].data]) # reverse pos, doenst matter

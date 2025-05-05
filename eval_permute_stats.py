@@ -1,3 +1,6 @@
+# TODO: CHANGE HOW PARENTPATHS ARE MANIPULATED? MAKE SURE THEY RESPECT ADJ
+
+
 # Fixme: smth weird with bellman ford correctness to OG graph. Should be the same,
 #  since relabeling graph shouldnt affect path length or path structure ||| OHHH THE START NODE GOTTA CHANGE TOO
 
@@ -41,19 +44,15 @@ import numpy as np
 from torch.utils.hipify.hipify_python import compute_stats
 
 
-from bf_dfs_verifiers import henry, check_valid_BFpaths
+from bf_dfs_verifiers import henry, check_valid_BFpaths, bellman_ford_cost
+from test_permute import *
 
 
 # TODO: print num permutations, dfs_df.groupby('GraphID').size()[0]
 
 # ----- GOAL: GET ACCURACY AND UNIQUENESS FOR n=5, n=16, n=64 ----- #
 # that means, run this 3 times, reading in files for n=5,16,64
-def apply_perm_to_pred(pred, perm): # fixme: explain why applying using invperm and inverting uses reg perm || does it make more sense if you pred[perm] instead?
-    inv_perm = np.argsort(perm)
-    return [inv_perm[x] for x in pred]
 
-def invert_pred(pred, perm):
-    return [perm[x] for x in pred]
 
 
 # A = np.array([[0,1,2],
@@ -62,14 +61,24 @@ def invert_pred(pred, perm):
 # perm = [2,0,1]
 # A_perm = A[np.ix_(perm, perm)]
 # print(A_perm)
+# fixme: checked that everything was permuting consistently, yet
+#bellman_ford_cost(df['ogA'][0], df['ogS'][0]) == bellman_ford_cost(df['As'][0], df['Ss'][0])
+## but
+#check_valid_BFpaths(df['As'][0], df['Ss'][0], df['Preds'][0]) != check_valid_BFpaths(df['ogA'][0], df['ogS'][0], df['fakeOGpred'][0])
+
+import numpy as np
+
+
+
 
 def preprocess(df):
     df['Perms'] = df['Perms'].apply(lambda A: A.tolist())           # get rid of jax array impl
     df['Preds'] = df['Preds'].apply(lambda x: [int(i) for i in x])  # make ints not floats, since we use them to index
     df['hashablePreds'] = df['Preds'].apply(lambda ls: tuple(ls))   # make tuples if we want to count distinctness
     df_sorted = df.sort_values(by='GraphID')                        # make easy reading
-    df_sorted['ogA'] = df_sorted.apply(lambda row: row['As'][np.ix_(np.argsort(row['Perms']), np.argsort(row['Perms']))], axis=1)
-    df_sorted['fakeOGpred'] = df_sorted.apply(lambda row: invert_pred(row['Preds'], row['Perms']), axis=1)
+    df_sorted['p_inv'] = df['Perms'].apply(lambda perm: invert_permutation(perm))  # add p_inv
+    df_sorted['ogA'] = df_sorted.apply(lambda row: permute_adjacency_matrix(row['As'], row['p_inv']), axis=1)
+    df_sorted['fakeOGpred'] = df_sorted.apply(lambda row: permute_parentpath(row['Preds'], row['p_inv']), axis=1)
     df_sorted['hashablefakeOGPreds'] = df_sorted['fakeOGpred'].apply(lambda ls: tuple(ls))
     return df_sorted
 
@@ -77,13 +86,23 @@ def preprocess(df):
 def compute_bf_stats(df):
     df = preprocess(df)
     # figure out where source got mapped to
-    df['p_inv'] = df['Perms'].apply(lambda perm: np.argsort(perm))
-    df['ogS'] = df.apply(lambda row: row['Perms'][row['Ss']], axis=1)
-    #df['source'] = df['Perms'].apply(lambda perm: perm[0])
+    df['ogS'] = df.apply(lambda row: row['p_inv'][row['Ss']], axis=1)
+
+    breakpoint()
+    test_adj(adj=df['ogA'][0], permuted_adj=df['As'][0], permutation=df['Perms'][0])
+    # TEST PERMUTATIONS AS INTENDED?
+    test_parent_paths(adj=df['ogA'][0], parentpath=df['fakeOGpred'][0], permuted_adj=df['As'][0], permuted_pp=df['Preds'][0], perm=df['Perms'][0])
+
+    breakpoint() # fixme: despite same true costs, diff truth values: implying diff model_costs. WHY diff model costs?
+    print('unpermuted costs', bellman_ford_cost(df['ogA'][0], df['ogS'][0]))
+    print('permuted costs', bellman_ford_cost(df['As'][0], df['Ss'][0]))
+    print('permuted validity', check_valid_BFpaths(df['As'][0], df['Ss'][0], df['Preds'][0]))
+    print('unpermuted validity', check_valid_BFpaths(df['ogA'][0], df['ogS'][0], df['fakeOGpred'][0])) # fixme: this hits false at self-parent exclusion?
+    breakpoint()
 
     df['ogBFvalid'] = df.apply(lambda row: check_valid_BFpaths(A=row['ogA'], s=row['ogS'], parentpath=row['fakeOGpred']), axis=1) # this should be same cuz permutation NOPE NOT ALL START 0
     df['BFvalid'] = df.apply(lambda row: check_valid_BFpaths(A=row['As'], s=row['Ss'], parentpath=row['Preds']), axis=1)
-    breakpoint() #rn S and pred are consistent. A? also looks consistent, yet different check_bf results #FIXME PLEASE
+    #rn S and pred are consistent. A? also looks consistent, yet different check_bf results #FIXME PLEASE
 
     print('Graph Size: ', len(df['Perms'][0]))
     print('validity relative to OG graph', df['ogBFvalid'].mean())
@@ -113,13 +132,14 @@ def compute_dfs_stats(df):
 
 
 if __name__ == '__main__':
+    pass
     # print('DFS BAByyyy ============')
     #
     # dfs_df = pd.read_pickle('dfs_testingpermute_50_.pkl')
     # dfs_stats = compute_dfs_stats(dfs_df)
 
-    print('Bellman Ford ============')
-
+    # print('Bellman Ford ============')
+    #
     bf_df = pd.read_pickle('bellman_ford_testingpermute_50_.pkl')
     bf_stats = compute_bf_stats(bf_df)
 
