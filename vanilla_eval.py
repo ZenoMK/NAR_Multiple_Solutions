@@ -18,7 +18,7 @@ from dummy_eval import load_model, make_test_sampler
 
 start_time = time.time()
 # --- LOAD FLAG STUFF
-which = ''# 'dfs'
+which = 'dfs'
 
 if which == 'dfs':
   flagjson = 'WHEREAMI/dfs_flags.json'
