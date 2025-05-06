@@ -31,8 +31,8 @@ from eval_permute_stats import compute_bf_stats, compute_dfs_stats
 
 start_time = time.time()
 # --- LOAD FLAG STUFF
-flagjson = 'WHEREAMI/dfs_flags.json'
-modelname = 'best_dfs.pkl'
+flagjson = 'WHEREAMI/bellman_ford_flags.json' #'WHEREAMI/dfs_flags.json'
+modelname = 'best_bellman_ford.pkl' #'best_dfs.pkl'
 
 with open(flagjson, 'r') as f:
   saved_flags = json.load(f)
@@ -186,6 +186,7 @@ four_stats = permute_eval_and_record(
 time4stats = time.time()
 print(f"4 stats built in {time4stats-time64} seconds")
 #compute_dfs_stats(four_stats)
+#compute_bf_stats(four_stats)
 
 sixteen_stats = permute_eval_and_record(
       sampler=sixteen_sampler, #test_samplers[algo_idx],
@@ -216,16 +217,19 @@ print(f"64 stats built in {time64stats-time16stats} seconds")
 # -----------------------------------------------------------------------------------------------------------------
 
 print('================================================')
-compute_dfs_stats(four_stats)
+#compute_dfs_stats(four_stats)
+compute_bf_stats(four_stats)
 time4eval = time.time()
 print(f"4 stats eval in {time4eval-time16stats} seconds")
 
 print('================================================')
-compute_dfs_stats(sixteen_stats)
+#compute_dfs_stats(sixteen_stats)
+compute_bf_stats(sixteen_stats)
 time16eval = time.time()
 print(f"16 stats built in {time16eval-time4eval} seconds")
 
 print('================================================')
-compute_dfs_stats(sixtyfour_stats)
+compute_bf_stats(sixtyfour_stats)
+#compute_dfs_stats(sixtyfour_stats)
 time64eval = time.time()
 print(f"64 stats built in {time64eval-time16eval} seconds")
