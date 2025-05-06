@@ -163,87 +163,87 @@ def make_test_sampler(size):
   test_sampler, test_samples, spec = make_multi_sampler(**test_args)
   return test_sampler, test_samples, spec
 
+if __name__ == '__main__':
+  four_sampler, test_samples, spec = make_test_sampler(size=4)
+  time4 = time.time()
+  print(f"four sampler built in {time4-load_time} seconds")
+  sixteen_sampler, ts, sc = make_test_sampler(size=16)
+  time16 = time.time()
+  print(f"sixteen sampler built in {time16-time4} seconds")
+  sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64)
+  time64 = time.time()
+  print(f"64 sampler built in {time64-time16} seconds")
 
-four_sampler, test_samples, spec = make_test_sampler(size=4)
-time4 = time.time()
-print(f"four sampler built in {time4-load_time} seconds")
-sixteen_sampler, ts, sc = make_test_sampler(size=16)
-time16 = time.time()
-print(f"sixteen sampler built in {time16-time4} seconds")
-sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64)
-time64 = time.time()
-print(f"64 sampler built in {time64-time16} seconds")
+  common_extras = {'examples_seen': 17291729, #current_train_items[algo_idx],
+                   'step': 69420,
+                   'algorithm': FLAGS.algorithms[algo_idx]}
 
-common_extras = {'examples_seen': 17291729, #current_train_items[algo_idx],
-                 'step': 69420,
-                 'algorithm': FLAGS.algorithms[algo_idx]}
-
-rng = np.random.RandomState(FLAGS.seed)
-rng_key = jax.random.PRNGKey(rng.randint(2 ** 32))
-new_rng_key, rng_key = jax.random.split(rng_key)
-#breakpoint()
-
-
-four_stats = permute_eval_and_record(
-      sampler=four_sampler, #test_samplers[algo_idx],
-      predict_fn=functools.partial(model.predict, algorithm_index=algo_idx),
-      sample_count=test_samples, #test_sample_counts[algo_idx],
-      rng_key=new_rng_key,
-      extras=common_extras, dont_permute=True)
-time4stats = time.time()
-print(f"4 stats built in {time4stats-time64} seconds")
-#compute_dfs_stats(four_stats)
-#compute_bf_stats(four_stats)
-
-sixteen_stats = permute_eval_and_record(
-      sampler=sixteen_sampler, #test_samplers[algo_idx],
-      predict_fn=functools.partial(model.predict, algorithm_index=algo_idx),
-      sample_count=test_samples, #test_sample_counts[algo_idx],
-      rng_key=new_rng_key,
-      extras=common_extras, dont_permute=True)
-time16stats = time.time()
-print(f"16 stats built in {time16stats-time4stats} seconds")
-
-#breakpoint()
-# OOOPS THIS NEXT THING TAKES LIKE 2 HOURS ON MY MACHINE BCUZ GETTING FORWARD PASSES ON N=64 IS APPARENTLY TOO BIG || YOU WANT 2 GPU IT, save pickle, load n run henry CPU
-sixtyfour_stats = permute_eval_and_record(
-      sampler=sixtyfour_sampler, #test_samplers[algo_idx],
-      predict_fn=functools.partial(model.predict, algorithm_index=algo_idx),
-      sample_count=test_samples, #test_sample_counts[algo_idx],
-      rng_key=new_rng_key,
-      extras=common_extras, dont_permute=True)
-time64stats = time.time()
-print(f"64 stats built in {time64stats-time16stats} seconds")
-
-# TODO: put in different permute methods for permuting in different ways?
-
-# IF YOU WANT A DIFFERENT GRAPH SIZE, YOU NEED A DIFFERENT SAMPLER? bcuz you call next(sampler) to get the feedback.features to do the predictions
-
-# -----------------------------------------------------------------------------------------------------------------
-# GIVEN STUFF, REPORT STATS?
-# -----------------------------------------------------------------------------------------------------------------
+  rng = np.random.RandomState(FLAGS.seed)
+  rng_key = jax.random.PRNGKey(rng.randint(2 ** 32))
+  new_rng_key, rng_key = jax.random.split(rng_key)
+  #breakpoint()
 
 
-print('================================================')
-if which == 'dfs':
-  compute_dfs_stats(four_stats)
-else:
-  compute_bf_stats(four_stats)
-time4eval = time.time()
-print(f"4 stats eval in {time4eval-time16stats} seconds")
+  four_stats = permute_eval_and_record(
+        sampler=four_sampler, #test_samplers[algo_idx],
+        predict_fn=functools.partial(model.predict, algorithm_index=algo_idx),
+        sample_count=test_samples, #test_sample_counts[algo_idx],
+        rng_key=new_rng_key,
+        extras=common_extras, dont_permute=True)
+  time4stats = time.time()
+  print(f"4 stats built in {time4stats-time64} seconds")
+  #compute_dfs_stats(four_stats)
+  #compute_bf_stats(four_stats)
 
-print('================================================')
-if which == 'dfs':
-  compute_dfs_stats(sixteen_stats)
-else:
-  compute_bf_stats(sixteen_stats)
-time16eval = time.time()
-print(f"16 stats eval in {time16eval-time4eval} seconds")
+  sixteen_stats = permute_eval_and_record(
+        sampler=sixteen_sampler, #test_samplers[algo_idx],
+        predict_fn=functools.partial(model.predict, algorithm_index=algo_idx),
+        sample_count=test_samples, #test_sample_counts[algo_idx],
+        rng_key=new_rng_key,
+        extras=common_extras, dont_permute=True)
+  time16stats = time.time()
+  print(f"16 stats built in {time16stats-time4stats} seconds")
 
-print('================================================')
-if which == 'dfs':
-  compute_dfs_stats(sixtyfour_stats)
-else:
-  compute_bf_stats(sixtyfour_stats)
-time64eval = time.time()
-print(f"64 stats eval in {time64eval-time16eval} seconds")
+  #breakpoint()
+  # OOOPS THIS NEXT THING TAKES LIKE 2 HOURS ON MY MACHINE BCUZ GETTING FORWARD PASSES ON N=64 IS APPARENTLY TOO BIG || YOU WANT 2 GPU IT, save pickle, load n run henry CPU
+  sixtyfour_stats = permute_eval_and_record(
+        sampler=sixtyfour_sampler, #test_samplers[algo_idx],
+        predict_fn=functools.partial(model.predict, algorithm_index=algo_idx),
+        sample_count=test_samples, #test_sample_counts[algo_idx],
+        rng_key=new_rng_key,
+        extras=common_extras, dont_permute=True)
+  time64stats = time.time()
+  print(f"64 stats built in {time64stats-time16stats} seconds")
+
+  # TODO: put in different permute methods for permuting in different ways?
+
+  # IF YOU WANT A DIFFERENT GRAPH SIZE, YOU NEED A DIFFERENT SAMPLER? bcuz you call next(sampler) to get the feedback.features to do the predictions
+
+  # -----------------------------------------------------------------------------------------------------------------
+  # GIVEN STUFF, REPORT STATS?
+  # -----------------------------------------------------------------------------------------------------------------
+
+
+  print('================================================')
+  if which == 'dfs':
+    compute_dfs_stats(four_stats)
+  else:
+    compute_bf_stats(four_stats)
+  time4eval = time.time()
+  print(f"4 stats eval in {time4eval-time16stats} seconds")
+
+  print('================================================')
+  if which == 'dfs':
+    compute_dfs_stats(sixteen_stats)
+  else:
+    compute_bf_stats(sixteen_stats)
+  time16eval = time.time()
+  print(f"16 stats eval in {time16eval-time4eval} seconds")
+
+  print('================================================')
+  if which == 'dfs':
+    compute_dfs_stats(sixtyfour_stats)
+  else:
+    compute_bf_stats(sixtyfour_stats)
+  time64eval = time.time()
+  print(f"64 stats eval in {time64eval-time16eval} seconds")
