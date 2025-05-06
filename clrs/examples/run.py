@@ -409,7 +409,9 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
   result_df = pd.DataFrame.from_dict(result_dict)
   #breakpoint()
   alg = extras['algorithm']
-  result_df.to_pickle(path=alg + '_testingpermute_' + str(extras['step']) + '_.pkl') # read with pd.read_pickle('filename')
+  size = len(As[0])
+  result_df.to_pickle(path=alg + '_n=' + str(size) + '_testingpermute_' + str(extras['step']) + '_.pkl')  # read with pd.read_pickle('filename')
+
   #print('run.py permuteevalrecord')
   # if extras:
   #   out.update(extras)
@@ -653,38 +655,39 @@ def main(unused_argv):
       if (sum(val_scores) > best_score) or step == 0:
         best_score = sum(val_scores)
         logging.info('Checkpointing best model, %s', msg)
-        train_model.save_model('best.pkl')
+        train_model.save_model('best_' + FLAGS.algorithms[algo_idx] + '.pkl')
       else:
         logging.info('Not saving new best model, %s', msg)
 
     step += 1
     length_idx = (length_idx + 1) % len(train_lengths)
 
-  logging.info('Restoring best model from checkpoint...')
-  eval_model.restore_model('best.pkl', only_load_processor=False)
-
-  for algo_idx in range(len(train_samplers)):
-    common_extras = {'examples_seen': current_train_items[algo_idx],
-                     'step': step,
-                     'algorithm': FLAGS.algorithms[algo_idx]}
-
-    new_rng_key, rng_key = jax.random.split(rng_key)
-    test_df = permute_eval_and_record(
-        sampler=test_samplers[algo_idx],
-        predict_fn=functools.partial(eval_model.predict, algorithm_index=algo_idx),
-        sample_count=test_sample_counts[algo_idx],
-        rng_key=new_rng_key,
-        extras=common_extras)
-    logging.info('(test) algo %s : %s', FLAGS.algorithms[algo_idx], None)#, test_stats)
-
-  logging.info('Done!')
+  # SPLIT TEST STATS N STUFF INTO dummy_eval.py
+  # logging.info('Restoring best model from checkpoint...')
+  # eval_model.restore_model('best_' + FLAGS.algorithms[algo_idx] + '.pkl', only_load_processor=False)
+  #
+  # for algo_idx in range(len(train_samplers)):
+  #   common_extras = {'examples_seen': current_train_items[algo_idx],
+  #                    'step': step,
+  #                    'algorithm': FLAGS.algorithms[algo_idx]}
+  #
+  #   new_rng_key, rng_key = jax.random.split(rng_key)
+  #   test_df = permute_eval_and_record(
+  #       sampler=test_samplers[algo_idx],
+  #       predict_fn=functools.partial(eval_model.predict, algorithm_index=algo_idx),
+  #       sample_count=test_sample_counts[algo_idx],
+  #       rng_key=new_rng_key,
+  #       extras=common_extras)
+  #   logging.info('(test) algo %s : %s', FLAGS.algorithms[algo_idx], None)#, test_stats)
+  #
+  # logging.info('Done!')
   #breakpoint()
 
   def serialize_flags():
     return {name: FLAGS[name].value for name in FLAGS}
   # Save FLAGS to file for loading in dummy_eval
   import json
-  with open('WHEREAMI/flags.json', 'w') as f:
+  with open('WHEREAMI/' + FLAGS.algorithms[algo_idx] + '_flags.json', 'w') as f:
     json.dump(serialize_flags(), f)
 
 
