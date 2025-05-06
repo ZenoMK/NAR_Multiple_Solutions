@@ -477,7 +477,8 @@ def check_valid_BFpaths(A,s, parentpath):
 # 7! = 5040 (should be unlikely to have false accepts here)
 # 8! = 40320 (should be vanishingly rare)
 
-# o = automatic_sanity_check(5, agnostic_henry)
+#o = automatic_sanity_check(5, agnostic_henry)
+#for f in o[8][1]: draw_highlit(o[8][0], f)
 # for f in o[7][1]: draw_highlit(o[7][0], f) # draws the graph in blue/grey, and the tree in red, for your visual comparison
 # print('===')
 # o2 = automatic_sanity_check(5, henry)

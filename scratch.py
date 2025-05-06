@@ -67,7 +67,7 @@ actual = [0, 0, 2, 0]
 false_neg_og = [3, 3, 2, 3]
 
 
-print(agnostic_henry(false_neg_oga, false_neg_og)) # TRUE & fixed
+#print(agnostic_henry(false_neg_oga, false_neg_og)) # TRUE & fixed
 
 # ----------------------------------------------------------------------------
 true_neg_ogA = np.array(

@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
+import pickle
+import time
 """Run training of one or more algorithmic tasks from CLRS."""
 
 import functools
@@ -116,7 +117,7 @@ flags.DEFINE_enum('processor_type', 'triplet_gmpnn',
                    'triplet_gpgn', 'triplet_gpgn_mask', 'triplet_gmpnn'],
                   'Processor type to use as the network P.')
 
-flags.DEFINE_string('checkpoint_path', '/tmp/CLRS30',
+flags.DEFINE_string('checkpoint_path', 'WHEREAMI',#'/tmp/CLRS30',
                     'Path in which checkpoints are saved.')
 flags.DEFINE_string('dataset_path', '/tmp/CLRS30',
                     'Path in which dataset is stored.')
@@ -344,7 +345,10 @@ def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, e
 
         # ffs[2] = np.array(ffs[2][::-1]) # cant change :( due to Features type
 
+        t1 = time.time()
         cur_preds, _ = predict_fn(new_rng_key, ffs)
+        t2 = time.time()
+        print(f"n={graph_size} the prediction line  itself took {t2-t1} seconds") # size 64 graphs take 30sec to predict each time on my laptop. thats no fun
         #print('cur_preds[0], ', cur_preds['pi'].data[0])
         #breakpoint()
         # STORE SHIT
@@ -378,8 +382,11 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
     new_rng_key, rng_key = jax.random.split(rng_key)
     # DO THE THING
     #breakpoint()
+    t1 = time.time()
     batch_IDs, batch_As, batch_perms, batch_preds, batch_Ss = predict_on_permuted_As(ffs=feedback.features, predict_fn=predict_fn, # each list is batch x num_perms length
                                                                    num_perms=5, graph_num=processed_samples, new_rng_key=new_rng_key, extras=extras)
+    t2 = time.time()
+    print(f"predicting on perm As took {t2-t1} sec")
     processed_samples += batch_size
     # ADD
     IDs.extend(batch_IDs)
@@ -407,7 +414,7 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
   # if extras:
   #   out.update(extras)
   # return {k: unpack(v) for k, v in out.items()}
-
+  return result_df
 
 
 def create_samplers(rng, train_lengths: List[int]):
@@ -552,6 +559,7 @@ def main(unused_argv):
       dummy_trajectory=[next(t) for t in val_samplers],
       **model_params
   )
+
   if FLAGS.chunked_training:
     train_model = clrs.models.BaselineModelChunked(
         spec=spec_list,
@@ -661,15 +669,23 @@ def main(unused_argv):
                      'algorithm': FLAGS.algorithms[algo_idx]}
 
     new_rng_key, rng_key = jax.random.split(rng_key)
-    test_stats = permute_eval_and_record(
+    test_df = permute_eval_and_record(
         sampler=test_samplers[algo_idx],
         predict_fn=functools.partial(eval_model.predict, algorithm_index=algo_idx),
         sample_count=test_sample_counts[algo_idx],
         rng_key=new_rng_key,
         extras=common_extras)
-    logging.info('(test) algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+    logging.info('(test) algo %s : %s', FLAGS.algorithms[algo_idx], None)#, test_stats)
 
   logging.info('Done!')
+  #breakpoint()
+
+  def serialize_flags():
+    return {name: FLAGS[name].value for name in FLAGS}
+  # Save FLAGS to file for loading in dummy_eval
+  import json
+  with open('WHEREAMI/flags.json', 'w') as f:
+    json.dump(serialize_flags(), f)
 
 
 if __name__ == '__main__':
