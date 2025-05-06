@@ -97,3 +97,9 @@ true_neg_og = [3, 1, 1, 1]
 #agnostic_henry(true_neg_ogA, true_neg_og) # NO we want alll  highlighted edges to be tree edges
 
 
+# ------ METRIC DIFFERENCE ------ #
+truth = np.array([0,1,2,3])
+pred = np.array([0,2,2,3])
+
+#CLRS: lambda pred, truth: np.mean((pred == truth) * 1.0)
+#OURS: np.sum((pred==truth).all())
