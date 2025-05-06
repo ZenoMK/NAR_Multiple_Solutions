@@ -27,15 +27,16 @@ import numpy as np
 from types import SimpleNamespace # THIS IS SUSSY but bcuz i dont care about flags being absl flags, and just want to use the same values
 import functools
 
+from eval_permute_stats import compute_bf_stats, compute_dfs_stats
 
 start_time = time.time()
 # --- LOAD FLAG STUFF
-flagjson = 'WHEREAMI/flags.json'
-modelname = 'best.pkl'
+flagjson = 'WHEREAMI/dfs_flags.json'
+modelname = 'best_dfs.pkl'
 
 with open(flagjson, 'r') as f:
   saved_flags = json.load(f)
-FLAGS = SimpleNamespace(**saved_flags)
+FLAGS = SimpleNamespace(**saved_flags) # FIXME: warning this is not the same thing as in run.py, it's a gimmick so that i can use similar code
 algo_idx = 0
 
 json_time = time.time()
@@ -44,11 +45,7 @@ print(f"json read in {json_time-start_time} seconds")
 # LOAD THE SCAFFOLD FOR AN EVAL MODEL (CORRECT DIMENSIONS, etc)
 # -----------------------------------------------------------------------------------------------------------------
 # ---- make spec list and val_samplers (necessary for dimensions of model)
-def load_model(flagjson, modelname):
-      with open(flagjson, 'r') as f:
-            saved_flags = json.load(f)
-      FLAGS = SimpleNamespace(
-            **saved_flags)  # FIXME: warning this is not the same thing as in run.py, it's a gimmick so that i can use similar code
+def load_model(modelname):
       if FLAGS.hint_mode == 'encoded_decoded':
             encode_hints = True
             decode_hints = True
@@ -128,7 +125,7 @@ def load_model(flagjson, modelname):
       eval_model.restore_model(file_name=modelname)
       return eval_model
 
-model = load_model(flagjson, modelname)
+model = load_model(modelname)
 load_time = time.time()
 print(f"model loaded in {load_time-json_time} seconds")
 # -----------------------------------------------------------------------------------------------------------------
@@ -136,10 +133,6 @@ print(f"model loaded in {load_time-json_time} seconds")
 # -----------------------------------------------------------------------------------------------------------------
 # TODO: NEED A TEST SAMPLER
 def make_test_sampler(size):
-  with open(flagjson, 'r') as f:
-        saved_flags = json.load(f)
-  FLAGS = SimpleNamespace(
-        **saved_flags)  # FIXME: warning this is not the same thing as in run.py, it's a gimmick so that i can use similar code
   algo_idx = 0
   algorithm = FLAGS.algorithms[algo_idx]
   mult = clrs.CLRS_30_ALGS_SETTINGS[algorithm]['num_samples_multiplier']
@@ -192,6 +185,7 @@ four_stats = permute_eval_and_record(
       extras=common_extras)
 time4stats = time.time()
 print(f"4 stats built in {time4stats-time64} seconds")
+#compute_dfs_stats(four_stats)
 
 sixteen_stats = permute_eval_and_record(
       sampler=sixteen_sampler, #test_samplers[algo_idx],
@@ -202,7 +196,7 @@ sixteen_stats = permute_eval_and_record(
 time16stats = time.time()
 print(f"16 stats built in {time16stats-time4stats} seconds")
 
-breakpoint()
+#breakpoint()
 # OOOPS THIS NEXT THING TAKES LIKE 2 HOURS ON MY MACHINE BCUZ GETTING FORWARD PASSES ON N=64 IS APPARENTLY TOO BIG || YOU WANT 2 GPU IT, save pickle, load n run henry CPU
 sixtyfour_stats = permute_eval_and_record(
       sampler=sixtyfour_sampler, #test_samplers[algo_idx],
@@ -220,16 +214,18 @@ print(f"64 stats built in {time64stats-time16stats} seconds")
 # -----------------------------------------------------------------------------------------------------------------
 # GIVEN STUFF, REPORT STATS?
 # -----------------------------------------------------------------------------------------------------------------
-from eval_permute_stats import compute_bf_stats, compute_dfs_stats
 
+print('================================================')
 compute_dfs_stats(four_stats)
 time4eval = time.time()
 print(f"4 stats eval in {time4eval-time16stats} seconds")
 
+print('================================================')
 compute_dfs_stats(sixteen_stats)
 time16eval = time.time()
 print(f"16 stats built in {time16eval-time4eval} seconds")
 
+print('================================================')
 compute_dfs_stats(sixtyfour_stats)
 time64eval = time.time()
 print(f"64 stats built in {time64eval-time16eval} seconds")
