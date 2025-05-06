@@ -402,7 +402,8 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
   result_df = pd.DataFrame.from_dict(result_dict)
   #breakpoint()
   alg = extras['algorithm']
-  result_df.to_pickle(path=alg + '_testingpermute_' + str(extras['step']) + '_.pkl') # read with pd.read_pickle('filename')
+  size=len(As[0])
+  result_df.to_pickle(path=alg + '_n=' + str(size) + '_testingpermute_' + str(extras['step']) + '_.pkl') # read with pd.read_pickle('filename')
   #print('run.py permuteevalrecord')
   # if extras:
   #   out.update(extras)
@@ -477,7 +478,7 @@ def create_samplers(rng, train_lengths: List[int]):
                       **common_sampler_args)
       val_sampler, val_samples, spec = make_multi_sampler(**val_args)
 
-      test_args = dict(sizes= [4],#[16], #Fixme: revert to [-1],
+      test_args = dict(sizes=[64],#[4],#[16], #Fixme: revert to [-1],
                        split='test',
                        batch_size=32,
                        multiplier=2 * mult,

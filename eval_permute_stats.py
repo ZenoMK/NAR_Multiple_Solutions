@@ -131,23 +131,23 @@ def compute_dfs_stats(df):
     # Fixme: these are different so either agnostic henry is scuffed, or permuting is scuffed for DFS :O
     df['onestat'] = df.apply(lambda row: agnostic_henry(G=row['ogA'], F=row['fakeOGpred']), axis=1)
     df['twostat'] = df.apply(lambda row: agnostic_henry(G=row['As'], F=row['Preds']), axis=1)
-    print(df['onestat'].mean())
-    print(df['twostat'].mean())
-    diff_df = df[df['onestat']!=df['twostat']] # ToDo: draw each graph
-    breakpoint()
-    print('oga', diff_df['ogA'].iloc[0])
-    print('As', diff_df['As'].iloc[0])
-    print('Perms', diff_df['Perms'].iloc[0])
-    print('actual', diff_df['Preds'].iloc[0])
-    print('og', diff_df['fakeOGpred'].iloc[0])
-
-    print('OG:', diff_df['onestat'].iloc[0])
-    draw_graph_with_highlights(diff_df['ogA'].iloc[0], diff_df['fakeOGpred'].iloc[0])
-    print('actual', diff_df['twostat'].iloc[0])
-    draw_graph_with_highlights(diff_df['As'].iloc[0], diff_df['Preds'].iloc[0])
-    #test_adj(diff_df['ogA'].iloc[0], diff_df['As'].iloc[0], diff_df['Perms'].iloc[0])
-    #test_parent_paths(diff_df['ogA'].iloc[0], diff_df['fakeOGpred'].iloc[0], diff_df['As'].iloc[0], diff_df['Preds'].iloc[0], diff_df['Perms'].iloc[0])
-    breakpoint()
+    # print(df['onestat'].mean())
+    # print(df['twostat'].mean())
+    # diff_df = df[df['onestat']!=df['twostat']] # ToDo: draw each graph
+    # breakpoint()
+    # print('oga', diff_df['ogA'].iloc[0])
+    # print('As', diff_df['As'].iloc[0])
+    # print('Perms', diff_df['Perms'].iloc[0])
+    # print('actual', diff_df['Preds'].iloc[0])
+    # print('og', diff_df['fakeOGpred'].iloc[0])
+    #
+    # print('OG:', diff_df['onestat'].iloc[0])
+    # draw_graph_with_highlights(diff_df['ogA'].iloc[0], diff_df['fakeOGpred'].iloc[0])
+    # print('actual', diff_df['twostat'].iloc[0])
+    # draw_graph_with_highlights(diff_df['As'].iloc[0], diff_df['Preds'].iloc[0])
+    # #test_adj(diff_df['ogA'].iloc[0], diff_df['As'].iloc[0], diff_df['Perms'].iloc[0])
+    # #test_parent_paths(diff_df['ogA'].iloc[0], diff_df['fakeOGpred'].iloc[0], diff_df['As'].iloc[0], diff_df['Preds'].iloc[0], diff_df['Perms'].iloc[0])
+    # breakpoint()
 
 
     print('validity relative to OG graph', df['ogDFSvalid'].mean())
@@ -164,7 +164,8 @@ if __name__ == '__main__':
     pass
     # print('DFS BAByyyy ============')
     #
-    dfs_df = pd.read_pickle('dfs_testingpermute_50_.pkl')
+    dfs_df = pd.read_pickle('dfs_n=4_testingpermute_1_.pkl')
+    #dfs_df = pd.read_pickle('dfs_testingpermute_50_.pkl')
     dfs_stats = compute_dfs_stats(dfs_df)
 
     # print('Bellman Ford ============')
