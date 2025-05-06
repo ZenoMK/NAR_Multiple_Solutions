@@ -29,30 +29,11 @@ import functools
 
 from eval_permute_stats import compute_bf_stats, compute_dfs_stats
 
-start_time = time.time()
-# --- LOAD FLAG STUFF
-which = 'dfs'
-
-if which == 'dfs':
-  flagjson = 'WHEREAMI/dfs_flags.json'
-  modelname = 'best_dfs.pkl'
-else:
-  flagjson = 'WHEREAMI/bellman_ford_flags.json' #'WHEREAMI/dfs_flags.json'
-  modelname = 'best_bellman_ford.pkl' #'best_dfs.pkl'
-
-
-with open(flagjson, 'r') as f:
-  saved_flags = json.load(f)
-FLAGS = SimpleNamespace(**saved_flags) # FIXME: warning this is not the same thing as in run.py, it's a gimmick so that i can use similar code
-algo_idx = 0
-
-json_time = time.time()
-print(f"json read in {json_time-start_time} seconds")
 # -----------------------------------------------------------------------------------------------------------------
 # LOAD THE SCAFFOLD FOR AN EVAL MODEL (CORRECT DIMENSIONS, etc)
 # -----------------------------------------------------------------------------------------------------------------
 # ---- make spec list and val_samplers (necessary for dimensions of model)
-def load_model(modelname):
+def load_model(modelname, FLAGS):
       if FLAGS.hint_mode == 'encoded_decoded':
             encode_hints = True
             decode_hints = True
@@ -120,7 +101,6 @@ def load_model(modelname):
             nb_msg_passing_steps=FLAGS.nb_msg_passing_steps,
             )
 
-
       eval_model = clrs.models.BaselineModel(
           spec=[spec], #only need one spec for one algorithm
           dummy_trajectory=[next(val_sampler)], #similarly, only one alg at a time
@@ -132,14 +112,12 @@ def load_model(modelname):
       eval_model.restore_model(file_name=modelname)
       return eval_model
 
-model = load_model(modelname)
-load_time = time.time()
-print(f"model loaded in {load_time-json_time} seconds")
+
 # -----------------------------------------------------------------------------------------------------------------
 # GIVEN THAT AN EVAL MODEL IS LOADED, TRY SOME PREDICTIONS, COLLECT SOME STATS???
 # -----------------------------------------------------------------------------------------------------------------
 # TODO: NEED A TEST SAMPLER
-def make_test_sampler(size):
+def make_test_sampler(size, FLAGS):
   algo_idx = 0
   algorithm = FLAGS.algorithms[algo_idx]
   mult = clrs.CLRS_30_ALGS_SETTINGS[algorithm]['num_samples_multiplier']
@@ -164,13 +142,37 @@ def make_test_sampler(size):
   return test_sampler, test_samples, spec
 
 if __name__ == '__main__':
-  four_sampler, test_samples, spec = make_test_sampler(size=4)
+  start_time = time.time()
+  # --- LOAD FLAG STUFF
+  which = 'dfs'
+
+  if which == 'dfs':
+    flagjson = 'WHEREAMI/dfs_flags.json'
+    modelname = 'best_dfs.pkl'
+  else:
+    flagjson = 'WHEREAMI/bellman_ford_flags.json'  # 'WHEREAMI/dfs_flags.json'
+    modelname = 'best_bellman_ford.pkl'  # 'best_dfs.pkl'
+
+  with open(flagjson, 'r') as f:
+    saved_flags = json.load(f)
+  FLAGS = SimpleNamespace(
+    **saved_flags)  # FIXME: warning this is not the same thing as in run.py, it's a gimmick so that i can use similar code
+  algo_idx = 0
+
+  json_time = time.time()
+  print(f"json read in {json_time - start_time} seconds")
+
+  model = load_model(modelname, FLAGS)
+  load_time = time.time()
+  print(f"model loaded in {load_time - json_time} seconds")
+
+  four_sampler, test_samples, spec = make_test_sampler(size=4, FLAGS=FLAGS)
   time4 = time.time()
   print(f"four sampler built in {time4-load_time} seconds")
-  sixteen_sampler, ts, sc = make_test_sampler(size=16)
+  sixteen_sampler, ts, sc = make_test_sampler(size=16, FLAGS=FLAGS)
   time16 = time.time()
   print(f"sixteen sampler built in {time16-time4} seconds")
-  sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64)
+  sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64, FLAGS=FLAGS)
   time64 = time.time()
   print(f"64 sampler built in {time64-time16} seconds")
 

@@ -18,7 +18,7 @@ from dummy_eval import load_model, make_test_sampler
 
 start_time = time.time()
 # --- LOAD FLAG STUFF
-which = 'dfs'
+which = ''#'dfs'
 
 if which == 'dfs':
   flagjson = 'WHEREAMI/dfs_flags.json'
@@ -36,19 +36,21 @@ algo_idx = 0
 json_time = time.time()
 print(f"json read in {json_time-start_time} seconds")
 
-model = load_model(modelname)
+model = load_model(modelname, FLAGS)
 load_time = time.time()
 print(f"model loaded in {load_time-json_time} seconds")
 
 # ---------- TEST SAMPLERS?
-four_sampler, test_samples, spec = make_test_sampler(size=4)
+four_sampler, test_samples, spec = make_test_sampler(size=4, FLAGS=FLAGS)
 time4 = time.time()
 print(f"four sampler built in {time4-load_time} seconds")
-sixteen_sampler, ts, sc = make_test_sampler(size=16)
+#breakpoint()
+
+sixteen_sampler, ts, sc = make_test_sampler(size=16, FLAGS=FLAGS)
 time16 = time.time()
 print(f"sixteen sampler built in {time16-time4} seconds")
 
-sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64)
+sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64, FLAGS=FLAGS)
 time64 = time.time()
 print(f"64 sampler built in {time64-time16} seconds")
 
