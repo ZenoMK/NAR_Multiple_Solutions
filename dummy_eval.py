@@ -31,8 +31,15 @@ from eval_permute_stats import compute_bf_stats, compute_dfs_stats
 
 start_time = time.time()
 # --- LOAD FLAG STUFF
-flagjson = 'WHEREAMI/bellman_ford_flags.json' #'WHEREAMI/dfs_flags.json'
-modelname = 'best_bellman_ford.pkl' #'best_dfs.pkl'
+which = 'dfs'
+
+if which == 'dfs':
+  flagjson = 'WHEREAMI/dfs_flags.json'
+  modelname = 'best_dfs.pkl'
+else:
+  flagjson = 'WHEREAMI/bellman_ford_flags.json' #'WHEREAMI/dfs_flags.json'
+  modelname = 'best_bellman_ford.pkl' #'best_dfs.pkl'
+
 
 with open(flagjson, 'r') as f:
   saved_flags = json.load(f)
@@ -182,7 +189,7 @@ four_stats = permute_eval_and_record(
       predict_fn=functools.partial(model.predict, algorithm_index=algo_idx),
       sample_count=test_samples, #test_sample_counts[algo_idx],
       rng_key=new_rng_key,
-      extras=common_extras)
+      extras=common_extras, dont_permute=True)
 time4stats = time.time()
 print(f"4 stats built in {time4stats-time64} seconds")
 #compute_dfs_stats(four_stats)
@@ -193,7 +200,7 @@ sixteen_stats = permute_eval_and_record(
       predict_fn=functools.partial(model.predict, algorithm_index=algo_idx),
       sample_count=test_samples, #test_sample_counts[algo_idx],
       rng_key=new_rng_key,
-      extras=common_extras)
+      extras=common_extras, dont_permute=True)
 time16stats = time.time()
 print(f"16 stats built in {time16stats-time4stats} seconds")
 
@@ -204,7 +211,7 @@ sixtyfour_stats = permute_eval_and_record(
       predict_fn=functools.partial(model.predict, algorithm_index=algo_idx),
       sample_count=test_samples, #test_sample_counts[algo_idx],
       rng_key=new_rng_key,
-      extras=common_extras)
+      extras=common_extras, dont_permute=True)
 time64stats = time.time()
 print(f"64 stats built in {time64stats-time16stats} seconds")
 
@@ -216,20 +223,27 @@ print(f"64 stats built in {time64stats-time16stats} seconds")
 # GIVEN STUFF, REPORT STATS?
 # -----------------------------------------------------------------------------------------------------------------
 
+
 print('================================================')
-#compute_dfs_stats(four_stats)
-compute_bf_stats(four_stats)
+if which == 'dfs':
+  compute_dfs_stats(four_stats)
+else:
+  compute_bf_stats(four_stats)
 time4eval = time.time()
 print(f"4 stats eval in {time4eval-time16stats} seconds")
 
 print('================================================')
-#compute_dfs_stats(sixteen_stats)
-compute_bf_stats(sixteen_stats)
+if which == 'dfs':
+  compute_dfs_stats(sixteen_stats)
+else:
+  compute_bf_stats(sixteen_stats)
 time16eval = time.time()
-print(f"16 stats built in {time16eval-time4eval} seconds")
+print(f"16 stats eval in {time16eval-time4eval} seconds")
 
 print('================================================')
-compute_bf_stats(sixtyfour_stats)
-#compute_dfs_stats(sixtyfour_stats)
+if which == 'dfs':
+  compute_dfs_stats(sixtyfour_stats)
+else:
+  compute_bf_stats(sixtyfour_stats)
 time64eval = time.time()
-print(f"64 stats built in {time64eval-time16eval} seconds")
+print(f"64 stats eval in {time64eval-time16eval} seconds")

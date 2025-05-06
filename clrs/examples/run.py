@@ -283,7 +283,7 @@ def collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
 # cur_preds, _ = predict_fn(new_rng_key, ffs)
 # cur_preds['pi'].data
 
-def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, extras):
+def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, extras, dont_permute):
     IDs = []
     As = []
     preds = []
@@ -302,7 +302,10 @@ def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, e
         # prepare metadata
         cur_As = ogAs
         graph_size = len(cur_As[0])
-        cur_perm = np.random.permutation(graph_size) #np.arange(graph_size)
+        if dont_permute:
+          cur_perm = np.arange(graph_size)
+        else:
+          cur_perm = np.random.permutation(graph_size) #np.arange(graph_size)
         inv_perm = invert_permutation(cur_perm) # used in adj matrix so that A[i,j] = PI(A)[PI(i),PI(j)]
         cur_perms = [cur_perm] * batch_size
         cur_IDs = [i for i in range(graph_num, graph_num+batch_size)]
@@ -365,7 +368,7 @@ def predict_on_permuted_As(ffs, predict_fn, num_perms, graph_num, new_rng_key, e
 
     return IDs, As, perms, preds, Ss
 
-def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
+def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras, dont_permute=False):
   """Collect batches of output and hint preds and evaluate them."""
   # 32 graphs in a batch?
   # Do 5 permutations per graph
@@ -384,7 +387,7 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras):
     #breakpoint()
     t1 = time.time()
     batch_IDs, batch_As, batch_perms, batch_preds, batch_Ss = predict_on_permuted_As(ffs=feedback.features, predict_fn=predict_fn, # each list is batch x num_perms length
-                                                                   num_perms=5, graph_num=processed_samples, new_rng_key=new_rng_key, extras=extras)
+                                                                   num_perms=5, graph_num=processed_samples, new_rng_key=new_rng_key, extras=extras, dont_permute=dont_permute)
     t2 = time.time()
     print(f"predicting on perm As took {t2-t1} sec")
     processed_samples += batch_size
