@@ -109,6 +109,14 @@ def compute_bf_stats(df):
     num_perms = df.groupby('GraphID').size()[0]
     print('out of', num_perms, ' permutations')
 
+    #breakpoint()
+    #adf = df[df['valid(A,S,P)']] # only look at valid rows, see if theres any variety
+    #adf.groupby('GraphID')['hashablePreds'].nunique() # BEHOLD, VARIETY DISAPPEARS || was this also true for our sampling methods? one correct many different?
+    #mask = df.groupby('GraphID')['hashablePreds'].nunique() != 1
+    #graph_ids = mask[mask].index
+    #fdf = df[df['GraphID'].isin(graph_ids)]
+    ##fdf[['GraphID', 'hashablePreds', 'valid(A,S,P)']]
+
     # summary?
     sdf = df[['valid(ogA,ogS,ogP)', 'valid(A,S,P)', 'valid(ogA,S,P)']]
 

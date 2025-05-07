@@ -1152,9 +1152,9 @@ def bellman_ford(A: _Array, s: int) -> _Out:
   chex.assert_rank(A, 2)
   probes = probing.initialize(specs.SPECS['bellman_ford'])
 
-  A_pos = np.arange(A.shape[0])
-  #A_pos = np.random.permutation(A.shape[0]) # CANT DO THIS ITLL MESS UP ELSEWHERE
-  shuffled = np.random.permutation(A.shape[0])
+  #A_pos = np.arange(A.shape[0])
+  A_pos = np.random.permutation(A.shape[0]) # THIS MESSES UP PROCESS_RANDOM_POS IN SAMPLERS SO IM SKIPPING THAT CODE
+  #shuffled = np.random.permutation(A.shape[0])
 
   probing.push(
       probes,
@@ -1182,8 +1182,8 @@ def bellman_ford(A: _Array, s: int) -> _Out:
             'd': np.copy(prev_d),
             'msk': np.copy(prev_msk)
         })
-    for u in shuffled:
-      for v in shuffled:
+    for u in A_pos:
+      for v in A_pos:
     #for u in range(A.shape[0]):
     #  for v in range(A.shape[0]):
         if prev_msk[u] == 1 and A[u, v] != 0:

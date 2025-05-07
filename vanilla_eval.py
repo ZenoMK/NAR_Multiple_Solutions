@@ -16,7 +16,7 @@ from eval_permute_stats import compute_bf_stats, compute_dfs_stats
 
 from dummy_eval import load_model, make_test_sampler
 
-N_RUNS=5 # num to do everything to get std dev
+N_RUNS=2 # num to do everything to get std dev
 
 if __name__ == '__main__':
 

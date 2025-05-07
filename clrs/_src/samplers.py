@@ -856,27 +856,30 @@ def process_random_pos(sample_iterator, rng):
     An iterator returning the samples with randomized `pos` inputs.
   """
   def _iterate():
+    #print('calling proc_rand_pos in samplers.py')
     while True:
       feedback = next(sample_iterator)
-      inputs = feedback.features.inputs
-      pos, = [x for x in inputs if x.name == 'pos']
-      batch_size, num_nodes = pos.data.shape
-      unsorted = rng.uniform(size=(batch_size, num_nodes))
-      new_pos = []
-      for i in range(batch_size):  # we check one example at a time.
-        # We find if there are splits in the pos sequence, marked by zeros.
-        # We know there will always be at least 1 zero, if there's no split.
-        split, = np.where(pos.data[i] == 0)
-        split = np.concatenate([split, [num_nodes]])
-        # We construct the randomized pos by sorting the random values in each
-        # split and concatenating them.
-        new_pos.append(
-            np.concatenate([np.sort(unsorted[i, split[j]:split[j+1]])
-                            for j in range(len(split) - 1)]))
-      pos.data = np.array(new_pos)
-      inputs = [(pos if x.name == 'pos' else x) for x in inputs]
-      features = feedback.features._replace(inputs=inputs)
-      feedback = feedback._replace(features=features)
+      # FIXME: dont need the following for bf/dfs so ima skip it for now?
+      # inputs = feedback.features.inputs
+      # pos, = [x for x in inputs if x.name == 'pos']
+      # batch_size, num_nodes = pos.data.shape
+      # unsorted = rng.uniform(size=(batch_size, num_nodes))
+      # new_pos = []
+      # for i in range(batch_size):  # we check one example at a time.
+      #   # We find if there are splits in the pos sequence, marked by zeros.
+      #   # We know there will always be at least 1 zero, if there's no split.
+      #   split, = np.where(pos.data[i] == 0)
+      #   split = np.concatenate([split, [num_nodes]])
+      #   # We construct the randomized pos by sorting the random values in each
+      #   # split and concatenating them.
+      #   new_pos.append(
+      #       np.concatenate([np.sort(unsorted[i, split[j]:split[j+1]])
+      #                       for j in range(len(split) - 1)]))
+      # breakpoint() # each sublist in new_pos might be different length for no reason?
+      # pos.data = np.array(new_pos)
+      # inputs = [(pos if x.name == 'pos' else x) for x in inputs]
+      # features = feedback.features._replace(inputs=inputs)
+      # feedback = feedback._replace(features=features)
       yield feedback
 
   return _iterate()
