@@ -104,15 +104,15 @@ def compute_bf_stats(df):
     # variety
     distinct = df.groupby('GraphID')['hashablePreds'].nunique().mean()
     print('unique-ness, ', distinct)
-    inflated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
+    deduplicated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
     print('weird unique-ness', inflated_distinct)
     num_perms = df.groupby('GraphID').size()[0]
     print('out of', num_perms, ' permutations')
 
     # summary?
-    sdf = df[['valid(ogA,ogS,ogP)', 'valid(A,S,P)']]
+    sdf = df[['valid(ogA,ogS,ogP)', 'valid(A,S,P)', 'valid(ogA,S,P)']]
 
-    return sdf, distinct, num_perms
+    return sdf, deduplicated_distinct, num_perms
 
 
 
@@ -140,6 +140,7 @@ def compute_dfs_stats(df):
     print('henry(ogA,rando):', df['randoValid2'].mean())
 
     # ORDER DOESNT - AGNOSTIC
+    df['agnostic(ogA,P)'] = df.apply(lambda row: agnostic_henry(G=row['ogA'], F=row['Preds']), axis=1)
     df['agnostic(ogA,ogP)'] = df.apply(lambda row: agnostic_henry(G=row['ogA'], F=row['fakeOGpred']), axis=1)
     df['agnostic(A,P)'] = df.apply(lambda row: agnostic_henry(G=row['As'], F=row['Preds']), axis=1)
     print('agnostic(ogA, ogP)', df['agnostic(ogA,ogP)'].mean())
@@ -163,15 +164,15 @@ def compute_dfs_stats(df):
 
     distinct = df.groupby('GraphID')['hashablePreds'].nunique().mean()
     print('uniqueness, ', distinct)
-    inflated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
+    deduplicated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
     print('weird uniqueness', inflated_distinct)
     num_perms = df.groupby('GraphID').size()[0]
     print('out of', num_perms, ' permutations')
 
     # summary? important cols
-    sdf = df[['henry(A,P)', 'henry(ogA,ogP)', 'agnostic(ogA,ogP)', 'agnostic(A,P)']]
+    sdf = df[['henry(A,P)', 'henry(ogA,ogP)', 'agnostic(ogA,ogP)', 'agnostic(A,P)', 'henry(ogA,P)', 'agnostic(ogA,P)']]
 
-    return sdf, distinct, num_perms
+    return sdf, deduplicated_distinct, num_perms
 
 
 if __name__ == '__main__':
