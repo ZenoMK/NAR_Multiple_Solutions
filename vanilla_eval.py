@@ -102,13 +102,13 @@ if __name__ == '__main__':
   # node-level accuracies
   print('==== nodes:')
   df = pd.DataFrame.from_dict(node_stats)
-  print(f'mean\n----\n{df.mean()}')
-  print(f'std\n----\n{df.std()}')
+  print(f'mean\n----\n{df.mean()}\n---')
+  print(f'std\n----\n{df.std()}\n---')
 
   # instance-level accuracies
   print('==== instances:')
-  df2 = pd.DataFrame.from_dict(node_stats)
-  print(f'mean\n----\n{df2.mean()}')
-  print(f'std\n----\n{df2.std()}')
+  df2 = pd.DataFrame.from_dict(instance_stats)
+  print(f'mean\n----\n{df2.mean()}\n---')
+  print(f'std\n----\n{df2.std()}\n---')
 
   #breakpoint()
