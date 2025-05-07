@@ -208,7 +208,7 @@ def permute_and_eval(sampler, predict_fn, sample_count, rng_key, extras, num_per
 if __name__ == '__main__':
   start_time = time.time()
   # --- LOAD FLAG STUFF
-  which = 'dfs'
+  which = ''#'dfs'
 
   if which == 'dfs':
     flagjson = 'WHEREAMI/dfs_flags.json'
