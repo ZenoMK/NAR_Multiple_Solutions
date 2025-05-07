@@ -117,11 +117,14 @@ def load_model(modelname, FLAGS):
 # GIVEN THAT AN EVAL MODEL IS LOADED, TRY SOME PREDICTIONS, COLLECT SOME STATS???
 # -----------------------------------------------------------------------------------------------------------------
 # TODO: NEED A TEST SAMPLER
-def make_test_sampler(size, FLAGS):
+def make_test_sampler(size, FLAGS, seed=None):
   algo_idx = 0
   algorithm = FLAGS.algorithms[algo_idx]
   mult = clrs.CLRS_30_ALGS_SETTINGS[algorithm]['num_samples_multiplier']
-  rng = np.random.RandomState(FLAGS.seed)
+  if seed:
+    rng = np.random.RandomState(seed)
+  else:
+    rng = np.random.RandomState(FLAGS.seed)
   rng_key = jax.random.PRNGKey(rng.randint(2 ** 32))
   common_sampler_args = dict(
         algorithm=FLAGS.algorithms[algo_idx],

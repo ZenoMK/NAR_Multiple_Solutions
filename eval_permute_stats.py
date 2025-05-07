@@ -88,27 +88,31 @@ def compute_bf_stats(df):
     # breakpoint()
 
     # TFAE cuz permutation
-    df['ogBFvalid'] = df.apply(lambda row: check_valid_BFpaths(A=row['ogA'], s=row['ogS'], parentpath=row['fakeOGpred']), axis=1)
-    df['BFvalid'] = df.apply(lambda row: check_valid_BFpaths(A=row['As'], s=row['Ss'], parentpath=row['Preds']), axis=1)
+    df['valid(ogA,ogS,ogP)'] = df.apply(lambda row: check_valid_BFpaths(A=row['ogA'], s=row['ogS'], parentpath=row['fakeOGpred']), axis=1)
+    df['valid(A,S,P)'] = df.apply(lambda row: check_valid_BFpaths(A=row['As'], s=row['Ss'], parentpath=row['Preds']), axis=1)
 
-    df['valid3'] = df.apply(lambda row: check_valid_BFpaths(A=row['ogA'], s=row['Ss'], parentpath=row['Preds']), axis=1)
-    df['valid4'] = df.apply(lambda row: check_valid_BFpaths(A=row['As'], s=row['ogS'], parentpath=row['Preds']), axis=1)
+    df['valid(ogA,S,P)'] = df.apply(lambda row: check_valid_BFpaths(A=row['ogA'], s=row['Ss'], parentpath=row['Preds']), axis=1)
+    df['valid(A,ogS,P)'] = df.apply(lambda row: check_valid_BFpaths(A=row['As'], s=row['ogS'], parentpath=row['Preds']), axis=1)
 
     # correctness
     print('Graph Size: ', len(df['Perms'][0]))
-    print('weird: valid(ogA,S)', df['valid3'].mean())
-    print('weird: valid(A,ogS)', df['valid4'].mean())
-    print('valid(ogA,ogS)', df['ogBFvalid'].mean())
-    print('valid(A,S)', df['BFvalid'].mean())
-
+    print('weird: valid(ogA,S,P)', df['valid(ogA,S,P)'].mean())
+    print('weird: valid(A,ogS,P)', df['valid(A,ogS,P)'].mean())
+    print('valid(ogA,ogS,ogP)', df['valid(ogA,ogS,ogP)'].mean())
+    print('valid(A,S,P)', df['valid(A,S,P)'].mean())
 
     # variety
     distinct = df.groupby('GraphID')['hashablePreds'].nunique().mean()
     print('unique-ness, ', distinct)
     inflated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
     print('weird unique-ness', inflated_distinct)
+    num_perms = df.groupby('GraphID').size()[0]
+    print('out of', num_perms, ' permutations')
 
-    return df
+    # summary?
+    sdf = df[['valid(ogA,ogS,ogP)', 'valid(A,S,P)']]
+
+    return sdf, distinct, num_perms
 
 
 
@@ -116,16 +120,16 @@ def compute_dfs_stats(df):
     df = preprocess(df)
 
     # ORDER MATTERS - HENRY
-    df['ogDFSvalid'] = df.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1)
-    df['valid4'] = df.apply(lambda row: henry(G=row['As'], F=row['fakeOGpred']), axis=1)
+    df['henry(ogA,P)'] = df.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1)
+    df['henry(A,ogP)'] = df.apply(lambda row: henry(G=row['As'], F=row['fakeOGpred']), axis=1)
     # Sensible
-    df['DFSvalid'] = df.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
-    df['TESTvalid'] = df.apply(lambda row: henry(G=row['ogA'], F=row['fakeOGpred']), axis=1) # these can vary relative to DFSvalid, since order matters for henry so permutation affects correctness
+    df['henry(A,P)'] = df.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
+    df['henry(ogA,ogP)'] = df.apply(lambda row: henry(G=row['ogA'], F=row['fakeOGpred']), axis=1) # these can vary relative to DFSvalid, since order matters for henry so permutation affects correctness
 
-    print('weird: henry(ogA, P)', df['ogDFSvalid'].mean())
-    print('weird2: henry(A, ogP)', df['valid4'].mean())
-    print('henry(ogA,ogP)', df['TESTvalid'].mean())
-    print('henry(A, P)', df['DFSvalid'].mean())
+    print('weird: henry(ogA, P)', df['henry(ogA,P)'].mean())
+    print('weird2: henry(A, ogP)', df['henry(A,ogP)'].mean())
+    print('henry(ogA,ogP)', df['henry(ogA,ogP)'].mean())
+    print('henry(A, P)', df['henry(A,P)'].mean())
 
 
     # RANDOM
@@ -136,11 +140,11 @@ def compute_dfs_stats(df):
     print('henry(ogA,rando):', df['randoValid2'].mean())
 
     # ORDER DOESNT - AGNOSTIC
-    df['onestat'] = df.apply(lambda row: agnostic_henry(G=row['ogA'], F=row['fakeOGpred']), axis=1)
-    df['twostat'] = df.apply(lambda row: agnostic_henry(G=row['As'], F=row['Preds']), axis=1)
-    print('agnostic(ogA, ogP)', df['onestat'].mean())
-    print('agnostic(A,P)', df['twostat'].mean())
-    # diff_df = df[df['onestat']!=df['twostat']] # these should be the same, but if not its handy to inspect
+    df['agnostic(ogA,ogP)'] = df.apply(lambda row: agnostic_henry(G=row['ogA'], F=row['fakeOGpred']), axis=1)
+    df['agnostic(A,P)'] = df.apply(lambda row: agnostic_henry(G=row['As'], F=row['Preds']), axis=1)
+    print('agnostic(ogA, ogP)', df['agnostic(ogA,ogP)'].mean())
+    print('agnostic(A,P)', df['agnostic(A,P)'].mean())
+    # diff_df = df[df['agnostic(ogA,ogP)']!=df['agnostic(A,P)']] # these should be the same, but if not its handy to inspect
     # assert len(diff_df) == 0
     # breakpoint()
     # print('oga', diff_df['ogA'].iloc[0])
@@ -149,9 +153,9 @@ def compute_dfs_stats(df):
     # print('actual', diff_df['Preds'].iloc[0])
     # print('og', diff_df['fakeOGpred'].iloc[0])
     #
-    # print('OG:', diff_df['onestat'].iloc[0])
+    # print('OG:', diff_df['agnostic(ogA,ogP)'].iloc[0])
     # draw_graph_with_highlights(diff_df['ogA'].iloc[0], diff_df['fakeOGpred'].iloc[0])
-    # print('actual', diff_df['twostat'].iloc[0])
+    # print('actual', diff_df['agnostic(A,P)'].iloc[0])
     # draw_graph_with_highlights(diff_df['As'].iloc[0], diff_df['Preds'].iloc[0])
     #test_adj(diff_df['ogA'].iloc[0], diff_df['As'].iloc[0], diff_df['Perms'].iloc[0])
     #test_parent_paths(diff_df['ogA'].iloc[0], diff_df['fakeOGpred'].iloc[0], diff_df['As'].iloc[0], diff_df['Preds'].iloc[0], diff_df['Perms'].iloc[0])
@@ -161,8 +165,10 @@ def compute_dfs_stats(df):
     print('uniqueness, ', distinct)
     inflated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
     print('weird uniqueness', inflated_distinct)
-    print('out of', df.groupby('GraphID').size()[0], ' permutations')
-    return
+    num_perms = df.groupby('GraphID').size()[0]
+    print('out of', num_perms, ' permutations')
+
+    return df, distinct, num_perms
 
 
 if __name__ == '__main__':
@@ -229,12 +235,12 @@ if __name__ == '__main__':
 # # we have kinda 2 sensible options for unique/validity
 # # BEST VALIDITY: are you valid to the original graph (but why would this be correct for DFSO? it wouldnt)
 # df_sorted['ogA'] = df_sorted.apply(lambda row: row['As'][np.ix_(np.argsort(row['Perms']),np.argsort(row['Perms']))], axis=1)
-# df_sorted['ogDFSvalid'] = df_sorted.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1) # this would be crazy if worked
-# print('validity relative to OG graph', df_sorted['ogDFSvalid'].mean())
+# df_sorted['henry(ogA,P)'] = df_sorted.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1) # this would be crazy if worked
+# print('validity relative to OG graph', df_sorted['henry(ogA,P)'].mean())
 #
 # # SECOND BEST: are you valid to your graph (this implies DFS correct without ordered restarts, but is still stricter)
-# df_sorted['DFSvalid'] = df_sorted.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
-# print('validity relative to input (permuted) graph', df_sorted['DFSvalid'].mean())
+# df_sorted['henry(A,P)'] = df_sorted.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
+# print('validity relative to input (permuted) graph', df_sorted['henry(A,P)'].mean())
 #
 # # BEST UNIQUENESS: are you unique?
 # distinct = df_sorted.groupby('GraphID')['hashablePreds'].nunique().mean()
@@ -273,16 +279,16 @@ if __name__ == '__main__':
 # # sort by GraphID
 # df_sorted = df.sort_values(by='GraphID')
 #
-# df_sorted['DFSvalid'] = df_sorted.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
+# df_sorted['henry(A,P)'] = df_sorted.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
 #
 # df_sorted
 #
 #
-# df_sorted.groupby('GraphID')['DFSvalid'].mean()
+# df_sorted.groupby('GraphID')['henry(A,P)'].mean()
 #
 # df_sorted.iloc[9]
 #
-# df_sorted['DFSvalid'].mean()
+# df_sorted['henry(A,P)'].mean()
 #
 #
 #
@@ -318,7 +324,7 @@ if __name__ == '__main__':
 # df_sorted.groupby('GraphID')['HAs'].nunique()
 #
 # # Valids relative to og graph
-# df_sorted['ogDFSvalid'] = df_sorted.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1) # this would be crazy if worked
+# df_sorted['henry(ogA,P)'] = df_sorted.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1) # this would be crazy if worked
 # df_sorted['fullogDFSvalid'] = df_sorted.apply(lambda row: henry(G=row['ogA'], F=row['fakeOGpred']), axis=1)  # this might work with random restart dfs model
 #
 #
@@ -326,11 +332,11 @@ if __name__ == '__main__':
 # # fixme: working hypothesis is that the predictions are happening relative to the OG adjacency matrix, and that accuracy 100% on n=4 makes sense
 # # fixme: ok when you do bigger graphs, like n=32, it's 0% accuracy so no probs
 # # fixme: THE BIG QUESTION IS WHY ARE THINGS MORE ogDFSvalid (current prediction, old adjacency matrix) than DFSvalid (current prediction, current adj matrix)
-# df_sorted.groupby('GraphID')['ogDFSvalid'].mean()
-# df_sorted.groupby('GraphID')['DFSvalid'].mean()
+# df_sorted.groupby('GraphID')['henry(ogA,P)'].mean()
+# df_sorted.groupby('GraphID')['henry(A,P)'].mean()
 # df_sorted.groupby('GraphID')['fullogDFSvalid'].mean()
-# df_sorted['ogDFSvalid'].mean()      # 95%
-# df_sorted['DFSvalid'].mean()        # 26%
+# df_sorted['henry(ogA,P)'].mean()      # 95%
+# df_sorted['henry(A,P)'].mean()        # 26%
 # df_sorted['fullogDFSvalid'].mean()  # 7%
 #
 #

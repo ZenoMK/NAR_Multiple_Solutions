@@ -8,6 +8,7 @@ from clrs.examples.run import create_samplers, make_multi_sampler, collect_and_e
 
 import json
 import numpy as np
+import pandas as pd
 from types import SimpleNamespace # THIS IS SUSSY but bcuz i dont care about flags being absl flags, and just want to use the same values
 import functools
 
@@ -15,75 +16,99 @@ from eval_permute_stats import compute_bf_stats, compute_dfs_stats
 
 from dummy_eval import load_model, make_test_sampler
 
+N_RUNS=5 # num to do everything to get std dev
 
-start_time = time.time()
-# --- LOAD FLAG STUFF
-which = ''#'dfs'
+if __name__ == '__main__':
 
-if which == 'dfs':
-  flagjson = 'WHEREAMI/dfs_flags.json'
-  modelname = 'best_dfs.pkl'
-else:
-  flagjson = 'WHEREAMI/bellman_ford_flags.json' #'WHEREAMI/dfs_flags.json'
-  modelname = 'best_bellman_ford.pkl' #'best_dfs.pkl'
+  # --- LOAD FLAG STUFF
+  start_time = time.time()
+  which = ''  # 'dfs'
 
+  if which == 'dfs':
+    flagjson = 'WHEREAMI/dfs_flags.json'
+    modelname = 'best_dfs.pkl'
+  else:
+    flagjson = 'WHEREAMI/bellman_ford_flags.json'  # 'WHEREAMI/dfs_flags.json'
+    modelname = 'best_bellman_ford.pkl'  # 'best_dfs.pkl'
 
-with open(flagjson, 'r') as f:
-  saved_flags = json.load(f)
-FLAGS = SimpleNamespace(**saved_flags) # FIXME: warning this is not the same thing as in run.py, it's a gimmick so that i can use similar code
-algo_idx = 0
+  with open(flagjson, 'r') as f:
+    saved_flags = json.load(f)
+  FLAGS = SimpleNamespace(**saved_flags)  # FIXME: warning this is not the same thing as in run.py, it's a gimmick so that i can use similar code
+  algo_idx = 0
 
-json_time = time.time()
-print(f"json read in {json_time-start_time} seconds")
+  json_time = time.time()
+  print(f"json read in {json_time - start_time} seconds")
 
-model = load_model(modelname, FLAGS)
-load_time = time.time()
-print(f"model loaded in {load_time-json_time} seconds")
+  model = load_model(modelname, FLAGS)
+  load_time = time.time()
+  print(f"model loaded in {load_time - json_time} seconds")
 
-# ---------- TEST SAMPLERS?
-four_sampler, test_samples, spec = make_test_sampler(size=4, FLAGS=FLAGS)
-time4 = time.time()
-print(f"four sampler built in {time4-load_time} seconds")
-#breakpoint()
+  node_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
+  instance_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
 
-sixteen_sampler, ts, sc = make_test_sampler(size=16, FLAGS=FLAGS)
-time16 = time.time()
-print(f"sixteen sampler built in {time16-time4} seconds")
+  for i in range(N_RUNS):
+    # ---------- TEST SAMPLERS?
+    four_sampler, test_samples, spec = make_test_sampler(size=4, FLAGS=FLAGS, seed=FLAGS.seed+i)
+    time4 = time.time()
+    print(f"four sampler built in {time4-load_time} seconds")
+    #breakpoint()
 
-sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64, FLAGS=FLAGS)
-time64 = time.time()
-print(f"64 sampler built in {time64-time16} seconds")
+    sixteen_sampler, ts, sc = make_test_sampler(size=16, FLAGS=FLAGS, seed=FLAGS.seed+i)
+    time16 = time.time()
+    print(f"sixteen sampler built in {time16-time4} seconds")
 
-common_extras = {'examples_seen': 0000, #current_train_items[algo_idx],
-                 'step': 9999,
-                 'algorithm': FLAGS.algorithms[algo_idx]}
+    sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64, FLAGS=FLAGS, seed=FLAGS.seed+i)
+    time64 = time.time()
+    print(f"64 sampler built in {time64-time16} seconds")
 
-rng = np.random.RandomState(FLAGS.seed)
-rng_key = jax.random.PRNGKey(rng.randint(2 ** 32))
-new_rng_key, rng_key = jax.random.split(rng_key)
+    common_extras = {'examples_seen': 0000, #current_train_items[algo_idx],
+                     'step': 9999,
+                     'algorithm': FLAGS.algorithms[algo_idx]}
 
+    rng = np.random.RandomState(FLAGS.seed+i)
+    rng_key = jax.random.PRNGKey(rng.randint(2 ** 32))
+    new_rng_key, rng_key = jax.random.split(rng_key)
 
-test_stats = collect_and_eval(
-        four_sampler,
-        functools.partial(model.predict, algorithm_index=algo_idx),
-        test_samples,
-        new_rng_key,
-        extras=common_extras)
-print('n=4 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+    test_stats = collect_and_eval(
+            four_sampler,
+            functools.partial(model.predict, algorithm_index=algo_idx),
+            test_samples,
+            new_rng_key,
+            extras=common_extras)
+    print('n=4 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+    node_stats['four'].append(test_stats[0]['pi'])
+    instance_stats['four'].append(test_stats[1]['pi'])
 
+    test_stats = collect_and_eval(
+            sixteen_sampler,
+            functools.partial(model.predict, algorithm_index=algo_idx),
+            test_samples,
+            new_rng_key,
+            extras=common_extras)
+    print('n=16 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+    node_stats['sixteen'].append(test_stats[0]['pi'])
+    instance_stats['sixteen'].append(test_stats[1]['pi'])
 
-test_stats = collect_and_eval(
-        sixteen_sampler,
-        functools.partial(model.predict, algorithm_index=algo_idx),
-        test_samples,
-        new_rng_key,
-        extras=common_extras)
-print('n=16 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+    test_stats = collect_and_eval(
+            sixtyfour_sampler,
+            functools.partial(model.predict, algorithm_index=algo_idx),
+            test_samples,
+            new_rng_key,
+            extras=common_extras)
+    print('n=64 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+    node_stats['sixtyfour'].append(test_stats[0]['pi'])
+    instance_stats['sixtyfour'].append(test_stats[1]['pi'])
 
-test_stats = collect_and_eval(
-        sixtyfour_sampler,
-        functools.partial(model.predict, algorithm_index=algo_idx),
-        test_samples,
-        new_rng_key,
-        extras=common_extras)
-print('n=64 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+  # node-level accuracies
+  print('==== nodes:')
+  df = pd.DataFrame.from_dict(node_stats)
+  print(f'mean\n----\n{df.mean()}')
+  print(f'std\n----\n{df.std()}')
+
+  # instance-level accuracies
+  print('==== instances:')
+  df2 = pd.DataFrame.from_dict(node_stats)
+  print(f'mean\n----\n{df2.mean()}')
+  print(f'std\n----\n{df2.std()}')
+
+  #breakpoint()

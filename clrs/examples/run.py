@@ -272,10 +272,10 @@ def collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
   outputs = _concat(outputs, axis=0)
   preds = _concat(preds, axis=0)
   #breakpoint()
-  out = clrs.evaluate(outputs, preds)
+  out, instance_accs = clrs.evaluate(outputs, preds)
   if extras:
     out.update(extras)
-  return {k: unpack(v) for k, v in out.items()}
+  return {k: unpack(v) for k, v in out.items()}, instance_accs
 
 
 # cur_preds, _ = predict_fn(new_rng_key, ffs)

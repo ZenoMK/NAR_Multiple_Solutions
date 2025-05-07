@@ -1,4 +1,4 @@
-# THIS IS MOSTLY A COPY OF vanilla_eval, relying on dummy_eval to load model
+# THIS IS MOSTLY A COPY OF vanilla_eval, relying on dummy_eval.py to load model, eval_permute_stats.py for compute stats
 import pandas as pd
 import time
 import clrs
@@ -204,10 +204,11 @@ def permute_and_eval(sampler, predict_fn, sample_count, rng_key, extras, num_per
 # RUN ME!!!
 # -----------------------------------------------------------------------------------------------------------------
 
+
 if __name__ == '__main__':
   start_time = time.time()
   # --- LOAD FLAG STUFF
-  which = 'dfs'
+  which = ''#'dfs'
 
   if which == 'dfs':
     flagjson = 'WHEREAMI/dfs_flags.json'
@@ -229,78 +230,120 @@ if __name__ == '__main__':
   load_time = time.time()
   print(f"model loaded in {load_time-json_time} seconds")
 
-  # ---------- TEST SAMPLERS?
-  four_sampler, test_samples, spec = make_test_sampler(size=4, FLAGS=FLAGS)
-  time4 = time.time()
-  print(f"four sampler built in {time4-load_time} seconds")
+
+  N_RUNS = 5
+  instance_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
+  variety_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
+  for i in range(N_RUNS):
+    # ---------- TEST SAMPLERS?
+    four_sampler, test_samples, spec = make_test_sampler(size=4, FLAGS=FLAGS, seed=FLAGS.seed+i)
+    time4 = time.time()
+    print(f"four sampler built in {time4-load_time} seconds")
+    #breakpoint()
+
+    sixteen_sampler, ts, sc = make_test_sampler(size=16, FLAGS=FLAGS, seed=FLAGS.seed+i)
+    time16 = time.time()
+    print(f"sixteen sampler built in {time16-time4} seconds")
+
+    sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64, FLAGS=FLAGS, seed=FLAGS.seed+i)
+    time64 = time.time()
+    print(f"64 sampler built in {time64-time16} seconds")
+
+    common_extras = {'examples_seen': 0000, #current_train_items[algo_idx],
+                     'step': 9999,
+                     'algorithm': FLAGS.algorithms[algo_idx]}
+
+    rng = np.random.RandomState(FLAGS.seed+i)
+    rng_key = jax.random.PRNGKey(rng.randint(2 ** 32))
+    new_rng_key, rng_key = jax.random.split(rng_key)
+
+
+    four_stats = permute_and_eval(
+            four_sampler,
+            functools.partial(model.predict, algorithm_index=algo_idx),
+            test_samples,
+            new_rng_key,
+            extras=common_extras, num_perms=5, dont_permute=False)
+   # print('n=4 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+
+    sixteen_stats = permute_and_eval(
+            sixteen_sampler,
+            functools.partial(model.predict, algorithm_index=algo_idx),
+            test_samples,
+            new_rng_key,
+            extras=common_extras, num_perms=5, dont_permute=False)
+  #  print('n=16 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+
+    sixtyfour_stats = permute_and_eval(
+            sixtyfour_sampler,
+            functools.partial(model.predict, algorithm_index=algo_idx),
+            test_samples,
+            new_rng_key,
+            extras=common_extras, num_perms=5, dont_permute=False)
+   # print('n=64 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
+    time64stats = time.time()
+    # -----------------------------------------------------------------------------------------------------------------
+    # GIVEN STUFF, REPORT STATS?
+    # -----------------------------------------------------------------------------------------------------------------
+
+    
+    print('================================================')
+    if which == 'dfs':
+      df, variety, num_perms = compute_dfs_stats(four_stats)
+    else:
+      df, variety, num_perms = compute_bf_stats(four_stats)
+    time4eval = time.time()
+    #print(f"4 stats eval in {time4eval - time64stats} seconds")
+    row = df.mean()
+    instance_stats['four'].append(row)
+    variety_stats['four'].append(variety/num_perms)
+    #breakpoint()
+
+    print('================================================')
+    if which == 'dfs':
+      df, variety, num_perms = compute_dfs_stats(sixteen_stats)
+    else:
+      df, variety, num_perms = compute_bf_stats(sixteen_stats)
+    time16eval = time.time()
+    print(f"16 stats eval in {time16eval - time4eval} seconds")
+    row = df.mean()
+    instance_stats['sixteen'].append(row)
+    variety_stats['sixteen'].append(variety/num_perms)
+
+    print('================================================')
+    if which == 'dfs':
+      df, variety, num_perms = compute_dfs_stats(sixtyfour_stats)
+    else:
+      df, variety, num_perms = compute_bf_stats(sixtyfour_stats)
+    time64eval = time.time()
+    print(f"64 stats eval in {time64eval - time16eval} seconds")
+    row = df.mean()
+    instance_stats['sixtyfour'].append(row)
+    variety_stats['sixtyfour'].append(variety/num_perms)
+
+
+  four = pd.DataFrame(instance_stats['four'])
+  print(f'num runs: {len(four)}')
+  print(f'four mean\n----\n{four.mean()}\n----')
+  print(f'four std\n----\n{four.std()}\n----')
+  varfour = pd.DataFrame(variety_stats['four'])
+  print(f'four variety\n----\n{varfour.mean()}\n----')
+  print(f'four variety\n----\n{varfour.std()}\n----')
+  print('------------------------------')
+
+  sixteen = pd.DataFrame(instance_stats['sixteen'])
+  print(f'sixteen mean\n----\n{sixteen.mean()}\n----')
+  print(f'sixteen std\n----\n{sixteen.std()}\n----')
+  varsixteen = pd.DataFrame(variety_stats['sixteen'])
+  print(f'sixteen variety\n----\n{varsixteen.mean()}\n----')
+  print(f'sixteen variety\n----\n{varsixteen.std()}\n----')
+  print('------------------------------')
+
+  sixtyfour = pd.DataFrame(instance_stats['sixtyfour'])
+  print(f'sixtyfour mean\n----\n{sixtyfour.mean()}\n----')
+  print(f'sixtyfour std\n----\n{sixtyfour.std()}\n----')
+  varsixtyfour = pd.DataFrame(variety_stats['sixtyfour'])
+  print(f'sixtyfour variety\n----\n{varsixtyfour.mean()}\n----')
+  print(f'sixtyfour variety\n----\n{varsixtyfour.std()}\n----')
+  print('------------------------------')
   #breakpoint()
-
-  sixteen_sampler, ts, sc = make_test_sampler(size=16, FLAGS=FLAGS)
-  time16 = time.time()
-  print(f"sixteen sampler built in {time16-time4} seconds")
-
-  sixtyfour_sampler, ts2, sc2 = make_test_sampler(size=64, FLAGS=FLAGS)
-  time64 = time.time()
-  print(f"64 sampler built in {time64-time16} seconds")
-
-  common_extras = {'examples_seen': 0000, #current_train_items[algo_idx],
-                   'step': 9999,
-                   'algorithm': FLAGS.algorithms[algo_idx]}
-
-  rng = np.random.RandomState(FLAGS.seed)
-  rng_key = jax.random.PRNGKey(rng.randint(2 ** 32))
-  new_rng_key, rng_key = jax.random.split(rng_key)
-
-
-  four_stats = permute_and_eval(
-          four_sampler,
-          functools.partial(model.predict, algorithm_index=algo_idx),
-          test_samples,
-          new_rng_key,
-          extras=common_extras, num_perms=5, dont_permute=False)
-#  print('n=4 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
-
-
-  sixteen_stats = permute_and_eval(
-          sixteen_sampler,
-          functools.partial(model.predict, algorithm_index=algo_idx),
-          test_samples,
-          new_rng_key,
-          extras=common_extras, num_perms=5, dont_permute=False)
-#  print('n=16 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
-
-  sixtyfour_stats = permute_and_eval(
-          sixtyfour_sampler,
-          functools.partial(model.predict, algorithm_index=algo_idx),
-          test_samples,
-          new_rng_key,
-          extras=common_extras, num_perms=5, dont_permute=False)
- # print('n=64 algo %s : %s', FLAGS.algorithms[algo_idx], test_stats)
-  time64stats = time.time()
-  # -----------------------------------------------------------------------------------------------------------------
-  # GIVEN STUFF, REPORT STATS?
-  # -----------------------------------------------------------------------------------------------------------------
-
-  print('================================================')
-  if which == 'dfs':
-    compute_dfs_stats(four_stats)
-  else:
-    compute_bf_stats(four_stats)
-  time4eval = time.time()
-  print(f"4 stats eval in {time4eval - time64stats} seconds")
-
-  print('================================================')
-  if which == 'dfs':
-    compute_dfs_stats(sixteen_stats)
-  else:
-    compute_bf_stats(sixteen_stats)
-  time16eval = time.time()
-  print(f"16 stats eval in {time16eval - time4eval} seconds")
-
-  print('================================================')
-  if which == 'dfs':
-    compute_dfs_stats(sixtyfour_stats)
-  else:
-    compute_bf_stats(sixtyfour_stats)
-  time64eval = time.time()
-  print(f"64 stats eval in {time64eval - time16eval} seconds")

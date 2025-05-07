@@ -128,15 +128,17 @@ def evaluate(
 ) -> Dict[str, float]:
   """Evaluate output predictions."""
   evals = {}
+  instance_accs = {}
   outputs = _reduce_permutations_tuple(outputs)
   predictions = _reduce_permutations_dict(predictions)
   for truth in outputs:
     assert truth.name in predictions
     pred = predictions[truth.name]
-    evals[truth.name] = _evaluate(truth, pred)
+    evals[truth.name], instance_accs[truth.name] = _evaluate(truth, pred)
+  #breakpoint()
   # Return a single scalar score that is the mean of all output scores.
   evals['score'] = sum([v.item() for v in evals.values()]) / len(evals)
-  return evals
+  return evals, instance_accs
 
 
 def _evaluate(truth, pred, idx=None, lengths=None):
@@ -157,7 +159,7 @@ def _evaluate(truth, pred, idx=None, lengths=None):
       return 0.
     truth_data = truth_data[idx][idx < lengths]
     pred_data = pred_data[idx < lengths]
-  return _EVAL_FN[truth.type_](pred_data, truth_data)
+  return _EVAL_FN[truth.type_](pred_data, truth_data), len(actually_correct)/len(pred_data)
 
 
 def _eval_one(pred, truth):
