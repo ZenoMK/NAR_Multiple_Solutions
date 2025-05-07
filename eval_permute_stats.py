@@ -168,7 +168,10 @@ def compute_dfs_stats(df):
     num_perms = df.groupby('GraphID').size()[0]
     print('out of', num_perms, ' permutations')
 
-    return df, distinct, num_perms
+    # summary? important cols
+    sdf = df[['henry(A,P)', 'henry(ogA,ogP)', 'agnostic(ogA,ogP)', 'agnostic(A,P)']]
+
+    return sdf, distinct, num_perms
 
 
 if __name__ == '__main__':
