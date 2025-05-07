@@ -56,6 +56,7 @@ def dfs(A: _Array) -> _Out:
   probes = probing.initialize(specs.SPECS['dfs'])
 
   A_pos = np.arange(A.shape[0])
+  shuffled = np.random.permutation(A.shape[0])
 
   probing.push(
       probes,
@@ -113,7 +114,8 @@ def dfs(A: _Array) -> _Out:
                   'time': time
               })
 
-        for v in range(A.shape[0]):
+        for v in shuffled:
+        #for v in range(A.shape[0]):
           if A[u, v] != 0:
             if color[v] == 0:
               pi[v] = u
@@ -1151,6 +1153,8 @@ def bellman_ford(A: _Array, s: int) -> _Out:
   probes = probing.initialize(specs.SPECS['bellman_ford'])
 
   A_pos = np.arange(A.shape[0])
+  #A_pos = np.random.permutation(A.shape[0]) # CANT DO THIS ITLL MESS UP ELSEWHERE
+  shuffled = np.random.permutation(A.shape[0])
 
   probing.push(
       probes,
@@ -1178,8 +1182,10 @@ def bellman_ford(A: _Array, s: int) -> _Out:
             'd': np.copy(prev_d),
             'msk': np.copy(prev_msk)
         })
-    for u in range(A.shape[0]):
-      for v in range(A.shape[0]):
+    for u in shuffled:
+      for v in shuffled:
+    #for u in range(A.shape[0]):
+    #  for v in range(A.shape[0]):
         if prev_msk[u] == 1 and A[u, v] != 0:
           if msk[v] == 0 or prev_d[u] + A[u, v] < d[v]:
             d[v] = prev_d[u] + A[u, v]

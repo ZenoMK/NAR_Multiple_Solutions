@@ -652,7 +652,7 @@ def main(unused_argv):
 
         # Validation info.
         new_rng_key, rng_key = jax.random.split(rng_key)
-        val_stats = collect_and_eval(
+        val_stats, _ = collect_and_eval(
             val_samplers[algo_idx],
             functools.partial(eval_model.predict, algorithm_index=algo_idx),
             val_sample_counts[algo_idx],
