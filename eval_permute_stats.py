@@ -112,7 +112,7 @@ def compute_bf_stats(df):
     # summary?
     sdf = df[['valid(ogA,ogS,ogP)', 'valid(A,S,P)', 'valid(ogA,S,P)']]
 
-    return sdf, deduplicated_distinct, num_perms
+    return sdf, distinct, deduplicated_distinct, num_perms
 
 
 
@@ -172,7 +172,7 @@ def compute_dfs_stats(df):
     # summary? important cols
     sdf = df[['henry(A,P)', 'henry(ogA,ogP)', 'agnostic(ogA,ogP)', 'agnostic(A,P)', 'henry(ogA,P)', 'agnostic(ogA,P)']]
 
-    return sdf, deduplicated_distinct, num_perms
+    return sdf, distinct, deduplicated_distinct, num_perms
 
 
 if __name__ == '__main__':

@@ -234,6 +234,7 @@ if __name__ == '__main__':
   N_RUNS = 5
   instance_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
   variety_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
+  dedup_variety_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
   for i in range(N_RUNS):
     # ---------- TEST SAMPLERS?
     four_sampler, test_samples, spec = make_test_sampler(size=4, FLAGS=FLAGS, seed=FLAGS.seed+i)
@@ -289,38 +290,41 @@ if __name__ == '__main__':
     
     print('================================================')
     if which == 'dfs':
-      df, variety, num_perms = compute_dfs_stats(four_stats)
+      df, variety, deduplicated_variety, num_perms = compute_dfs_stats(four_stats)
     else:
-      df, variety, num_perms = compute_bf_stats(four_stats)
+      df, variety, deduplicated_variety, num_perms = compute_bf_stats(four_stats)
     time4eval = time.time()
     #print(f"4 stats eval in {time4eval - time64stats} seconds")
     #breakpoint()
     row = df.mean()
     instance_stats['four'].append(row)
     variety_stats['four'].append(variety/num_perms)
+    dedup_variety_stats['four'].append(deduplicated_variety / num_perms)
     #breakpoint()
 
     print('================================================')
     if which == 'dfs':
-      df, variety, num_perms = compute_dfs_stats(sixteen_stats)
+      df, variety, deduplicated_variety, num_perms = compute_dfs_stats(sixteen_stats)
     else:
-      df, variety, num_perms = compute_bf_stats(sixteen_stats)
+      df, variety, deduplicated_variety, num_perms = compute_bf_stats(sixteen_stats)
     time16eval = time.time()
     print(f"16 stats eval in {time16eval - time4eval} seconds")
     row = df.mean()
     instance_stats['sixteen'].append(row)
     variety_stats['sixteen'].append(variety/num_perms)
+    dedup_variety_stats['sixteen'].append(deduplicated_variety / num_perms)
 
     print('================================================')
     if which == 'dfs':
-      df, variety, num_perms = compute_dfs_stats(sixtyfour_stats)
+      df, variety, deduplicated_variety, num_perms = compute_dfs_stats(sixtyfour_stats)
     else:
-      df, variety, num_perms = compute_bf_stats(sixtyfour_stats)
+      df, variety, deduplicated_variety, num_perms = compute_bf_stats(sixtyfour_stats)
     time64eval = time.time()
     print(f"64 stats eval in {time64eval - time16eval} seconds")
     row = df.mean()
     instance_stats['sixtyfour'].append(row)
     variety_stats['sixtyfour'].append(variety/num_perms)
+    dedup_variety_stats['sixtyfour'].append(deduplicated_variety / num_perms)
 
   print('================================================')
   print('OVERALL STATS', FLAGS.algorithms[algo_idx])
@@ -333,6 +337,9 @@ if __name__ == '__main__':
   varfour = pd.DataFrame(variety_stats['four'])
   print(f'four variety\n----\n{varfour.mean()}\n----')
   print(f'four variety std\n----\n{varfour.std()}\n----')
+  dvarfour = pd.DataFrame(dedup_variety_stats['four'])
+  print(f'four dvariety\n----\n{dvarfour.mean()}\n----')
+  print(f'four dvariety std\n----\n{dvarfour.std()}\n----')
   print('------------------------------')
 
   sixteen = pd.DataFrame(instance_stats['sixteen'])
@@ -341,6 +348,9 @@ if __name__ == '__main__':
   varsixteen = pd.DataFrame(variety_stats['sixteen'])
   print(f'sixteen variety\n----\n{varsixteen.mean()}\n----')
   print(f'sixteen variety std\n----\n{varsixteen.std()}\n----')
+  dvarsixteen = pd.DataFrame(dedup_variety_stats['sixteen'])
+  print(f'sixteen dvariety\n----\n{dvarsixteen.mean()}\n----')
+  print(f'sixteen dvariety std\n----\n{dvarsixteen.std()}\n----')
   print('------------------------------')
 
   sixtyfour = pd.DataFrame(instance_stats['sixtyfour'])
@@ -349,5 +359,8 @@ if __name__ == '__main__':
   varsixtyfour = pd.DataFrame(variety_stats['sixtyfour'])
   print(f'sixtyfour variety\n----\n{varsixtyfour.mean()}\n----')
   print(f'sixtyfour variety std\n----\n{varsixtyfour.std()}\n----')
+  dvarsixtyfour = pd.DataFrame(dedup_variety_stats['sixtyfour'])
+  print(f'sixtyfour dvariety\n----\n{dvarsixtyfour.mean()}\n----')
+  print(f'sixtyfour dvariety std\n----\n{dvarsixtyfour.std()}\n----')
   print('------------------------------')
   #breakpoint()
