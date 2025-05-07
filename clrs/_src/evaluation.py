@@ -148,10 +148,10 @@ def _evaluate(truth, pred, idx=None, lengths=None):
     raise ValueError('Invalid type')
   truth_data = truth.data
   pred_data = pred.data
-  print('eval.py, _EVAL_FN', _EVAL_FN)
+  #print('eval.py, _EVAL_FN', _EVAL_FN)
   actually_correct = [i for i in range(len(truth_data)) if (truth_data[i] == pred_data[i]).all()]
-  print('correct preds, ', len(actually_correct))
-  breakpoint()
+  print('correct preds, ', len(actually_correct), ' out of ', len(pred_data))
+  #breakpoint()
   if idx is not None:
     if np.all(idx >= lengths):
       return 0.
