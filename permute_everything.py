@@ -294,7 +294,7 @@ if __name__ == '__main__':
       df, variety, num_perms = compute_bf_stats(four_stats)
     time4eval = time.time()
     #print(f"4 stats eval in {time4eval - time64stats} seconds")
-    breakpoint()
+    #breakpoint()
     row = df.mean()
     instance_stats['four'].append(row)
     variety_stats['four'].append(variety/num_perms)
