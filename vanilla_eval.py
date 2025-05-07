@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
   # --- LOAD FLAG STUFF
   start_time = time.time()
-  which = ''  # 'dfs'
+  which = 'dfs'
 
   if which == 'dfs':
     flagjson = 'WHEREAMI/dfs_flags.json'
