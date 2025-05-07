@@ -177,6 +177,14 @@ def compute_dfs_stats(df):
     num_perms = df.groupby('GraphID').size()[0]
     print('out of', num_perms, ' permutations')
 
+    #adf = df[df['henry(A,P)']]  # only look at valid rows, see if theres any variety
+    #adf = df[df['agnostic(A,P)']] # this goes better, but still 0% at n=16
+    #adf.groupby('GraphID')['hashablePreds'].nunique() # BEHOLD, VARIETY DISAPPEARS || was this also true for our sampling methods? one correct many different?
+    #mask = adf.groupby('GraphID')['hashablePreds'].nunique() != 1
+    #graph_ids = mask[mask].index
+    #fdf = df[df['GraphID'].isin(graph_ids)]
+    #breakpoint()
+
     # summary? important cols
     sdf = df[['henry(A,P)', 'henry(ogA,ogP)', 'agnostic(ogA,ogP)', 'agnostic(A,P)', 'henry(ogA,P)', 'agnostic(ogA,P)']]
 
