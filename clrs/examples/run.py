@@ -14,6 +14,7 @@
 # ==============================================================================
 import pickle
 import time
+from clrs._src.probing import DataPoint
 """Run training of one or more algorithmic tasks from CLRS."""
 
 import functools
@@ -270,6 +271,7 @@ def collect_and_eval(sampler, predict_fn, sample_count, rng_key, extras):
     processed_samples += batch_size
   outputs = _concat(outputs, axis=0)
   preds = _concat(preds, axis=0)
+  #breakpoint()
   out = clrs.evaluate(outputs, preds)
   if extras:
     out.update(extras)
@@ -379,15 +381,19 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras, 
   IDs = []
   perms = []
   Ss = []
+  outputs = [] # fixme: just for debug
   while processed_samples < sample_count: # do another batch
     feedback = next(sampler)
     batch_size = feedback.outputs[0].data.shape[0]
     new_rng_key, rng_key = jax.random.split(rng_key)
+    # COMPARE DEFAULT EVAL
+    outputs.append(feedback.outputs)
+
     # DO THE THING
     #breakpoint()
-    t1 = time.time()
+    t1 = time.time() # fixme: 1 perm only
     batch_IDs, batch_As, batch_perms, batch_preds, batch_Ss = predict_on_permuted_As(ffs=feedback.features, predict_fn=predict_fn, # each list is batch x num_perms length
-                                                                   num_perms=5, graph_num=processed_samples, new_rng_key=new_rng_key, extras=extras, dont_permute=dont_permute)
+                                                                   num_perms=1, graph_num=processed_samples, new_rng_key=new_rng_key, extras=extras, dont_permute=dont_permute)
     t2 = time.time()
     print(f"predicting on perm As took {t2-t1} sec")
     processed_samples += batch_size
@@ -398,6 +404,17 @@ def permute_eval_and_record(sampler, predict_fn, sample_count, rng_key, extras, 
     preds.extend(batch_preds)
     Ss.extend(batch_Ss)
     #breakpoint()
+  outputs = _concat(outputs, axis=0)
+  #compare manually
+  #outputs[0].data[0]
+  #preds[0]
+  good = [i for i in range(len(preds)) if (outputs[0].data[i] == preds[i]).all()]
+  print('manual eval good length', len(good))
+  #arr = outputs[0].data[0] == preds[0]
+  #arr.index(False)
+  #breakpoint()
+  out = clrs.evaluate(outputs, {'pi' : DataPoint(name='pi', location='node', type_='pointer', data=preds)})
+  print('out:', out)
 
   #breakpoint()
   #preds = _concat(preds, axis=0)

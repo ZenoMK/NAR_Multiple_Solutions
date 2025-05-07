@@ -98,8 +98,8 @@ true_neg_og = [3, 1, 1, 1]
 
 
 # ------ METRIC DIFFERENCE ------ #
-truth = np.array([0,1,2,3])
-pred = np.array([0,2,2,3])
+# truth = np.array([0,1,2,3])
+# pred = np.array([0,2,2,3])
 
 #CLRS: lambda pred, truth: np.mean((pred == truth) * 1.0)
 #OURS: np.sum((pred==truth).all())

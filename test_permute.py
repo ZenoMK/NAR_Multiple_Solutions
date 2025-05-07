@@ -144,29 +144,34 @@ if __name__ == '__main__':
     # apply permutation to adj with adj[np.ix_(p_inv, p_inv)], bcuz A = adj[np.ix_(f,f)] means A[i,j] = adj[fi,fj], so A = adj[np.ix_(p_inv, p_inv)] means A[pi(i), pi(j)] gonna be adj[i,j].
     # apply permutation to parent path with [permutation[pp[inv_perm[y]]] for y in range(len(pp))], which only makes sense when you follow the algebra, or believe the test
 
-    # adj = np.array([
-    #     [0, 1, 2, 3],
-    #     [4, 5, 6, 7],
-    #     [8, 9, 10, 11],
-    #     [12, 13, 14, 15]
-    # ])
-    #parent_path = [3, 0, 1, 2]
-
-    adj = np.array([ # 0->1->3->2
-        [0, 1, 4, 5],
-        [0, 0, 6, 1],
+    adj = np.array([
+        [0, 1, 2, 3],
+        [4, 5, 6, 7],
         [8, 9, 10, 11],
-        [12, 13, 2, 15]
+        [12, 13, 14, 15]
     ])
-
+    s = np.array([1,0,0,0]) # permutation (1, 2, 0, 3) it goes wrong
     start_node = 0
-    parent_path = [0,0,3,1]
+    parent_path = [3, 0, 1, 2]
+
+    # adj = np.array([ # 0->1->3->2
+    #     [0, 1, 4, 5],
+    #     [0, 0, 6, 1],
+    #     [8, 9, 10, 11],
+    #     [12, 13, 2, 15]
+    # ])
+    #
+    # start_node = 0
+    # parent_path = [0,0,3,1]
 
     for permutation in itertools.permutations(np.arange(len(adj))):
         permuted_adj = permute_adjacency_matrix(adj, permutation)
         #breakpoint()
         permuted_pp = permute_parentpath(parent_path, permutation)
         permuted_s = permutation[start_node]
+        ps = np.array(permutation)[s] #permutation[np.argmax(s)] #s[list(permutation)]
+        if ps != permuted_s:
+            breakpoint()
 
         test_perm_and_inverse(perm=permutation)
         test_adj(adj=adj, permuted_adj=permuted_adj, permutation=permutation)

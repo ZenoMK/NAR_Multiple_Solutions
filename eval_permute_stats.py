@@ -104,9 +104,9 @@ def compute_bf_stats(df):
 
     # variety
     distinct = df.groupby('GraphID')['hashablePreds'].nunique().mean()
-    print('uniqueness, ', distinct)
+    print('unique-ness, ', distinct)
     inflated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
-    print('weird uniqueness', inflated_distinct)
+    print('weird unique-ness', inflated_distinct)
 
     return df
 
