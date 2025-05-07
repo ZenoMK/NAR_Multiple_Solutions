@@ -55,8 +55,9 @@ def dfs(A: _Array) -> _Out:
   chex.assert_rank(A, 2)
   probes = probing.initialize(specs.SPECS['dfs'])
 
-  A_pos = np.arange(A.shape[0])
-  shuffled = np.random.permutation(A.shape[0])
+  #A_pos = np.arange(A.shape[0])
+  A_pos = np.random.permutation(A.shape[0])
+  #shuffled = np.random.permutation(A.shape[0])
 
   probing.push(
       probes,
@@ -114,7 +115,7 @@ def dfs(A: _Array) -> _Out:
                   'time': time
               })
 
-        for v in shuffled:
+        for v in A_pos:
         #for v in range(A.shape[0]):
           if A[u, v] != 0:
             if color[v] == 0:

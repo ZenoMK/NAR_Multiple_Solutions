@@ -60,6 +60,7 @@ def permute_something_then_predict(ffs, predict_fn, num_perms, graph_num, new_rn
     cur_IDs = [i for i in range(graph_num, graph_num + batch_size)]
     #breakpoint()
     # shuffle the node indices
+    #print('expos permsmth.py', ffs.inputs[0].data[0])
     ffs.inputs[0].data = np.array([arr[inv_perm] for arr in cur_pos]) # shuffle pos
     if extras['algorithm'] == 'dfs':
       #ffs.inputs[1].data = np.array([A[np.ix_(inv_perm, inv_perm)] for A in cur_As])  # use inv so that A[i,j] = PI(A)[PI(i),PI(j)]
@@ -208,7 +209,7 @@ def permute_and_eval(sampler, predict_fn, sample_count, rng_key, extras, num_per
 if __name__ == '__main__':
   start_time = time.time()
   # --- LOAD FLAG STUFF
-  which = ''#'dfs'
+  which = 'dfs'
 
   if which == 'dfs':
     flagjson = 'WHEREAMI/dfs_flags.json'
