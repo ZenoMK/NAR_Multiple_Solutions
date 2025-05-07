@@ -321,14 +321,16 @@ if __name__ == '__main__':
     instance_stats['sixtyfour'].append(row)
     variety_stats['sixtyfour'].append(variety/num_perms)
 
-
+  print('================================================')
+  print('OVERALL STATS', FLAGS.algorithms[algo_idx])
+  print('================================================')
   four = pd.DataFrame(instance_stats['four'])
-  print(f'num runs: {len(four)}')
+  print(f'num runs: {len(four)} \n')
   print(f'four mean\n----\n{four.mean()}\n----')
   print(f'four std\n----\n{four.std()}\n----')
   varfour = pd.DataFrame(variety_stats['four'])
   print(f'four variety\n----\n{varfour.mean()}\n----')
-  print(f'four variety\n----\n{varfour.std()}\n----')
+  print(f'four variety std\n----\n{varfour.std()}\n----')
   print('------------------------------')
 
   sixteen = pd.DataFrame(instance_stats['sixteen'])
@@ -336,7 +338,7 @@ if __name__ == '__main__':
   print(f'sixteen std\n----\n{sixteen.std()}\n----')
   varsixteen = pd.DataFrame(variety_stats['sixteen'])
   print(f'sixteen variety\n----\n{varsixteen.mean()}\n----')
-  print(f'sixteen variety\n----\n{varsixteen.std()}\n----')
+  print(f'sixteen variety std\n----\n{varsixteen.std()}\n----')
   print('------------------------------')
 
   sixtyfour = pd.DataFrame(instance_stats['sixtyfour'])
@@ -344,6 +346,6 @@ if __name__ == '__main__':
   print(f'sixtyfour std\n----\n{sixtyfour.std()}\n----')
   varsixtyfour = pd.DataFrame(variety_stats['sixtyfour'])
   print(f'sixtyfour variety\n----\n{varsixtyfour.mean()}\n----')
-  print(f'sixtyfour variety\n----\n{varsixtyfour.std()}\n----')
+  print(f'sixtyfour variety std\n----\n{varsixtyfour.std()}\n----')
   print('------------------------------')
   #breakpoint()
