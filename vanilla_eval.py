@@ -99,6 +99,12 @@ if __name__ == '__main__':
     node_stats['sixtyfour'].append(test_stats[0]['pi'])
     instance_stats['sixtyfour'].append(test_stats[1]['pi'])
 
+
+  print('================================================')
+  print('OVERALL STATS', FLAGS.algorithms[algo_idx])
+  print('================================================')
+  print(f'num runs: {N_RUNS}\n')
+
   # node-level accuracies
   print('==== nodes:')
   df = pd.DataFrame.from_dict(node_stats)
