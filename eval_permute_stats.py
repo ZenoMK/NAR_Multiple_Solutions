@@ -105,7 +105,7 @@ def compute_bf_stats(df):
     distinct = df.groupby('GraphID')['hashablePreds'].nunique().mean()
     print('unique-ness, ', distinct)
     deduplicated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
-    print('weird unique-ness', inflated_distinct)
+    print('weird unique-ness', deduplicated_distinct)
     num_perms = df.groupby('GraphID').size()[0]
     print('out of', num_perms, ' permutations')
 
@@ -165,7 +165,7 @@ def compute_dfs_stats(df):
     distinct = df.groupby('GraphID')['hashablePreds'].nunique().mean()
     print('uniqueness, ', distinct)
     deduplicated_distinct = df.groupby('GraphID')['hashablefakeOGPreds'].nunique().mean()
-    print('weird uniqueness', inflated_distinct)
+    print('weird uniqueness', deduplicated_distinct)
     num_perms = df.groupby('GraphID').size()[0]
     print('out of', num_perms, ' permutations')
 
