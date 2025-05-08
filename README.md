@@ -1,6 +1,6 @@
 # THIS REPOSITORY
 
-Has code for the paper NAR with multiple solutions
+Has code for the paper "Neural Algorithmic Reasoning with Multiple Correct Solutions"
 
 Branches that matter:
 - `master` has all the code for predicting solution distributions and stochastically extracting solutions
@@ -14,14 +14,34 @@ Commands that matter:
 !python -m clrs.examples.run --train_steps 10000 --algorithms dfs --hint_mode none --results_df True --save_df True --save_model_to_file True --NSE 25 --filename fourth16 --test_length 16
 !python -m clrs.examples.run --train_steps 10000 --algorithms dfs --hint_mode none --results_df True --save_df True --save_model_to_file True --NSE 25 --filename fifth16 --test_length 16
 ```
+Please run from inside this repo's outermost directory.
 
-*Evaluate (email Zeno)*
-
+*Evaluate*
+- Run `results/viz.ipynb` all the way through
 
 
 Files that matter
-- `clrs/examples/run.py`
-- `clrs/_src/validate_distributions.py` Does appendix stuff
+- `clrs/examples/run.py` lets you train the models and generate results `.csv`s, when run with correct flags
+- `clrs/examples/log_experiments.py` gets called by `run.py` and produces the `.csv` files
+- `results/viz.ipynb` lets you recreate the figures from `.csv` files
+- `clrs/_src/validate_distributions.py` does appendix stuff
+
+Tips navigating CLRS
+- Use an editor that quickly lets you find a function's definition with a keyboard shortcut, otherwise tracing prediction through baselines, nets, etc... is time consuming
+- `run.py` sets up `samplers` which make problem instances (e.g. graphs for DFS).
+  - problem instances live inside named tuples:
+    - inputs in `feedback.features.inputs` (e.g. Adjacency matrix and Start node)
+    - labels inside `feedback.features.outputs` (e.g. Correct DFS tree)
+    - hints inside `feedback.features.hints` 
+
+- Networks predict on `feedback.features.inputs`
+- Loss is computed by comparing NN output to `feedback.features.outputs`
+
+
+---
+
+*note labels come from classical implementations of algorithms (e.g. `dfs` inside `clrs/_src/algorithms/graphs.py`)*
+
 
 ----
 
