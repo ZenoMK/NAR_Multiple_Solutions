@@ -1,5 +1,5 @@
 # Jan 27
-# implement Henry and Zeno's algorithms for testing DFS-verification to catch any slip-ups with code
+# implement algorithms for testing DFS-verification to catch any slip-ups with code
 
 # generate random graphs
 # dfs those graphs to create forests
@@ -141,7 +141,6 @@ def preprocess(adj_matrix):
     # Step 3: Ensure acyclic
     F = nx.DiGraph(adj_matrix)
 
-    # TODO tell John about this
     return nx.is_forest(F)
 
 
@@ -450,11 +449,11 @@ def how_many_fa(outcomes, nus):
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-# -- My & Zeno's O(n^3) bcuz computing reachability matrices takes 4ever -- #
+# -- O(n^3) bcuz computing reachability matrices takes 4ever -- #
 # FALSE. ORDERING NOT EASY TO INFER
-    # idea: create matrix ordering by Zeno's rules
+    # idea: create matrix ordering by  rules
     # topologically-sort resulting graph using DFS (does determinism matter here? what if tiebreaks weird?)
-    # verify that roots are in proper order (both by Zeno's rules and lexicographic)
+    # verify that roots are in proper order (both by rules and lexicographic)
     # the topological sort is new labeling
     # run deterministic DFS, un-relabel, check identity.
 
