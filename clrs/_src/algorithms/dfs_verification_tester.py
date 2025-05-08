@@ -144,7 +144,7 @@ def preprocess(adj_matrix):
     return nx.is_forest(F)
 
 
-def henry(G, F):
+def dfsverify(G, F):
     if isinstance(F, (list,np.ndarray)): # check if its a parent tree format, convert
         if np.ndim(F) == 1:
             F = no_self_loops_parent_tree_to_adj_matrix(F)
@@ -276,7 +276,7 @@ def graphtest(G, verifier):
             false_approves.append(b)
     return get_unique_adjacency_matrices(false_approves), get_unique_adjacency_matrices(false_rejects), len(go)
 
-#fa, fr = graphtest(G,henry)
+
 
 # mbe back edges problem, extra edge problem**
 
@@ -323,9 +323,7 @@ def draw(G):
 
 
 #TESTING - "false acceptances" (gfa/tfa) should be visually correct trees when you draw them, orelse algo is wrong
-#gfa, gfr = graphtest(G, henry)
-# tfa, tfr = graphtest(T, henry)
-#
+
 # print('num false accepts g: ', len(gfa))
 # print('num false accepts t: ', len(tfa))
 
@@ -414,7 +412,7 @@ def manual_sanity_check(graphsizes, verifier_algorithm):
     return outcomes
 
 
-def automatic_sanity_check(n=64, verifier_algorithm=henry): # you should expect to randomly generate a correct tree on n=6 with 1000 random trees
+def automatic_sanity_check(n=64, verifier_algorithm=dfsverify): # you should expect to randomly generate a correct tree on n=6 with 1000 random trees
     """
     1. make 10 random graphs of size n,
     2. create 1000 good trees and 1000 probably bad trees,

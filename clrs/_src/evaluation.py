@@ -211,7 +211,7 @@ _EVAL_FN = {
         _eval_one,
     specs.Type.POINTER:
         lambda pred, truth: np.mean((pred == truth) * 1.0),
-    specs.Type.DOBRIK_AND_DANILO:
+    specs.Type.MULT_SOL:
         #FIXME eval scores best model based on highest score. We compute loss.
         #lambda pred, truth: np.mean(jax.scipy.special.kl_div(truth, pred)) FIXME! KL div has high values
         #lambda pred, truth: np.sum(truth * np.log((pred + 1e-8)/(truth + 1e-8))) # when truth is 0, inflates too much.

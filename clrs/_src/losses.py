@@ -77,7 +77,7 @@ def output_loss_chunked(truth: _DataPoint, pred: _Array,
     # Compute the cross entropy between doubly stochastic pred and truth_data
     loss = -jnp.sum(truth.data * pred, axis=-1)
 
-  elif truth.type_ == _Type.DOBRIK_AND_DANILO:
+  elif truth.type_ == _Type.MULT_SOL:
     #TODO test!
     # Predictions are NxN probabilities.
     # Compute the KL divergence between predictions and 'true' distribution
@@ -121,7 +121,7 @@ def output_loss(truth: _DataPoint, pred: _Array, nb_nodes: int) -> float:
     # Compute the cross entropy between doubly stochastic pred and truth_data
     total_loss = jnp.mean(-jnp.sum(truth.data * pred, axis=-1))
 
-  elif truth.type_ == _Type.DOBRIK_AND_DANILO:
+  elif truth.type_ == _Type.MULT_SOL:
     #TODO test! if crashes, jax.nn.log_softmax()
     # Predictions are NxN probabilities.
     # Compute the KL divergence between predictions and 'true' distribution
@@ -138,8 +138,7 @@ def output_loss(truth: _DataPoint, pred: _Array, nb_nodes: int) -> float:
     unreduced_loss = jax.scipy.special.kl_div(truth.data, pred+epsilon)
     total_loss = jnp.mean(unreduced_loss)
     #total_loss = total_loss + 0.01regularisationloss #kl divergence to uniform dist.
-    ##Todo: log implementation of both, if we get crazy losses
-    #total_loss = -jnp.sum(jnp.sum(truth.data * jnp.log((jnp.exp(pred)+epsilon)/(truth.data+epsilon)), axis=-1)) # Todo email dobrik why nans
+    #total_loss = -jnp.sum(jnp.sum(truth.data * jnp.log((jnp.exp(pred)+epsilon)/(truth.data+epsilon)), axis=-1))
     #pred = np.asarray(pred)
     #pred = torch.from_numpy(pred).cuda()
     # total_loss = torch.nn.KLDivLoss(reduction="batchmean")(pred, truth.data) # can't use this since jax
@@ -232,7 +231,7 @@ def _hint_loss(
     # Compute the cross entropy between doubly stochastic pred and truth_data
     loss = -jnp.sum(truth_data * pred, axis=-1)
 
-  elif truth_type_ == _Type.DOBRIK_AND_DANILO:
+  elif truth_type_ == _Type.MULT_SOL:
     raise('unimplemented')#TODO test!
     # Predictions are NxN probabilities.
     # Compute the KL divergence between predictions and 'true' distribution
