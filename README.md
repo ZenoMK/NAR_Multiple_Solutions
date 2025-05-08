@@ -1,3 +1,27 @@
+# THIS BRANCH (modify training)
+
+As with the rest of this paper, stuff is only built for DFS and Bellman Ford
+
+These last few commits show training where tiebreaking for DFS and Bellman Ford 
+are handled by randomly permuting A_pos (See graphs.py). Earlier commits show training on np.random.permutation().
+
+Workflow is:
+- train model using `run.py` with commands like `python -m clrs.examples.run --train_steps 10000 --algorithms bellman_ford --hint_mode none`
+- evaluate using `python permute_somethings.py` (which only permutes pos) or `python permute_everything.py` (which permutes all inputs)
+- sanity check using `python vanilla_eval.py` (computes model accuracy in CLRS traditional node-level way, predicts on regular not-permuted inputs)
+
+On a T4 GPU on Colab, training takes about 30min, and evaluation or sanity-checking takes 3min
+
+
+other files:
+- `eval_permute_stats.py` provides functions that eat a dataframe of inputs and predictions, and calculate correctness and variety
+- `test_permute.py` provides tests for the way we permute things in `permute_everything.py`
+- `bf_dfs_verifiers.py` provides code for the verification algorithms
+- `dummy_eval.py` outlines basic code for loading a trained model and computing stats. It's not directly used for any paper results. Instead, files like `permute_everything.py` use its functions more prettily 
+- `scratch.py` provides a visualizer that helps you manually check verification algs in bf_dfs_verifiers
+
+
+----
 # The CLRS Algorithmic Reasoning Benchmark
 
 Learning representations of algorithms is an emerging area of machine learning,
