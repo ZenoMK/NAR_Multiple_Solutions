@@ -1,3 +1,30 @@
+# THIS REPOSITORY
+
+Has code for the paper NAR with multiple solutions
+
+Branches that matter:
+- `master` has all the code for predicting solution distributions and stochastically extracting solutions
+- `working` has all the code for training like regular CLRS but permuting inputs before you predict
+- `modify_training` has all the code for training NNs with randomized tiebreaking, and then permuting inputs before you predict
+
+Commands that matter:
+
+*Running (modify flags to your liking)*
+```
+!python -m clrs.examples.run --train_steps 10000 --algorithms dfs --hint_mode none --results_df True --save_df True --save_model_to_file True --NSE 25 --filename fourth16 --test_length 16
+!python -m clrs.examples.run --train_steps 10000 --algorithms dfs --hint_mode none --results_df True --save_df True --save_model_to_file True --NSE 25 --filename fifth16 --test_length 16
+```
+
+*Evaluate (email Zeno)*
+
+
+
+Files that matter
+- `clrs/examples/run.py`
+- `clrs/_src/validate_distributions.py` Does appendix stuff
+
+----
+
 # The CLRS Algorithmic Reasoning Benchmark
 
 Learning representations of algorithms is an emerging area of machine learning,
