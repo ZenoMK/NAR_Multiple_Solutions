@@ -16,13 +16,17 @@ from eval_permute_stats import compute_bf_stats, compute_dfs_stats
 
 from dummy_eval import load_model, make_test_sampler
 
-N_RUNS=2 # num to do everything to get std dev
+N_RUNS=5 # num to do everything to get std dev
 
 if __name__ == '__main__':
+  import argparse
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--alg', type=str, default=1, help='which alg flag')
+  args = parser.parse_args()
+  which = args.alg #''#'dfs'
 
   # --- LOAD FLAG STUFF
   start_time = time.time()
-  which = ''#'dfs'
 
   if which == 'dfs':
     flagjson = 'WHEREAMI/dfs_flags.json'
