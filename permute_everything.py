@@ -234,7 +234,7 @@ if __name__ == '__main__':
   load_time = time.time()
   print(f"model loaded in {load_time-json_time} seconds")
 
-  N_RUNS = 2
+  N_RUNS = 5
   instance_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
   variety_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
   dedup_variety_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
