@@ -378,6 +378,6 @@ if __name__ == '__main__':
   # print('n=sixtyfour real variety, are predictions actually distinct? (not isomorphic)\n', summary, '\n')
   print('------------------------------')
 
-  print('Are there ever distinct valid solutions? NaN when no valids')
+  print('Are there ever distinct valid solutions? NaN mean when no valids, NaN std if only 1')
   uv = pd.DataFrame([(key, *val) for key, tuples in uv_stats.items() for val in tuples], columns=['graphsize', 'mean_mean_uv', 'mean_std_uv'])
   print(uv.groupby('graphsize').mean())
