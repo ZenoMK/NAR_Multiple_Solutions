@@ -1,0 +1,392 @@
+json read in 0.00014209747314453125 seconds
+model loaded in 12.036726474761963 seconds
+four sampler built in 0.03283071517944336 seconds
+sixteen sampler built in 0.12824511528015137 seconds
+64 sampler built in 1.5858945846557617 seconds
+n=4 the prediction line  itself took 1.2588248252868652 seconds
+n=4 the prediction line  itself took 0.001646280288696289 seconds
+n=4 the prediction line  itself took 0.0009305477142333984 seconds
+n=4 the prediction line  itself took 0.0007340908050537109 seconds
+n=4 the prediction line  itself took 0.0006814002990722656 seconds
+predicting on perm As took 1.4528121948242188 sec
+n=4 the prediction line  itself took 0.0008463859558105469 seconds
+n=4 the prediction line  itself took 0.0007917881011962891 seconds
+n=4 the prediction line  itself took 0.0008025169372558594 seconds
+n=4 the prediction line  itself took 0.0006897449493408203 seconds
+n=4 the prediction line  itself took 0.0008189678192138672 seconds
+predicting on perm As took 0.006463527679443359 sec
+n=16 the prediction line  itself took 1.255275011062622 seconds
+n=16 the prediction line  itself took 0.0018188953399658203 seconds
+n=16 the prediction line  itself took 0.0009293556213378906 seconds
+n=16 the prediction line  itself took 0.0007913112640380859 seconds
+n=16 the prediction line  itself took 0.0008122920989990234 seconds
+predicting on perm As took 1.446502447128296 sec
+n=16 the prediction line  itself took 0.0007731914520263672 seconds
+n=16 the prediction line  itself took 0.0007848739624023438 seconds
+n=16 the prediction line  itself took 0.0007634162902832031 seconds
+n=16 the prediction line  itself took 0.0007305145263671875 seconds
+n=16 the prediction line  itself took 0.0007758140563964844 seconds
+predicting on perm As took 0.006272792816162109 sec
+n=64 the prediction line  itself took 1.9534337520599365 seconds
+n=64 the prediction line  itself took 0.002993345260620117 seconds
+n=64 the prediction line  itself took 0.0014944076538085938 seconds
+n=64 the prediction line  itself took 0.003931760787963867 seconds
+n=64 the prediction line  itself took 0.0016241073608398438 seconds
+predicting on perm As took 2.1568450927734375 sec
+n=64 the prediction line  itself took 0.0017924308776855469 seconds
+n=64 the prediction line  itself took 0.005679130554199219 seconds
+n=64 the prediction line  itself took 0.001737833023071289 seconds
+n=64 the prediction line  itself took 0.0015316009521484375 seconds
+n=64 the prediction line  itself took 0.0015716552734375 seconds
+predicting on perm As took 0.015560388565063477 sec
+================================================
+Graph Size:  4
+weird: valid(ogA,S,P) 0.4625
+weird: valid(A,ogS,P) 0.61875
+valid(ogA,ogS,ogP) 1.0
+valid(A,S,P) 1.0
+unique-ness,  1.0
+weird unique-ness 2.765625
+out of 5  permutations
+================================================
+Graph Size:  16
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.021875
+valid(ogA,ogS,ogP) 0.88125
+valid(A,S,P) 0.88125
+unique-ness,  1.140625
+weird unique-ness 5.0
+out of 5  permutations
+16 stats eval in 2.144772529602051 seconds
+================================================
+Graph Size:  64
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.0
+valid(ogA,ogS,ogP) 0.1875
+valid(A,S,P) 0.1875
+unique-ness,  3.515625
+weird unique-ness 5.0
+out of 5  permutations
+64 stats eval in 22.95900011062622 seconds
+four sampler built in 33.52800798416138 seconds
+sixteen sampler built in 0.08440899848937988 seconds
+64 sampler built in 0.8482413291931152 seconds
+n=4 the prediction line  itself took 0.0015332698822021484 seconds
+n=4 the prediction line  itself took 0.0007443428039550781 seconds
+n=4 the prediction line  itself took 0.000820159912109375 seconds
+n=4 the prediction line  itself took 0.0007812976837158203 seconds
+n=4 the prediction line  itself took 0.0008394718170166016 seconds
+predicting on perm As took 0.00854182243347168 sec
+n=4 the prediction line  itself took 0.0006973743438720703 seconds
+n=4 the prediction line  itself took 0.0007340908050537109 seconds
+n=4 the prediction line  itself took 0.0007846355438232422 seconds
+n=4 the prediction line  itself took 0.0007779598236083984 seconds
+n=4 the prediction line  itself took 0.0008440017700195312 seconds
+predicting on perm As took 0.006089925765991211 sec
+n=16 the prediction line  itself took 1.2591891288757324 seconds
+n=16 the prediction line  itself took 0.0009474754333496094 seconds
+n=16 the prediction line  itself took 0.0007653236389160156 seconds
+n=16 the prediction line  itself took 0.0007131099700927734 seconds
+n=16 the prediction line  itself took 0.000743865966796875 seconds
+predicting on perm As took 1.265141487121582 sec
+n=16 the prediction line  itself took 0.0008056163787841797 seconds
+n=16 the prediction line  itself took 0.0007047653198242188 seconds
+n=16 the prediction line  itself took 0.0006995201110839844 seconds
+n=16 the prediction line  itself took 0.0007579326629638672 seconds
+n=16 the prediction line  itself took 0.0007326602935791016 seconds
+predicting on perm As took 0.006104707717895508 sec
+n=64 the prediction line  itself took 1.4458940029144287 seconds
+n=64 the prediction line  itself took 0.0028743743896484375 seconds
+n=64 the prediction line  itself took 0.0032129287719726562 seconds
+n=64 the prediction line  itself took 0.003064393997192383 seconds
+n=64 the prediction line  itself took 0.0030324459075927734 seconds
+predicting on perm As took 1.4629063606262207 sec
+n=64 the prediction line  itself took 0.0029642581939697266 seconds
+n=64 the prediction line  itself took 0.00301361083984375 seconds
+n=64 the prediction line  itself took 0.003110170364379883 seconds
+n=64 the prediction line  itself took 0.0031766891479492188 seconds
+n=64 the prediction line  itself took 0.0030565261840820312 seconds
+predicting on perm As took 0.01942753791809082 sec
+================================================
+Graph Size:  4
+weird: valid(ogA,S,P) 0.425
+weird: valid(A,ogS,P) 0.621875
+valid(ogA,ogS,ogP) 1.0
+valid(A,S,P) 1.0
+unique-ness,  1.0
+weird unique-ness 3.140625
+out of 5  permutations
+================================================
+Graph Size:  16
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.04375
+valid(ogA,ogS,ogP) 0.840625
+valid(A,S,P) 0.840625
+unique-ness,  1.234375
+weird unique-ness 5.0
+out of 5  permutations
+16 stats eval in 1.9661569595336914 seconds
+================================================
+Graph Size:  64
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.00625
+valid(ogA,ogS,ogP) 0.2375
+valid(A,S,P) 0.2375
+unique-ness,  3.546875
+weird unique-ness 5.0
+out of 5  permutations
+64 stats eval in 22.677764177322388 seconds
+four sampler built in 63.472102642059326 seconds
+sixteen sampler built in 0.07072567939758301 seconds
+64 sampler built in 0.9032297134399414 seconds
+n=4 the prediction line  itself took 0.0017724037170410156 seconds
+n=4 the prediction line  itself took 0.0008478164672851562 seconds
+n=4 the prediction line  itself took 0.0008485317230224609 seconds
+n=4 the prediction line  itself took 0.0007531642913818359 seconds
+n=4 the prediction line  itself took 0.0009062290191650391 seconds
+predicting on perm As took 0.008199214935302734 sec
+n=4 the prediction line  itself took 0.0008797645568847656 seconds
+n=4 the prediction line  itself took 0.0008196830749511719 seconds
+n=4 the prediction line  itself took 0.0007607936859130859 seconds
+n=4 the prediction line  itself took 0.0007231235504150391 seconds
+n=4 the prediction line  itself took 0.0008656978607177734 seconds
+predicting on perm As took 0.00635528564453125 sec
+n=16 the prediction line  itself took 1.2691144943237305 seconds
+n=16 the prediction line  itself took 0.002187490463256836 seconds
+n=16 the prediction line  itself took 0.0023174285888671875 seconds
+n=16 the prediction line  itself took 0.0021309852600097656 seconds
+n=16 the prediction line  itself took 0.0021402835845947266 seconds
+predicting on perm As took 1.2819938659667969 sec
+n=16 the prediction line  itself took 0.0022573471069335938 seconds
+n=16 the prediction line  itself took 0.0017855167388916016 seconds
+n=16 the prediction line  itself took 0.0007827281951904297 seconds
+n=16 the prediction line  itself took 0.0007507801055908203 seconds
+n=16 the prediction line  itself took 0.0007789134979248047 seconds
+predicting on perm As took 0.009186029434204102 sec
+n=64 the prediction line  itself took 0.0025687217712402344 seconds
+n=64 the prediction line  itself took 0.0011358261108398438 seconds
+n=64 the prediction line  itself took 0.0017042160034179688 seconds
+n=64 the prediction line  itself took 0.0015778541564941406 seconds
+n=64 the prediction line  itself took 0.0015704631805419922 seconds
+predicting on perm As took 0.011757612228393555 sec
+n=64 the prediction line  itself took 0.0015921592712402344 seconds
+n=64 the prediction line  itself took 0.0017673969268798828 seconds
+n=64 the prediction line  itself took 0.0018658638000488281 seconds
+n=64 the prediction line  itself took 0.0016744136810302734 seconds
+n=64 the prediction line  itself took 0.0016758441925048828 seconds
+predicting on perm As took 0.011759757995605469 sec
+================================================
+Graph Size:  4
+weird: valid(ogA,S,P) 0.253125
+weird: valid(A,ogS,P) 0.4875
+valid(ogA,ogS,ogP) 1.0
+valid(A,S,P) 1.0
+unique-ness,  1.0
+weird unique-ness 2.859375
+out of 5  permutations
+================================================
+Graph Size:  16
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.075
+valid(ogA,ogS,ogP) 0.821875
+valid(A,S,P) 0.821875
+unique-ness,  1.296875
+weird unique-ness 4.9375
+out of 5  permutations
+16 stats eval in 2.019129514694214 seconds
+================================================
+Graph Size:  64
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.003125
+valid(ogA,ogS,ogP) 0.18125
+valid(A,S,P) 0.18125
+unique-ness,  3.75
+weird unique-ness 5.0
+out of 5  permutations
+64 stats eval in 22.501729726791382 seconds
+four sampler built in 91.8646092414856 seconds
+sixteen sampler built in 0.07095456123352051 seconds
+64 sampler built in 0.8489711284637451 seconds
+n=4 the prediction line  itself took 0.003438234329223633 seconds
+n=4 the prediction line  itself took 0.0010035037994384766 seconds
+n=4 the prediction line  itself took 0.0009229183197021484 seconds
+n=4 the prediction line  itself took 0.0008394718170166016 seconds
+n=4 the prediction line  itself took 0.0009076595306396484 seconds
+predicting on perm As took 0.010101556777954102 sec
+n=4 the prediction line  itself took 0.0007917881011962891 seconds
+n=4 the prediction line  itself took 0.000865936279296875 seconds
+n=4 the prediction line  itself took 0.0008838176727294922 seconds
+n=4 the prediction line  itself took 0.000843048095703125 seconds
+n=4 the prediction line  itself took 0.0008070468902587891 seconds
+predicting on perm As took 0.00657343864440918 sec
+n=16 the prediction line  itself took 0.0016896724700927734 seconds
+n=16 the prediction line  itself took 0.0008060932159423828 seconds
+n=16 the prediction line  itself took 0.0006928443908691406 seconds
+n=16 the prediction line  itself took 0.0007793903350830078 seconds
+n=16 the prediction line  itself took 0.0007758140563964844 seconds
+predicting on perm As took 0.007704019546508789 sec
+n=16 the prediction line  itself took 0.0007898807525634766 seconds
+n=16 the prediction line  itself took 0.0008349418640136719 seconds
+n=16 the prediction line  itself took 0.0008642673492431641 seconds
+n=16 the prediction line  itself took 0.000743865966796875 seconds
+n=16 the prediction line  itself took 0.0008325576782226562 seconds
+predicting on perm As took 0.006686687469482422 sec
+n=64 the prediction line  itself took 0.0017676353454589844 seconds
+n=64 the prediction line  itself took 0.0016703605651855469 seconds
+n=64 the prediction line  itself took 0.0012900829315185547 seconds
+n=64 the prediction line  itself took 0.0012781620025634766 seconds
+n=64 the prediction line  itself took 0.00141143798828125 seconds
+predicting on perm As took 0.010630607604980469 sec
+n=64 the prediction line  itself took 0.001819610595703125 seconds
+n=64 the prediction line  itself took 0.0018451213836669922 seconds
+n=64 the prediction line  itself took 0.0018079280853271484 seconds
+n=64 the prediction line  itself took 0.0017049312591552734 seconds
+n=64 the prediction line  itself took 0.0018310546875 seconds
+predicting on perm As took 0.011902093887329102 sec
+================================================
+Graph Size:  4
+weird: valid(ogA,S,P) 0.246875
+weird: valid(A,ogS,P) 0.5125
+valid(ogA,ogS,ogP) 1.0
+valid(A,S,P) 1.0
+unique-ness,  1.0
+weird unique-ness 3.609375
+out of 5  permutations
+================================================
+Graph Size:  16
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.059375
+valid(ogA,ogS,ogP) 0.9
+valid(A,S,P) 0.9
+unique-ness,  1.21875
+weird unique-ness 4.9375
+out of 5  permutations
+16 stats eval in 2.0151286125183105 seconds
+================================================
+Graph Size:  64
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.0
+valid(ogA,ogS,ogP) 0.171875
+valid(A,S,P) 0.171875
+unique-ness,  4.0
+weird unique-ness 5.0
+out of 5  permutations
+64 stats eval in 22.622806310653687 seconds
+four sampler built in 119.04718375205994 seconds
+sixteen sampler built in 0.07371354103088379 seconds
+64 sampler built in 0.8791775703430176 seconds
+n=4 the prediction line  itself took 0.0012519359588623047 seconds
+n=4 the prediction line  itself took 0.0010957717895507812 seconds
+n=4 the prediction line  itself took 0.0008437633514404297 seconds
+n=4 the prediction line  itself took 0.0008800029754638672 seconds
+n=4 the prediction line  itself took 0.0008368492126464844 seconds
+predicting on perm As took 0.007694244384765625 sec
+n=4 the prediction line  itself took 0.0008287429809570312 seconds
+n=4 the prediction line  itself took 0.0008082389831542969 seconds
+n=4 the prediction line  itself took 0.0007925033569335938 seconds
+n=4 the prediction line  itself took 0.0008225440979003906 seconds
+n=4 the prediction line  itself took 0.0008540153503417969 seconds
+predicting on perm As took 0.006640911102294922 sec
+n=16 the prediction line  itself took 0.0021829605102539062 seconds
+n=16 the prediction line  itself took 0.0008854866027832031 seconds
+n=16 the prediction line  itself took 0.0007939338684082031 seconds
+n=16 the prediction line  itself took 0.0007576942443847656 seconds
+n=16 the prediction line  itself took 0.0007579326629638672 seconds
+predicting on perm As took 0.0081939697265625 sec
+n=16 the prediction line  itself took 0.0007352828979492188 seconds
+n=16 the prediction line  itself took 0.0007071495056152344 seconds
+n=16 the prediction line  itself took 0.0008087158203125 seconds
+n=16 the prediction line  itself took 0.0007619857788085938 seconds
+n=16 the prediction line  itself took 0.0008466243743896484 seconds
+predicting on perm As took 0.006386518478393555 sec
+n=64 the prediction line  itself took 0.00165557861328125 seconds
+n=64 the prediction line  itself took 0.0012216567993164062 seconds
+n=64 the prediction line  itself took 0.0014147758483886719 seconds
+n=64 the prediction line  itself took 0.0016951560974121094 seconds
+n=64 the prediction line  itself took 0.001569509506225586 seconds
+predicting on perm As took 0.010634660720825195 sec
+n=64 the prediction line  itself took 0.0018384456634521484 seconds
+n=64 the prediction line  itself took 0.0018982887268066406 seconds
+n=64 the prediction line  itself took 0.0018651485443115234 seconds
+n=64 the prediction line  itself took 0.0017533302307128906 seconds
+n=64 the prediction line  itself took 0.001789093017578125 seconds
+predicting on perm As took 0.012312889099121094 sec
+================================================
+Graph Size:  4
+weird: valid(ogA,S,P) 0.284375
+weird: valid(A,ogS,P) 0.496875
+valid(ogA,ogS,ogP) 1.0
+valid(A,S,P) 1.0
+unique-ness,  1.0
+weird unique-ness 3.328125
+out of 5  permutations
+================================================
+Graph Size:  16
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.0875
+valid(ogA,ogS,ogP) 0.871875
+valid(A,S,P) 0.871875
+unique-ness,  1.203125
+weird unique-ness 4.9375
+out of 5  permutations
+16 stats eval in 2.926734685897827 seconds
+================================================
+Graph Size:  64
+weird: valid(ogA,S,P) 0.0
+weird: valid(A,ogS,P) 0.009375
+valid(ogA,ogS,ogP) 0.159375
+valid(A,S,P) 0.159375
+unique-ness,  3.828125
+weird unique-ness 5.0
+out of 5  permutations
+64 stats eval in 23.21160626411438 seconds
+
+
+
+
+
+
+================================================
+OVERALL STATS bellman_ford
+================================================
+num runs: 5
+
+n=four graph-level accuracy:
+                         mean       std
+valid(ogA,ogS,ogP)  1.000000  0.000000
+valid(A,S,P)        1.000000  0.000000
+valid(ogA,S,P)      0.334375  0.101719 
+
+n=four variety: are predictions distinct? (they might still be isomorphic)
+    mean  std
+0   0.2  0.0 
+
+------------------------------
+n=sixteen graph-level accuracy:
+                         mean       std
+valid(ogA,ogS,ogP)  0.863125  0.031515
+valid(A,S,P)        0.863125  0.031515
+valid(ogA,S,P)      0.000000  0.000000 
+
+n=sixteen variety: are predictions distinct? (they might still be isomorphic)
+       mean       std
+0  0.24375  0.011267 
+
+------------------------------
+n=sixtyfour graph-level accuracy:
+                       mean       std
+valid(ogA,ogS,ogP)  0.1875  0.029892
+valid(A,S,P)        0.1875  0.029892
+valid(ogA,S,P)      0.0000  0.000000 
+
+n=sixtyfour variety: are predictions distinct? (they might still be isomorphic)
+        mean       std
+0  0.745625  0.040299 
+
+------------------------------
+Are there ever distinct valid solutions? NaN mean when no valids, NaN std if only 1
+           mean_mean_uv  mean_std_uv
+graphsize                           
+four                0.2          0.0
+sixteen             0.2          0.0
+sixtyfour           0.2          0.0

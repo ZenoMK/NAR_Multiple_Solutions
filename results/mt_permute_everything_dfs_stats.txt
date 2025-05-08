@@ -1,0 +1,458 @@
+json read in 0.0005326271057128906 seconds
+model loaded in 12.666983604431152 seconds
+four sampler built in 0.04275846481323242 seconds
+sixteen sampler built in 0.10606193542480469 seconds
+64 sampler built in 0.6809709072113037 seconds
+n=4 the prediction line  itself took 1.2625982761383057 seconds
+n=4 the prediction line  itself took 0.0016896724700927734 seconds
+n=4 the prediction line  itself took 0.0011086463928222656 seconds
+n=4 the prediction line  itself took 0.0009615421295166016 seconds
+n=4 the prediction line  itself took 0.0009474754333496094 seconds
+predicting on perm As took 1.462559700012207 sec
+n=4 the prediction line  itself took 0.0008997917175292969 seconds
+n=4 the prediction line  itself took 0.0008754730224609375 seconds
+n=4 the prediction line  itself took 0.0009527206420898438 seconds
+n=4 the prediction line  itself took 0.0010385513305664062 seconds
+n=4 the prediction line  itself took 0.00089263916015625 seconds
+predicting on perm As took 0.008907318115234375 sec
+n=16 the prediction line  itself took 1.2541027069091797 seconds
+n=16 the prediction line  itself took 0.0023288726806640625 seconds
+n=16 the prediction line  itself took 0.0014662742614746094 seconds
+n=16 the prediction line  itself took 0.001478433609008789 seconds
+n=16 the prediction line  itself took 0.022624492645263672 seconds
+predicting on perm As took 1.4774959087371826 sec
+n=16 the prediction line  itself took 0.05802154541015625 seconds
+n=16 the prediction line  itself took 0.05861949920654297 seconds
+n=16 the prediction line  itself took 0.048101186752319336 seconds
+n=16 the prediction line  itself took 0.03697562217712402 seconds
+n=16 the prediction line  itself took 0.03712582588195801 seconds
+predicting on perm As took 0.24596285820007324 sec
+n=64 the prediction line  itself took 2.4322280883789062 seconds
+n=64 the prediction line  itself took 0.6488497257232666 seconds
+n=64 the prediction line  itself took 2.6742944717407227 seconds
+n=64 the prediction line  itself took 2.668680429458618 seconds
+n=64 the prediction line  itself took 2.701078414916992 seconds
+predicting on perm As took 13.228030443191528 sec
+n=64 the prediction line  itself took 2.696098566055298 seconds
+n=64 the prediction line  itself took 2.7668659687042236 seconds
+n=64 the prediction line  itself took 2.790548324584961 seconds
+n=64 the prediction line  itself took 2.7708115577697754 seconds
+n=64 the prediction line  itself took 2.7884950637817383 seconds
+predicting on perm As took 13.882166624069214 sec
+================================================
+weird: dfsverify(ogA, P) 0.071875
+weird2: dfsverify(A, ogP) 0.08125
+dfsverify(ogA,ogP) 0.21875
+dfsverify(A, P) 0.15
+dfsverify(A,rando): 0.021875
+dfsverify(ogA,rando): 0.01875
+agnostic(ogA, ogP) 0.546875
+agnostic(A,P) 0.546875
+uniqueness,  4.21875
+weird uniqueness 1.0
+out of 5  permutations
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+16 stats eval in 1.9325954914093018 seconds
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+64 stats eval in 5.770634889602661 seconds
+four sampler built in 42.32277536392212 seconds
+sixteen sampler built in 0.10625171661376953 seconds
+64 sampler built in 0.979619026184082 seconds
+n=4 the prediction line  itself took 0.0029914379119873047 seconds
+n=4 the prediction line  itself took 0.0021114349365234375 seconds
+n=4 the prediction line  itself took 0.001940011978149414 seconds
+n=4 the prediction line  itself took 0.0018706321716308594 seconds
+n=4 the prediction line  itself took 0.0019061565399169922 seconds
+predicting on perm As took 0.020339250564575195 sec
+n=4 the prediction line  itself took 0.0019083023071289062 seconds
+n=4 the prediction line  itself took 0.0018248558044433594 seconds
+n=4 the prediction line  itself took 0.001848459243774414 seconds
+n=4 the prediction line  itself took 0.0018222332000732422 seconds
+n=4 the prediction line  itself took 0.001947164535522461 seconds
+predicting on perm As took 0.015233278274536133 sec
+n=16 the prediction line  itself took 0.0036699771881103516 seconds
+n=16 the prediction line  itself took 0.004051685333251953 seconds
+n=16 the prediction line  itself took 0.002536773681640625 seconds
+n=16 the prediction line  itself took 0.01617574691772461 seconds
+n=16 the prediction line  itself took 0.05833697319030762 seconds
+predicting on perm As took 0.09325313568115234 sec
+n=16 the prediction line  itself took 0.05557656288146973 seconds
+n=16 the prediction line  itself took 0.0391697883605957 seconds
+n=16 the prediction line  itself took 0.038718461990356445 seconds
+n=16 the prediction line  itself took 0.038161277770996094 seconds
+n=16 the prediction line  itself took 0.03794527053833008 seconds
+predicting on perm As took 0.21872472763061523 sec
+n=64 the prediction line  itself took 0.6394498348236084 seconds
+n=64 the prediction line  itself took 2.8000783920288086 seconds
+n=64 the prediction line  itself took 2.8451344966888428 seconds
+n=64 the prediction line  itself took 2.8885293006896973 seconds
+n=64 the prediction line  itself took 2.9109385013580322 seconds
+predicting on perm As took 12.157840013504028 sec
+n=64 the prediction line  itself took 2.951648235321045 seconds
+n=64 the prediction line  itself took 3.008167266845703 seconds
+n=64 the prediction line  itself took 3.050243854522705 seconds
+n=64 the prediction line  itself took 3.095372200012207 seconds
+n=64 the prediction line  itself took 3.1348204612731934 seconds
+predicting on perm As took 15.309611320495605 sec
+================================================
+weird: dfsverify(ogA, P) 0.015625
+weird2: dfsverify(A, ogP) 0.00625
+dfsverify(ogA,ogP) 0.078125
+dfsverify(A, P) 0.071875
+dfsverify(A,rando): 0.0125
+dfsverify(ogA,rando): 0.009375
+agnostic(ogA, ogP) 0.265625
+agnostic(A,P) 0.265625
+uniqueness,  4.390625
+weird uniqueness 1.0
+out of 5  permutations
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+16 stats eval in 1.8625307083129883 seconds
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+64 stats eval in 6.426257848739624 seconds
+four sampler built in 83.24261236190796 seconds
+sixteen sampler built in 0.10949254035949707 seconds
+64 sampler built in 0.6700565814971924 seconds
+n=4 the prediction line  itself took 0.0011317729949951172 seconds
+n=4 the prediction line  itself took 0.0008358955383300781 seconds
+n=4 the prediction line  itself took 0.0008471012115478516 seconds
+n=4 the prediction line  itself took 0.0007607936859130859 seconds
+n=4 the prediction line  itself took 0.0007379055023193359 seconds
+predicting on perm As took 0.008490562438964844 sec
+n=4 the prediction line  itself took 0.0007565021514892578 seconds
+n=4 the prediction line  itself took 0.0009243488311767578 seconds
+n=4 the prediction line  itself took 0.0007748603820800781 seconds
+n=4 the prediction line  itself took 0.0008037090301513672 seconds
+n=4 the prediction line  itself took 0.0007402896881103516 seconds
+predicting on perm As took 0.007936716079711914 sec
+n=16 the prediction line  itself took 0.0016179084777832031 seconds
+n=16 the prediction line  itself took 0.0013778209686279297 seconds
+n=16 the prediction line  itself took 0.0012805461883544922 seconds
+n=16 the prediction line  itself took 0.023057222366333008 seconds
+n=16 the prediction line  itself took 0.05857443809509277 seconds
+predicting on perm As took 0.0917665958404541 sec
+n=16 the prediction line  itself took 0.04674482345581055 seconds
+n=16 the prediction line  itself took 0.04081463813781738 seconds
+n=16 the prediction line  itself took 0.040782928466796875 seconds
+n=16 the prediction line  itself took 0.039872169494628906 seconds
+n=16 the prediction line  itself took 0.04073786735534668 seconds
+predicting on perm As took 0.21510004997253418 sec
+n=64 the prediction line  itself took 0.7409451007843018 seconds
+n=64 the prediction line  itself took 3.1396517753601074 seconds
+n=64 the prediction line  itself took 3.1560680866241455 seconds
+n=64 the prediction line  itself took 3.189560651779175 seconds
+n=64 the prediction line  itself took 3.1996777057647705 seconds
+predicting on perm As took 13.495243549346924 sec
+n=64 the prediction line  itself took 3.2071104049682617 seconds
+n=64 the prediction line  itself took 3.2023966312408447 seconds
+n=64 the prediction line  itself took 3.1955854892730713 seconds
+n=64 the prediction line  itself took 3.1508212089538574 seconds
+n=64 the prediction line  itself took 3.127410650253296 seconds
+predicting on perm As took 15.960198879241943 sec
+================================================
+weird: dfsverify(ogA, P) 0.009375
+weird2: dfsverify(A, ogP) 0.003125
+dfsverify(ogA,ogP) 0.140625
+dfsverify(A, P) 0.109375
+dfsverify(A,rando): 0.009375
+dfsverify(ogA,rando): 0.01875
+agnostic(ogA, ogP) 0.359375
+agnostic(A,P) 0.359375
+uniqueness,  3.34375
+weird uniqueness 1.0
+out of 5  permutations
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+16 stats eval in 1.938316822052002 seconds
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+64 stats eval in 5.606302976608276 seconds
+four sampler built in 125.6735827922821 seconds
+sixteen sampler built in 0.1137242317199707 seconds
+64 sampler built in 0.6764194965362549 seconds
+n=4 the prediction line  itself took 0.0012600421905517578 seconds
+n=4 the prediction line  itself took 0.0009953975677490234 seconds
+n=4 the prediction line  itself took 0.0008425712585449219 seconds
+n=4 the prediction line  itself took 0.0007441043853759766 seconds
+n=4 the prediction line  itself took 0.0008058547973632812 seconds
+predicting on perm As took 0.009221076965332031 sec
+n=4 the prediction line  itself took 0.0007638931274414062 seconds
+n=4 the prediction line  itself took 0.0008063316345214844 seconds
+n=4 the prediction line  itself took 0.0008134841918945312 seconds
+n=4 the prediction line  itself took 0.0007741451263427734 seconds
+n=4 the prediction line  itself took 0.0007588863372802734 seconds
+predicting on perm As took 0.008438348770141602 sec
+n=16 the prediction line  itself took 0.0017108917236328125 seconds
+n=16 the prediction line  itself took 0.0015149116516113281 seconds
+n=16 the prediction line  itself took 0.0014624595642089844 seconds
+n=16 the prediction line  itself took 0.022223472595214844 seconds
+n=16 the prediction line  itself took 0.05872750282287598 seconds
+predicting on perm As took 0.09166312217712402 sec
+n=16 the prediction line  itself took 0.058541297912597656 seconds
+n=16 the prediction line  itself took 0.04981517791748047 seconds
+n=16 the prediction line  itself took 0.04020071029663086 seconds
+n=16 the prediction line  itself took 0.039032936096191406 seconds
+n=16 the prediction line  itself took 0.03970456123352051 seconds
+predicting on perm As took 0.23398327827453613 sec
+n=64 the prediction line  itself took 0.6804869174957275 seconds
+n=64 the prediction line  itself took 2.911968469619751 seconds
+n=64 the prediction line  itself took 2.9505248069763184 seconds
+n=64 the prediction line  itself took 2.9806089401245117 seconds
+n=64 the prediction line  itself took 3.0129027366638184 seconds
+predicting on perm As took 12.603820323944092 sec
+n=64 the prediction line  itself took 3.0540828704833984 seconds
+n=64 the prediction line  itself took 3.098078489303589 seconds
+n=64 the prediction line  itself took 3.1635937690734863 seconds
+n=64 the prediction line  itself took 3.206385374069214 seconds
+n=64 the prediction line  itself took 3.242556571960449 seconds
+predicting on perm As took 15.84190034866333 sec
+================================================
+weird: dfsverify(ogA, P) 0.003125
+weird2: dfsverify(A, ogP) 0.003125
+dfsverify(ogA,ogP) 0.015625
+dfsverify(A, P) 0.040625
+dfsverify(A,rando): 0.009375
+dfsverify(ogA,rando): 0.01875
+agnostic(ogA, ogP) 0.25
+agnostic(A,P) 0.25
+uniqueness,  4.28125
+weird uniqueness 1.0
+out of 5  permutations
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+16 stats eval in 1.8649320602416992 seconds
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+64 stats eval in 6.426401138305664 seconds
+four sampler built in 167.26410937309265 seconds
+sixteen sampler built in 0.1062312126159668 seconds
+64 sampler built in 0.6448099613189697 seconds
+n=4 the prediction line  itself took 0.0011157989501953125 seconds
+n=4 the prediction line  itself took 0.0009069442749023438 seconds
+n=4 the prediction line  itself took 0.0008687973022460938 seconds
+n=4 the prediction line  itself took 0.0007903575897216797 seconds
+n=4 the prediction line  itself took 0.0008955001831054688 seconds
+predicting on perm As took 0.00895547866821289 sec
+n=4 the prediction line  itself took 0.0007119178771972656 seconds
+n=4 the prediction line  itself took 0.0007202625274658203 seconds
+n=4 the prediction line  itself took 0.0007243156433105469 seconds
+n=4 the prediction line  itself took 0.0008985996246337891 seconds
+n=4 the prediction line  itself took 0.0007941722869873047 seconds
+predicting on perm As took 0.007932186126708984 sec
+n=16 the prediction line  itself took 0.0028226375579833984 seconds
+n=16 the prediction line  itself took 0.0015838146209716797 seconds
+n=16 the prediction line  itself took 0.0013356208801269531 seconds
+n=16 the prediction line  itself took 0.021509170532226562 seconds
+n=16 the prediction line  itself took 0.05843234062194824 seconds
+predicting on perm As took 0.09206581115722656 sec
+n=16 the prediction line  itself took 0.055605411529541016 seconds
+n=16 the prediction line  itself took 0.04077553749084473 seconds
+n=16 the prediction line  itself took 0.03988027572631836 seconds
+n=16 the prediction line  itself took 0.039392709732055664 seconds
+n=16 the prediction line  itself took 0.039864540100097656 seconds
+predicting on perm As took 0.22217369079589844 sec
+n=64 the prediction line  itself took 0.7105629444122314 seconds
+n=64 the prediction line  itself took 3.0029051303863525 seconds
+n=64 the prediction line  itself took 3.0325605869293213 seconds
+n=64 the prediction line  itself took 3.078136444091797 seconds
+n=64 the prediction line  itself took 3.115490674972534 seconds
+predicting on perm As took 13.007060766220093 sec
+n=64 the prediction line  itself took 3.167701005935669 seconds
+n=64 the prediction line  itself took 3.2113823890686035 seconds
+n=64 the prediction line  itself took 3.228499412536621 seconds
+n=64 the prediction line  itself took 3.199127435684204 seconds
+n=64 the prediction line  itself took 3.1628916263580322 seconds
+predicting on perm As took 16.039557695388794 sec
+================================================
+weird: dfsverify(ogA, P) 0.003125
+weird2: dfsverify(A, ogP) 0.015625
+dfsverify(ogA,ogP) 0.109375
+dfsverify(A, P) 0.0625
+dfsverify(A,rando): 0.015625
+dfsverify(ogA,rando): 0.015625
+agnostic(ogA, ogP) 0.296875
+agnostic(A,P) 0.296875
+uniqueness,  4.859375
+weird uniqueness 1.0
+out of 5  permutations
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+16 stats eval in 2.6967291831970215 seconds
+================================================
+weird: dfsverify(ogA, P) 0.0
+weird2: dfsverify(A, ogP) 0.0
+dfsverify(ogA,ogP) 0.0
+dfsverify(A, P) 0.0
+dfsverify(A,rando): 0.0
+dfsverify(ogA,rando): 0.0
+agnostic(ogA, ogP) 0.0
+agnostic(A,P) 0.0
+uniqueness,  5.0
+weird uniqueness 1.0
+out of 5  permutations
+64 stats eval in 5.47567892074585 seconds
+
+
+
+
+
+
+================================================
+OVERALL STATS, permuting everything before predicting dfs
+================================================
+num runs: 5
+
+n=four graph-level accuracy:
+                         mean       std
+dfsverify(A,P)      0.086875  0.043154
+dfsverify(ogA,ogP)  0.112500  0.075260
+agnostic(ogA,ogP)   0.343750  0.121031
+agnostic(A,P)       0.343750  0.121031
+dfsverify(ogA,P)    0.020625  0.029115
+agnostic(ogA,P)     0.077500  0.067148 
+
+n=four variety: are predictions distinct? (they might still be isomorphic)
+       mean       std
+0  0.84375  0.109976 
+
+n=four real variety, are predictions actually distinct? (not isomorphic)
+    mean  std
+0   0.2  0.0 
+
+------------------------------
+n=sixteen graph-level accuracy:
+                     mean  std
+dfsverify(A,P)       0.0  0.0
+dfsverify(ogA,ogP)   0.0  0.0
+agnostic(ogA,ogP)    0.0  0.0
+agnostic(A,P)        0.0  0.0
+dfsverify(ogA,P)     0.0  0.0
+agnostic(ogA,P)      0.0  0.0 
+
+n=sixteen variety: are predictions distinct? (they might still be isomorphic)
+    mean  std
+0   1.0  0.0 
+
+n=sixteen real variety, are predictions actually distinct? (not isomorphic)
+    mean  std
+0   0.2  0.0 
+
+------------------------------
+n=sixtyfour graph-level accuracy:
+                     mean  std
+dfsverify(A,P)       0.0  0.0
+dfsverify(ogA,ogP)   0.0  0.0
+agnostic(ogA,ogP)    0.0  0.0
+agnostic(A,P)        0.0  0.0
+dfsverify(ogA,P)     0.0  0.0
+agnostic(ogA,P)      0.0  0.0 
+
+n=sixtyfour variety: are predictions distinct? (they might still be isomorphic)
+    mean  std
+0   1.0  0.0 
+
+n=sixtyfour real variety, are predictions actually distinct? (not isomorphic)
+    mean  std
+0   0.2  0.0 
+
+------------------------------
+Are there ever distinct valid solutions? NaN when no valids
+           mean_mean_uv  mean_std_uv
+graphsize                           
+four           0.267848     0.111156
+sixteen             NaN          NaN
+sixtyfour           NaN          NaN

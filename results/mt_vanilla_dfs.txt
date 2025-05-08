@@ -1,0 +1,69 @@
+json read in 0.00013303756713867188 seconds
+model loaded in 10.195861339569092 seconds
+four sampler built in 0.042311668395996094 seconds
+sixteen sampler built in 0.10977745056152344 seconds
+64 sampler built in 0.6989262104034424 seconds
+correct preds,  5  out of  64
+n=4 algo %s : %s dfs ({'pi': 0.609375, 'score': 0.609375, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.078125})
+correct preds,  0  out of  64
+n=16 algo %s : %s dfs ({'pi': 0.1318359375, 'score': 0.1318359375, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+correct preds,  0  out of  64
+n=64 algo %s : %s dfs ({'pi': 0.0341796875, 'score': 0.0341796875, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+four sampler built in 10.68468713760376 seconds
+sixteen sampler built in 0.3824903964996338 seconds
+64 sampler built in 0.6855971813201904 seconds
+correct preds,  4  out of  64
+n=4 algo %s : %s dfs ({'pi': 0.58984375, 'score': 0.58984375, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0625})
+correct preds,  0  out of  64
+n=16 algo %s : %s dfs ({'pi': 0.123046875, 'score': 0.123046875, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+correct preds,  0  out of  64
+n=64 algo %s : %s dfs ({'pi': 0.0283203125, 'score': 0.0283203125, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+four sampler built in 16.723729372024536 seconds
+sixteen sampler built in 0.10959386825561523 seconds
+64 sampler built in 0.6764214038848877 seconds
+correct preds,  3  out of  64
+n=4 algo %s : %s dfs ({'pi': 0.609375, 'score': 0.609375, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.046875})
+correct preds,  0  out of  64
+n=16 algo %s : %s dfs ({'pi': 0.1416015625, 'score': 0.1416015625, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+correct preds,  0  out of  64
+n=64 algo %s : %s dfs ({'pi': 0.031494140625, 'score': 0.031494140625, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+four sampler built in 22.524633646011353 seconds
+sixteen sampler built in 0.10920166969299316 seconds
+64 sampler built in 0.6666185855865479 seconds
+correct preds,  4  out of  64
+n=4 algo %s : %s dfs ({'pi': 0.51171875, 'score': 0.51171875, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0625})
+correct preds,  0  out of  64
+n=16 algo %s : %s dfs ({'pi': 0.1376953125, 'score': 0.1376953125, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+correct preds,  0  out of  64
+n=64 algo %s : %s dfs ({'pi': 0.0341796875, 'score': 0.0341796875, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+four sampler built in 28.34210968017578 seconds
+sixteen sampler built in 0.1267991065979004 seconds
+64 sampler built in 0.6412889957427979 seconds
+correct preds,  4  out of  64
+n=4 algo %s : %s dfs ({'pi': 0.6015625, 'score': 0.6015625, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0625})
+correct preds,  0  out of  64
+n=16 algo %s : %s dfs ({'pi': 0.1376953125, 'score': 0.1376953125, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+correct preds,  0  out of  64
+n=64 algo %s : %s dfs ({'pi': 0.031982421875, 'score': 0.031982421875, 'examples_seen': 0, 'step': 9999, 'algorithm': 'dfs'}, {'pi': 0.0})
+
+
+
+
+
+
+================================================
+OVERALL STATS, predicting without permuting anything dfs
+================================================
+num runs: 5
+
+==== node level:
+               mean       std
+four       0.584375  0.041395
+sixteen    0.134375  0.007229
+sixtyfour  0.032031  0.002413 
+
+==== instances (graph level):
+             mean       std
+four       0.0625  0.011049
+sixteen    0.0000  0.000000
+sixtyfour  0.0000  0.000000
