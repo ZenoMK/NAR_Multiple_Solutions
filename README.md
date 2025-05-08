@@ -1,3 +1,16 @@
+# THIS BRANCH (permute)
+has been taken over by branches:
+- `working`, which trains like regular CLRS but lets you test whether permuting inputs gives good solutions
+- `modify_training` which trains with randomized tiebreaking and then lets you test whether permuting inputs gives good solutions
+
+
+
+So no need to look at this code :)
+
+
+---
+
+
 # The CLRS Algorithmic Reasoning Benchmark
 
 Learning representations of algorithms is an emerging area of machine learning,
