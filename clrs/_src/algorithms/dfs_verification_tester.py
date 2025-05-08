@@ -1,5 +1,5 @@
 # Jan 27
-# implement Henry and Zeno's algorithms for testing DFS-verification to catch any slip-ups with code
+# implement algorithms for testing DFS-verification to catch any slip-ups with code
 
 # generate random graphs
 # dfs those graphs to create forests
@@ -141,11 +141,10 @@ def preprocess(adj_matrix):
     # Step 3: Ensure acyclic
     F = nx.DiGraph(adj_matrix)
 
-    # TODO tell John about this
     return nx.is_forest(F)
 
 
-def henry(G, F):
+def dfsverify(G, F):
     if isinstance(F, (list,np.ndarray)): # check if its a parent tree format, convert
         if np.ndim(F) == 1:
             F = no_self_loops_parent_tree_to_adj_matrix(F)
@@ -277,7 +276,7 @@ def graphtest(G, verifier):
             false_approves.append(b)
     return get_unique_adjacency_matrices(false_approves), get_unique_adjacency_matrices(false_rejects), len(go)
 
-#fa, fr = graphtest(G,henry)
+
 
 # mbe back edges problem, extra edge problem**
 
@@ -324,9 +323,7 @@ def draw(G):
 
 
 #TESTING - "false acceptances" (gfa/tfa) should be visually correct trees when you draw them, orelse algo is wrong
-#gfa, gfr = graphtest(G, henry)
-# tfa, tfr = graphtest(T, henry)
-#
+
 # print('num false accepts g: ', len(gfa))
 # print('num false accepts t: ', len(tfa))
 
@@ -415,7 +412,7 @@ def manual_sanity_check(graphsizes, verifier_algorithm):
     return outcomes
 
 
-def automatic_sanity_check(n=64, verifier_algorithm=henry): # you should expect to randomly generate a correct tree on n=6 with 1000 random trees
+def automatic_sanity_check(n=64, verifier_algorithm=dfsverify): # you should expect to randomly generate a correct tree on n=6 with 1000 random trees
     """
     1. make 10 random graphs of size n,
     2. create 1000 good trees and 1000 probably bad trees,
@@ -450,11 +447,11 @@ def how_many_fa(outcomes, nus):
 # ---------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------------
 
-# -- My & Zeno's O(n^3) bcuz computing reachability matrices takes 4ever -- #
+# -- O(n^3) bcuz computing reachability matrices takes 4ever -- #
 # FALSE. ORDERING NOT EASY TO INFER
-    # idea: create matrix ordering by Zeno's rules
+    # idea: create matrix ordering by  rules
     # topologically-sort resulting graph using DFS (does determinism matter here? what if tiebreaks weird?)
-    # verify that roots are in proper order (both by Zeno's rules and lexicographic)
+    # verify that roots are in proper order (both by rules and lexicographic)
     # the topological sort is new labeling
     # run deterministic DFS, un-relabel, check identity.
 

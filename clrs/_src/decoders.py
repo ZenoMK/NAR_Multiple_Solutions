@@ -77,7 +77,7 @@ def construct_decoders(loc: str, t: str, hidden_dim: int, nb_dims: int,
     elif t in [_Type.POINTER, _Type.PERMUTATION_POINTER]:
       decoders = (linear(hidden_dim), linear(hidden_dim), linear(hidden_dim),
                   linear(1))
-    elif t == _Type.DOBRIK_AND_DANILO:
+    elif t == _Type.MULT_SOL:
       decoders = (linear(hidden_dim), linear(hidden_dim), linear(hidden_dim),
                   linear(1)) #FIXME
     # TODO make sure no negative preds!
@@ -193,7 +193,7 @@ def postprocess(spec: _Spec, preds: Dict[str, _Array],
       data = jnp.exp(data)
       if hard:
         data = jax.nn.one_hot(jnp.argmax(data, axis=-1), data.shape[-1])
-    elif t == _Type.DOBRIK_AND_DANILO:
+    elif t == _Type.MULT_SOL:
       #pass
       data = jax.nn.softmax(data) # verify shape=[batch,nodes,nodes]
       # values should be logits?
@@ -253,7 +253,7 @@ def _decode_node_fts(decoders, t: str, h_t: _Array, edge_fts: _Array,
     preds = jnp.squeeze(decoders[0](h_t), -1)
   elif t == _Type.CATEGORICAL:
     preds = decoders[0](h_t)
-  elif t == _Type.DOBRIK_AND_DANILO:
+  elif t == _Type.MULT_SOL:
     # breakpoint() weird! if you have this breakpoint and continue, you get an error. But run without, no error arises
     p_1 = decoders[0](h_t)  # from vector:  shape [batch,nodes,hidden]
     p_2 = decoders[1](h_t)  # to vector:  shape [batch,nodes,hidden]

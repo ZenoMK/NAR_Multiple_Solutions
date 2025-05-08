@@ -2,7 +2,7 @@ from clrs._src.algorithms.BF_beamsearch import BF_beamsearch, BF_greedysearch
 from clrs._src.dfs_sampling import get_parent_tree_upwards, single_sample_upwards
 
 from clrs._src.algorithms.check_graphs import check_valid_BFpaths, check_valid_dfsTree
-from clrs._src.algorithms.dfs_verification_tester import henry
+from clrs._src.algorithms.dfs_verification_tester import dfsverify
 from clrs._src.dfs_sampling import extract_probMatrices
 from sciplotlib import style as spstyle
 from clrs._src.algorithms.graphs import bellman_ford, dfs
@@ -119,8 +119,8 @@ def DFS_graph1_df(A, pred, num_solutions_extracted):
 
         #breakpoint()
         # valid?
-        upwards_valid.append(henry(A, no_self_loops_parent_tree_to_adj_matrix(up_tree)))
-        altUpwards_valid.append(henry(A, no_self_loops_parent_tree_to_adj_matrix(alt_tree)))
+        upwards_valid.append(dfsverify(A, no_self_loops_parent_tree_to_adj_matrix(up_tree)))
+        altUpwards_valid.append(dfsverify(A, no_self_loops_parent_tree_to_adj_matrix(alt_tree)))
 
         # unique?
         hash_up = hash(tuple(up_tree))
