@@ -2,7 +2,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from bf_dfs_verifiers import agnostic_henry
+from bf_dfs_verifiers import agnostic_dfsverify
 
 
 def draw_graph_with_highlights(adj_matrix, highlight_edges_indices):

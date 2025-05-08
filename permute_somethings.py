@@ -207,9 +207,15 @@ def permute_and_eval(sampler, predict_fn, sample_count, rng_key, extras, num_per
 
 
 if __name__ == '__main__':
+  import argparse
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--alg', type=str, default=1, help='which alg flag')
+  args = parser.parse_args()
+  which = args.alg #''#'dfs'
+
   start_time = time.time()
   # --- LOAD FLAG STUFF
-  which = 'dfs'
+
 
   if which == 'dfs':
     flagjson = 'WHEREAMI/dfs_flags.json'
@@ -235,6 +241,7 @@ if __name__ == '__main__':
   instance_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
   variety_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
   dedup_variety_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
+  uv_stats = {'four':[], 'sixteen':[], 'sixtyfour':[]}
   for i in range(N_RUNS):
     # ---------- TEST SAMPLERS?
     four_sampler, test_samples, spec = make_test_sampler(size=4, FLAGS=FLAGS, seed=FLAGS.seed+i)
@@ -290,9 +297,9 @@ if __name__ == '__main__':
     
     print('================================================')
     if which == 'dfs':
-      df, variety, deduplicated_variety, num_perms = compute_dfs_stats(four_stats)
+      df, variety, deduplicated_variety, num_perms, (mean_uv, std_uv) = compute_dfs_stats(four_stats)
     else:
-      df, variety, deduplicated_variety, num_perms = compute_bf_stats(four_stats)
+      df, variety, deduplicated_variety, num_perms, (mean_uv, std_uv) = compute_bf_stats(four_stats)
     time4eval = time.time()
     #print(f"4 stats eval in {time4eval - time64stats} seconds")
     #breakpoint()
@@ -300,67 +307,77 @@ if __name__ == '__main__':
     instance_stats['four'].append(row)
     variety_stats['four'].append(variety/num_perms)
     dedup_variety_stats['four'].append(deduplicated_variety / num_perms)
+    uv_stats['four'].append((mean_uv, std_uv))
     #breakpoint()
 
     print('================================================')
     if which == 'dfs':
-      df, variety, deduplicated_variety, num_perms = compute_dfs_stats(sixteen_stats)
+      df, variety, deduplicated_variety, num_perms, (mean_uv, std_uv) = compute_dfs_stats(sixteen_stats)
     else:
-      df, variety, deduplicated_variety, num_perms = compute_bf_stats(sixteen_stats)
+      df, variety, deduplicated_variety, num_perms, (mean_uv, std_uv) = compute_bf_stats(sixteen_stats)
     time16eval = time.time()
     print(f"16 stats eval in {time16eval - time4eval} seconds")
     row = df.mean()
     instance_stats['sixteen'].append(row)
     variety_stats['sixteen'].append(variety/num_perms)
     dedup_variety_stats['sixteen'].append(deduplicated_variety / num_perms)
+    uv_stats['sixteen'].append((mean_uv, std_uv))
 
     print('================================================')
     if which == 'dfs':
-      df, variety, deduplicated_variety, num_perms = compute_dfs_stats(sixtyfour_stats)
+      df, variety, deduplicated_variety, num_perms, (mean_uv, std_uv) = compute_dfs_stats(sixtyfour_stats)
     else:
-      df, variety, deduplicated_variety, num_perms = compute_bf_stats(sixtyfour_stats)
+      df, variety, deduplicated_variety, num_perms, (mean_uv, std_uv) = compute_bf_stats(sixtyfour_stats)
     time64eval = time.time()
     print(f"64 stats eval in {time64eval - time16eval} seconds")
     row = df.mean()
     instance_stats['sixtyfour'].append(row)
     variety_stats['sixtyfour'].append(variety/num_perms)
     dedup_variety_stats['sixtyfour'].append(deduplicated_variety / num_perms)
+    uv_stats['sixtyfour'].append((mean_uv, std_uv))
 
+
+  print('\n'*5)
   print('================================================')
   print('OVERALL STATS', FLAGS.algorithms[algo_idx])
-  print('================================================')
+  print('================================================') # FIXME: note: dedup_variety has no meaning if you dont permute the adjacency matri
   print(f'num runs: {N_RUNS}\n')
-
+  #breakpoint()
   four = pd.DataFrame(instance_stats['four'])
-  print(f'four mean\n----\n{four.mean()}\n----')
-  print(f'four std\n----\n{four.std()}\n----')
+  summary = pd.DataFrame({'mean': four.mean(), 'std': four.std()})
+  print('n=four graph-level accuracy:\n', summary, '\n')
   varfour = pd.DataFrame(variety_stats['four'])
-  print(f'four variety\n----\n{varfour.mean()}\n----')
-  print(f'four variety std\n----\n{varfour.std()}\n----')
-  dvarfour = pd.DataFrame(dedup_variety_stats['four'])
-  print(f'four dvariety\n----\n{dvarfour.mean()}\n----')
-  print(f'four dvariety std\n----\n{dvarfour.std()}\n----')
+  summary = pd.DataFrame({'mean': varfour.mean(), 'std': varfour.std()})
+  print('n=four variety: are predictions distinct? (they might still be isomorphic)\n', summary, '\n')
+  # dvarfour = pd.DataFrame(dedup_variety_stats['four'])
+  # summary = pd.DataFrame({'mean': dvarfour.mean(), 'std': dvarfour.std()})
+  # print('n=four real variety, are predictions actually distinct? (not isomorphic)\n', summary, '\n')
   print('------------------------------')
+
 
   sixteen = pd.DataFrame(instance_stats['sixteen'])
-  print(f'sixteen mean\n----\n{sixteen.mean()}\n----')
-  print(f'sixteen std\n----\n{sixteen.std()}\n----')
+  summary = pd.DataFrame({'mean': sixteen.mean(), 'std': sixteen.std()})
+  print('n=sixteen graph-level accuracy:\n', summary, '\n')
   varsixteen = pd.DataFrame(variety_stats['sixteen'])
-  print(f'sixteen variety\n----\n{varsixteen.mean()}\n----')
-  print(f'sixteen variety std\n----\n{varsixteen.std()}\n----')
-  dvarsixteen = pd.DataFrame(dedup_variety_stats['sixteen'])
-  print(f'sixteen dvariety\n----\n{dvarsixteen.mean()}\n----')
-  print(f'sixteen dvariety std\n----\n{dvarsixteen.std()}\n----')
+  summary = pd.DataFrame({'mean': varsixteen.mean(), 'std': varsixteen.std()})
+  print('n=sixteen variety: are predictions distinct? (they might still be isomorphic)\n', summary, '\n')
+  # dvarsixteen = pd.DataFrame(dedup_variety_stats['sixteen'])
+  # summary = pd.DataFrame({'mean': dvarsixteen.mean(), 'std': dvarsixteen.std()})
+  # print('n=sixteen real variety, are predictions actually distinct? (not isomorphic)\n', summary, '\n')
   print('------------------------------')
 
+
   sixtyfour = pd.DataFrame(instance_stats['sixtyfour'])
-  print(f'sixtyfour mean\n----\n{sixtyfour.mean()}\n----')
-  print(f'sixtyfour std\n----\n{sixtyfour.std()}\n----')
+  summary = pd.DataFrame({'mean': sixtyfour.mean(), 'std': sixtyfour.std()})
+  print('n=sixtyfour graph-level accuracy:\n', summary, '\n')
   varsixtyfour = pd.DataFrame(variety_stats['sixtyfour'])
-  print(f'sixtyfour variety\n----\n{varsixtyfour.mean()}\n----')
-  print(f'sixtyfour variety std\n----\n{varsixtyfour.std()}\n----')
-  dvarsixtyfour = pd.DataFrame(dedup_variety_stats['sixtyfour'])
-  print(f'sixtyfour dvariety\n----\n{dvarsixtyfour.mean()}\n----')
-  print(f'sixtyfour dvariety std\n----\n{dvarsixtyfour.std()}\n----')
+  summary = pd.DataFrame({'mean': varsixtyfour.mean(), 'std': varsixtyfour.std()})
+  print('n=sixtyfour variety: are predictions distinct? (they might still be isomorphic)\n', summary, '\n')
+  # dvarsixtyfour = pd.DataFrame(dedup_variety_stats['sixtyfour'])
+  # summary = pd.DataFrame({'mean': dvarsixtyfour.mean(), 'std': dvarsixtyfour.std()})
+  # print('n=sixtyfour real variety, are predictions actually distinct? (not isomorphic)\n', summary, '\n')
   print('------------------------------')
-  #breakpoint()
+
+  print('Are there ever distinct valid solutions? NaN when no valids')
+  uv = pd.DataFrame([(key, *val) for key, tuples in uv_stats.items() for val in tuples], columns=['graphsize', 'mean_mean_uv', 'mean_std_uv'])
+  print(uv.groupby('graphsize').mean())

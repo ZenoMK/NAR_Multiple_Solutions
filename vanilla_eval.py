@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
   # --- LOAD FLAG STUFF
   start_time = time.time()
-  which = 'dfs'
+  which = ''#'dfs'
 
   if which == 'dfs':
     flagjson = 'WHEREAMI/dfs_flags.json'
@@ -100,21 +100,24 @@ if __name__ == '__main__':
     instance_stats['sixtyfour'].append(test_stats[1]['pi'])
 
 
+  print('\n'*5)
   print('================================================')
-  print('OVERALL STATS', FLAGS.algorithms[algo_idx])
+  print('OVERALL STATS, predicting without permuting anything', FLAGS.algorithms[algo_idx])
   print('================================================')
   print(f'num runs: {N_RUNS}\n')
 
-  # node-level accuracies
-  print('==== nodes:')
+  # node-level accuracies, a node scores iff it predicts the same as the example solution. # FIXME: harder with modified training bcuz the label tiebreaking is pos-driven?
+  print('==== node level:')
   df = pd.DataFrame.from_dict(node_stats)
-  print(f'mean\n----\n{df.mean()}\n---')
-  print(f'std\n----\n{df.std()}\n---')
+  print(pd.DataFrame({'mean': df.mean(), 'std': df.std()}), '\n')
+  # print(f'mean\n----\n{df.mean()}\n---')
+  # print(f'std\n----\n{df.std()}\n---')
 
-  # instance-level accuracies
-  print('==== instances:')
+  # instance accuracies, correct iff full solution correct
+  print('==== instances (graph level):')
   df2 = pd.DataFrame.from_dict(instance_stats)
-  print(f'mean\n----\n{df2.mean()}\n---')
-  print(f'std\n----\n{df2.std()}\n---')
+  # print(f'mean\n----\n{df2.mean()}\n---')
+  # print(f'std\n----\n{df2.std()}\n---')
+  print(pd.DataFrame({'mean': df2.mean(), 'std': df2.std()}))
 
   #breakpoint()

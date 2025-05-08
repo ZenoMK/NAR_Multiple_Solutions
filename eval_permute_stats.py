@@ -1,49 +1,14 @@
-# todo: find out how/why permutations out of sync had higher accuracies on the first small examples - does this hold for big bois too?
-# todo: ^ compare to randomization for sanity check
-
-# SANITY: when you make everything the identity permutation, you get back to the same result dfs and bellman ford
-# TRY: permuting other parts of feedback.features?
-# ---- BELLMAN FORD
-#   1) reversing pos seems to do nothing to bellman_ford n=4
-#   2) reversing s definitely affects bellman_ford
-#   3) reversing A seems to do nothing to bellman_ford n=4
-#   4) reversing adj seems to affect bellman_ford n=4 # fixme: this seems important
-#   5) GIVEN --hint_mode none, no hints matter ||| hints can matter slightly with encoded_decoded
-
-# ---- DFS
-#   1) reversing pos seems to do lots (pos is meant to encode sequential data)
-#   2) reversing A does something
-#   3) reversing adj does something
-#   4) GIVEN --hint_mode none, no hints matter ||| hints can matter slightly with encoded_decoded
-#
-
-# TODO: what should be shuffled to maximize accuracy?
-#   you could compute each possible combo on small graphs, but that would be a fair amount of work, you'd a grid search
-#   JUST GUESSING, you might try flipping everything consistently
-
-# WHY/WHAT ARE A,adj,pos for in both algorithms. What are they meant to be for, and what seems to happen?
-
-# 50 training steps, with hints, no permutations n=4
-# 0.20 DFS, 0.48 BF
-# 50 training steps, with no hints, no permutations n=4
-# 0.33 DFS, 0.30 BF
-
-# 50 training steps, with no hints, permuting A, n=4
-# 0.28 DFStoOG 0.12DFStoInput, 0.32BFtoOG, 0.18BFtoInput
-
-# fixme: why cant run multiple with flags bellman_ford dfs
 
 import pandas as pd
 import numpy as np
 from torch.utils.hipify.hipify_python import compute_stats
 
 
-from bf_dfs_verifiers import henry, check_valid_BFpaths, bellman_ford_cost, agnostic_henry
+from bf_dfs_verifiers import dfsverify, check_valid_BFpaths, bellman_ford_cost, agnostic_dfsverify
 from test_permute import *
 
 from scratch import draw_graph_with_highlights
 
-# FIXME: `dfs_df.groupby('GraphID').size()[0]` different than `dfs_df['hashPerms'].unique()` WHY???? || bcuz 2 batches, 5 distinct each time -> not guaranteed
 
 # ----- GOAL: GET ACCURACY AND UNIQUENESS FOR n=5, n=16, n=64 ----- #
 # that means, run this 3 times, reading in files for n=5,16,64
@@ -55,6 +20,11 @@ from scratch import draw_graph_with_highlights
 # perm = [2,0,1]
 # A_perm = A[np.ix_(perm, perm)]
 # print(A_perm)
+
+def are_all_matrices_equal(group):
+    """helper fn, called to find out whether As were permuted, use like `df.groupby('GraphID')['As'].agg(are_all_matrices_equal)`"""
+    first = group.iloc[0]
+    return all(np.array_equal(first, mat) for mat in group)
 
 
 def preprocess(df):
@@ -110,47 +80,58 @@ def compute_bf_stats(df):
     print('out of', num_perms, ' permutations')
 
     #breakpoint()
-    adf = df[df['valid(A,S,P)']] # only look at valid rows, see if theres any variety
-    #adf.groupby('GraphID')['hashablePreds'].nunique() # BEHOLD, VARIETY DISAPPEARS || was this also true for our sampling methods? one correct many different?
-    mask = adf.groupby('GraphID')['hashablePreds'].nunique() != 1
-    graph_ids = mask[mask].index
-    fdf = df[df['GraphID'].isin(graph_ids)]
-    ##fdf[['GraphID', 'Perms', 'hashablePreds', 'valid(A,S,P)']]
+    # fixme: if permute everything, you care about ogA,S,P and dedup distinct || If permute pos, you care about A,S,P and distinct
+        # you can reduce this to whether As are identical within graph ID or not.
+    #breakpoint()
+    As_were_permuted_flag = df.groupby('GraphID')['ogA'].agg(are_all_matrices_equal).all()
+    if As_were_permuted_flag:
+        adf = df[df['valid(ogA,S,P)']] # only look at valid rows, see if there's any variety
+        uv = adf.groupby('GraphID')['hashablePreds'].nunique() # these are all accurate to ogA, so if any are different thats big whoop
+    else:
+        adf = df[df['valid(A,S,P)']] # these are all accurate to A (which is og graph since not permuted), so if any are different thats big whoop
+        uv = adf.groupby('GraphID')['hashablePreds'].nunique()
+
+    # --- filter variety first
+    #mask = adf.groupby('GraphID')['hashablePreds'].nunique() != 1
+    #graph_ids = mask[mask].index
+    #fdf = df[df['GraphID'].isin(graph_ids)]
+    #fdf[['GraphID', 'Perms', 'hashablePreds', 'valid(A,S,P)']]
+    #breakpoint()
 
     # summary?
     sdf = df[['valid(ogA,ogS,ogP)', 'valid(A,S,P)', 'valid(ogA,S,P)']]
 
-    return sdf, distinct, deduplicated_distinct, num_perms
+    return sdf, distinct, deduplicated_distinct, num_perms, (uv.mean()/num_perms, uv.std()/num_perms) # uv is unique and valid
 
 
 
 def compute_dfs_stats(df):
     df = preprocess(df)
 
-    # ORDER MATTERS - HENRY
-    df['henry(ogA,P)'] = df.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1)
-    df['henry(A,ogP)'] = df.apply(lambda row: henry(G=row['As'], F=row['fakeOGpred']), axis=1)
+    # ORDER MATTERS - dfsverify
+    df['dfsverify(ogA,P)'] = df.apply(lambda row: dfsverify(G=row['ogA'], F=row['Preds']), axis=1)
+    df['dfsverify(A,ogP)'] = df.apply(lambda row: dfsverify(G=row['As'], F=row['fakeOGpred']), axis=1)
     # Sensible
-    df['henry(A,P)'] = df.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
-    df['henry(ogA,ogP)'] = df.apply(lambda row: henry(G=row['ogA'], F=row['fakeOGpred']), axis=1) # these can vary relative to DFSvalid, since order matters for henry so permutation affects correctness
+    df['dfsverify(A,P)'] = df.apply(lambda row: dfsverify(G=row['As'], F=row['Preds']), axis=1)
+    df['dfsverify(ogA,ogP)'] = df.apply(lambda row: dfsverify(G=row['ogA'], F=row['fakeOGpred']), axis=1) # these can vary relative to DFSvalid, since order matters for dfsverify so permutation affects correctness
 
-    print('weird: henry(ogA, P)', df['henry(ogA,P)'].mean())
-    print('weird2: henry(A, ogP)', df['henry(A,ogP)'].mean())
-    print('henry(ogA,ogP)', df['henry(ogA,ogP)'].mean())
-    print('henry(A, P)', df['henry(A,P)'].mean())
+    print('weird: dfsverify(ogA, P)', df['dfsverify(ogA,P)'].mean())
+    print('weird2: dfsverify(A, ogP)', df['dfsverify(A,ogP)'].mean())
+    print('dfsverify(ogA,ogP)', df['dfsverify(ogA,ogP)'].mean())
+    print('dfsverify(A, P)', df['dfsverify(A,P)'].mean())
 
 
     # RANDOM
     df['rando'] = df['Preds'].apply(lambda pred: np.random.randint(0,len(pred),len(pred)))
-    df['randoValid1'] = df.apply(lambda row: henry(G=row['As'], F=row['rando']), axis=1)
-    df['randoValid2'] = df.apply(lambda row: henry(G=row['ogA'], F=row['rando']), axis=1)
-    print('henry(A,rando):', df['randoValid1'].mean())
-    print('henry(ogA,rando):', df['randoValid2'].mean())
+    df['randoValid1'] = df.apply(lambda row: dfsverify(G=row['As'], F=row['rando']), axis=1)
+    df['randoValid2'] = df.apply(lambda row: dfsverify(G=row['ogA'], F=row['rando']), axis=1)
+    print('dfsverify(A,rando):', df['randoValid1'].mean())
+    print('dfsverify(ogA,rando):', df['randoValid2'].mean())
 
     # ORDER DOESNT - AGNOSTIC
-    df['agnostic(ogA,P)'] = df.apply(lambda row: agnostic_henry(G=row['ogA'], F=row['Preds']), axis=1)
-    df['agnostic(ogA,ogP)'] = df.apply(lambda row: agnostic_henry(G=row['ogA'], F=row['fakeOGpred']), axis=1)
-    df['agnostic(A,P)'] = df.apply(lambda row: agnostic_henry(G=row['As'], F=row['Preds']), axis=1)
+    df['agnostic(ogA,P)'] = df.apply(lambda row: agnostic_dfsverify(G=row['ogA'], F=row['Preds']), axis=1)
+    df['agnostic(ogA,ogP)'] = df.apply(lambda row: agnostic_dfsverify(G=row['ogA'], F=row['fakeOGpred']), axis=1)
+    df['agnostic(A,P)'] = df.apply(lambda row: agnostic_dfsverify(G=row['As'], F=row['Preds']), axis=1)
     print('agnostic(ogA, ogP)', df['agnostic(ogA,ogP)'].mean())
     print('agnostic(A,P)', df['agnostic(A,P)'].mean())
     # diff_df = df[df['agnostic(ogA,ogP)']!=df['agnostic(A,P)']] # these should be the same, but if not its handy to inspect
@@ -177,18 +158,28 @@ def compute_dfs_stats(df):
     num_perms = df.groupby('GraphID').size()[0]
     print('out of', num_perms, ' permutations')
 
-    #adf = df[df['henry(A,P)']]  # only look at valid rows, see if theres any variety
-    #adf = df[df['agnostic(A,P)']] # this goes better, but still 0% at n=16
+
+    As_were_permuted_flag = df.groupby('GraphID')['ogA'].agg(are_all_matrices_equal).all()
+    if As_were_permuted_flag:
+        adf = df[df['agnostic(ogA,P)']] # who is valid
+        uv = adf.groupby('GraphID')['hashablePreds'].nunique() # how many are valid per graph
+
+    else:
+        adf = df[df['agnostic(A,P)']]
+        uv = adf.groupby('GraphID')['hashablePreds'].nunique()
+
+    #adf = df[df['dfsverify(A,P)']]  # only look at valid rows, see if theres any variety
     #adf.groupby('GraphID')['hashablePreds'].nunique() # BEHOLD, VARIETY DISAPPEARS || was this also true for our sampling methods? one correct many different?
     #mask = adf.groupby('GraphID')['hashablePreds'].nunique() != 1
     #graph_ids = mask[mask].index
     #fdf = df[df['GraphID'].isin(graph_ids)]
     #breakpoint()
 
-    # summary? important cols
-    sdf = df[['henry(A,P)', 'henry(ogA,ogP)', 'agnostic(ogA,ogP)', 'agnostic(A,P)', 'henry(ogA,P)', 'agnostic(ogA,P)']]
 
-    return sdf, distinct, deduplicated_distinct, num_perms
+    # summary? important cols
+    sdf = df[['dfsverify(A,P)', 'dfsverify(ogA,ogP)', 'agnostic(ogA,ogP)', 'agnostic(A,P)', 'dfsverify(ogA,P)', 'agnostic(ogA,P)']]
+    #breakpoint()
+    return sdf, distinct, deduplicated_distinct, num_perms, (uv.mean()/num_perms, uv.std()/num_perms)
 
 
 if __name__ == '__main__':
@@ -255,12 +246,12 @@ if __name__ == '__main__':
 # # we have kinda 2 sensible options for unique/validity
 # # BEST VALIDITY: are you valid to the original graph (but why would this be correct for DFSO? it wouldnt)
 # df_sorted['ogA'] = df_sorted.apply(lambda row: row['As'][np.ix_(np.argsort(row['Perms']),np.argsort(row['Perms']))], axis=1)
-# df_sorted['henry(ogA,P)'] = df_sorted.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1) # this would be crazy if worked
-# print('validity relative to OG graph', df_sorted['henry(ogA,P)'].mean())
+# df_sorted['dfsverify(ogA,P)'] = df_sorted.apply(lambda row: dfsverify(G=row['ogA'], F=row['Preds']), axis=1) # this would be crazy if worked
+# print('validity relative to OG graph', df_sorted['dfsverify(ogA,P)'].mean())
 #
 # # SECOND BEST: are you valid to your graph (this implies DFS correct without ordered restarts, but is still stricter)
-# df_sorted['henry(A,P)'] = df_sorted.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
-# print('validity relative to input (permuted) graph', df_sorted['henry(A,P)'].mean())
+# df_sorted['dfsverify(A,P)'] = df_sorted.apply(lambda row: dfsverify(G=row['As'], F=row['Preds']), axis=1)
+# print('validity relative to input (permuted) graph', df_sorted['dfsverify(A,P)'].mean())
 #
 # # BEST UNIQUENESS: are you unique?
 # distinct = df_sorted.groupby('GraphID')['hashablePreds'].nunique().mean()
@@ -294,21 +285,21 @@ if __name__ == '__main__':
 # df['hashablePreds'] = df['Preds'].apply(lambda ls: tuple(ls))
 #
 # # compute valids
-# from bf_dfs_verifiers import henry, check_valid_BFpaths
+# from bf_dfs_verifiers import dfsverify, check_valid_BFpaths
 #
 # # sort by GraphID
 # df_sorted = df.sort_values(by='GraphID')
 #
-# df_sorted['henry(A,P)'] = df_sorted.apply(lambda row: henry(G=row['As'], F=row['Preds']), axis=1)
+# df_sorted['dfsverify(A,P)'] = df_sorted.apply(lambda row: dfsverify(G=row['As'], F=row['Preds']), axis=1)
 #
 # df_sorted
 #
 #
-# df_sorted.groupby('GraphID')['henry(A,P)'].mean()
+# df_sorted.groupby('GraphID')['dfsverify(A,P)'].mean()
 #
 # df_sorted.iloc[9]
 #
-# df_sorted['henry(A,P)'].mean()
+# df_sorted['dfsverify(A,P)'].mean()
 #
 #
 #
@@ -344,22 +335,40 @@ if __name__ == '__main__':
 # df_sorted.groupby('GraphID')['HAs'].nunique()
 #
 # # Valids relative to og graph
-# df_sorted['henry(ogA,P)'] = df_sorted.apply(lambda row: henry(G=row['ogA'], F=row['Preds']), axis=1) # this would be crazy if worked
-# df_sorted['fullogDFSvalid'] = df_sorted.apply(lambda row: henry(G=row['ogA'], F=row['fakeOGpred']), axis=1)  # this might work with random restart dfs model
+# df_sorted['dfsverify(ogA,P)'] = df_sorted.apply(lambda row: dfsverify(G=row['ogA'], F=row['Preds']), axis=1) # this would be crazy if worked
+# df_sorted['fullogDFSvalid'] = df_sorted.apply(lambda row: dfsverify(G=row['ogA'], F=row['fakeOGpred']), axis=1)  # this might work with random restart dfs model
 #
 #
 # # fixme: something weird is happening with ogDFSvalid 1000train, everything valid? does this mean permutations are not happening or smth
 # # fixme: working hypothesis is that the predictions are happening relative to the OG adjacency matrix, and that accuracy 100% on n=4 makes sense
 # # fixme: ok when you do bigger graphs, like n=32, it's 0% accuracy so no probs
-# # fixme: THE BIG QUESTION IS WHY ARE THINGS MORE ogDFSvalid (current prediction, old adjacency matrix) than DFSvalid (current prediction, current adj matrix)
-# df_sorted.groupby('GraphID')['henry(ogA,P)'].mean()
-# df_sorted.groupby('GraphID')['henry(A,P)'].mean()
+# # fixme: THE BIG QUESTION IS WHY ARE THINGS MORE ogDFSvalid (current prediction, old adjacency matrix) than DFSvalid (current prediction, current adj matrix) || no longer true
+# df_sorted.groupby('GraphID')['dfsverify(ogA,P)'].mean()
+# df_sorted.groupby('GraphID')['dfsverify(A,P)'].mean()
 # df_sorted.groupby('GraphID')['fullogDFSvalid'].mean()
-# df_sorted['henry(ogA,P)'].mean()      # 95%
-# df_sorted['henry(A,P)'].mean()        # 26%
+# df_sorted['dfsverify(ogA,P)'].mean()      # 95%
+# df_sorted['dfsverify(A,P)'].mean()        # 26%
 # df_sorted['fullogDFSvalid'].mean()  # 7%
 #
 #
 # # compute uniques after inverting
 # df_sorted['hashablefakeOGPreds'] = df_sorted['fakeOGpred'].apply(lambda ls: tuple(ls))
 # df_sorted.groupby('GraphID')['hashablefakeOGPreds'].nunique()
+
+
+
+# SANITY: when you make everything the identity permutation, you get back to the same result dfs and bellman ford
+# TRY: permuting other parts of feedback.features?
+# ---- BELLMAN FORD
+#   1) reversing pos seems to do nothing to bellman_ford n=4
+#   2) reversing s definitely affects bellman_ford
+#   3) reversing A seems to do nothing to bellman_ford n=4
+#   4) reversing adj seems to affect bellman_ford n=4 # fixme: this seems important
+#   5) GIVEN --hint_mode none, no hints matter ||| hints can matter slightly with encoded_decoded
+
+# ---- DFS
+#   1) reversing pos seems to do lots (pos is meant to encode sequential data)
+#   2) reversing A does something
+#   3) reversing adj does something
+#   4) GIVEN --hint_mode none, no hints matter ||| hints can matter slightly with encoded_decoded
+#
