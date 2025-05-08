@@ -1,5 +1,5 @@
 # Jan 27
-# implement Henry and Zeno's algorithms for testing DFS-verification to catch any slip-ups with code
+# implement algorithms for testing DFS-verification to catch any slip-ups with code
 
 # generate random graphs
 # dfs those graphs to create forests
@@ -118,8 +118,8 @@ def forest_from_traversal(G, O):
 # ---------------------------------------------------------------------------------------------------------------------
 # -- RANDOM EXPLORATION RANDOM RESTARTS -- #
 # ---------------------------------------------------------------------------------------------------------------------
-def agnostic_henry(G,F):
-    """henry but order doesnt matter"""
+def agnostic_dfsverify(G, F):
+    """dfsverify but order doesnt matter"""
     if isinstance(F, (list, np.ndarray)): # check if it's a parent tree format, convert
         if np.ndim(F) == 1:
             F = no_self_loops_parent_tree_to_adj_matrix(F)
@@ -175,11 +175,10 @@ def preprocess(adj_matrix):
     # Step 3: Ensure acyclic
     F = nx.DiGraph(adj_matrix)
 
-    # TODO tell John about this
     return nx.is_forest(F)
 
 
-def henry(G, F):
+def dfsverify(G, F):
     if isinstance(F, (list, np.ndarray)): # check if it's a parent tree format, convert
         if np.ndim(F) == 1:
             F = no_self_loops_parent_tree_to_adj_matrix(F)
@@ -368,7 +367,7 @@ def manual_sanity_check(graphsizes, verifier_algorithm):
     return outcomes
 
 
-def automatic_sanity_check(n=64, verifier_algorithm=henry): # you should expect to randomly generate a correct tree on n=6 with 1000 random trees
+def automatic_sanity_check(n=64, verifier_algorithm=dfsverify): # you should expect to randomly generate a correct tree on n=6 with 1000 random trees
     """
     1. make 10 random graphs of size n,
     2. create 1000 good trees and 1000 probably bad trees,
@@ -399,7 +398,7 @@ def how_many_fa(outcomes, nus):
         print(f'Graph {ix} has {len(false_accepts)} possibly false accepts and {len(false_rejects)} false rejects || for-context, we saw {nu} unique trees')
         ix+=1
 
-#o = automatic_sanity_check(5, henry)
+#o = automatic_sanity_check(5, dfsverify)
 
 
 ##################################################################################################################
@@ -477,20 +476,20 @@ def check_valid_BFpaths(A,s, parentpath):
 # 7! = 5040 (should be unlikely to have false accepts here)
 # 8! = 40320 (should be vanishingly rare)
 
-#o = automatic_sanity_check(5, agnostic_henry)
+#o = automatic_sanity_check(5, agnostic_dfsverify)
 #for f in o[8][1]: draw_highlit(o[8][0], f)
 # for f in o[7][1]: draw_highlit(o[7][0], f) # draws the graph in blue/grey, and the tree in red, for your visual comparison
 # print('===')
-# o2 = automatic_sanity_check(5, henry)
+# o2 = automatic_sanity_check(5, dfsverify)
 
-# o = automatic_sanity_check(6, agnostic_henry)
+# o = automatic_sanity_check(6, agnostic_dfsverify)
 # print('===')
-# o2 = automatic_sanity_check(6, henry)
+# o2 = automatic_sanity_check(6, dfsverify)
 #
-# o = automatic_sanity_check(7, agnostic_henry)
+# o = automatic_sanity_check(7, agnostic_dfsverify)
 # print('===')
-# o2 = automatic_sanity_check(7, henry)
+# o2 = automatic_sanity_check(7, dfsverify)
 #
-# o = automatic_sanity_check(8, agnostic_henry)
+# o = automatic_sanity_check(8, agnostic_dfsverify)
 # print('===')
-# o2 = automatic_sanity_check(8, henry)
+# o2 = automatic_sanity_check(8, dfsverify)

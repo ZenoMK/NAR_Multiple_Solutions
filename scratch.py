@@ -2,7 +2,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from bf_dfs_verifiers import agnostic_henry
+from bf_dfs_verifiers import agnostic_dfsverify
 
 
 def draw_graph_with_highlights(adj_matrix, highlight_edges_indices):
@@ -67,7 +67,7 @@ actual = [0, 0, 2, 0]
 false_neg_og = [3, 3, 2, 3]
 
 
-#print(agnostic_henry(false_neg_oga, false_neg_og)) # TRUE & fixed
+#print(agnostic_dfsverify(false_neg_oga, false_neg_og)) # TRUE & fixed
 
 # ----------------------------------------------------------------------------
 true_neg_ogA = np.array(
@@ -91,10 +91,10 @@ true_neg_og = [3, 1, 1, 1]
 # actual True
 
 #draw_graph_with_highlights(false_pos_A, false_pos_actual) # should be false bcuz 1 should discover 2, but rn 0->2
-#print(agnostic_henry(false_pos_A, false_pos_actual)) # should be false bcuz 1 should discover 2
+#print(agnostic_dfsverify(false_pos_A, false_pos_actual)) # should be false bcuz 1 should discover 2
 
 #draw_graph_with_highlights(true_neg_ogA, true_neg_og)
-#agnostic_henry(true_neg_ogA, true_neg_og) # NO we want alll  highlighted edges to be tree edges
+#agnostic_dfsverify(true_neg_ogA, true_neg_og) # NO we want alll  highlighted edges to be tree edges
 
 
 # ------ METRIC DIFFERENCE ------ #
