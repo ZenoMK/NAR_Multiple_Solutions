@@ -1,0 +1,69 @@
+json read in 0.000102996826171875 seconds
+model loaded in 10.42136001586914 seconds
+four sampler built in 0.1493520736694336 seconds
+sixteen sampler built in 0.10520267486572266 seconds
+64 sampler built in 0.9995663166046143 seconds
+correct preds,  64  out of  64
+n=4 algo %s : %s bellman_ford ({'pi': 1.0, 'score': 1.0, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 1.0})
+correct preds,  56  out of  64
+n=16 algo %s : %s bellman_ford ({'pi': 0.9892578125, 'score': 0.9892578125, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.875})
+correct preds,  19  out of  64
+n=64 algo %s : %s bellman_ford ({'pi': 0.978271484375, 'score': 0.978271484375, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.296875})
+four sampler built in 5.702317953109741 seconds
+sixteen sampler built in 0.05977821350097656 seconds
+64 sampler built in 0.6478865146636963 seconds
+correct preds,  64  out of  64
+n=4 algo %s : %s bellman_ford ({'pi': 1.0, 'score': 1.0, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 1.0})
+correct preds,  62  out of  64
+n=16 algo %s : %s bellman_ford ({'pi': 0.998046875, 'score': 0.998046875, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.96875})
+correct preds,  15  out of  64
+n=64 algo %s : %s bellman_ford ({'pi': 0.975830078125, 'score': 0.975830078125, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.234375})
+four sampler built in 9.237183094024658 seconds
+sixteen sampler built in 0.057938337326049805 seconds
+64 sampler built in 0.6382522583007812 seconds
+correct preds,  64  out of  64
+n=4 algo %s : %s bellman_ford ({'pi': 1.0, 'score': 1.0, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 1.0})
+correct preds,  57  out of  64
+n=16 algo %s : %s bellman_ford ({'pi': 0.9921875, 'score': 0.9921875, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.890625})
+correct preds,  17  out of  64
+n=64 algo %s : %s bellman_ford ({'pi': 0.97509765625, 'score': 0.97509765625, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.265625})
+four sampler built in 11.665673017501831 seconds
+sixteen sampler built in 0.093353271484375 seconds
+64 sampler built in 1.139570951461792 seconds
+correct preds,  64  out of  64
+n=4 algo %s : %s bellman_ford ({'pi': 1.0, 'score': 1.0, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 1.0})
+correct preds,  55  out of  64
+n=16 algo %s : %s bellman_ford ({'pi': 0.9912109375, 'score': 0.9912109375, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.859375})
+correct preds,  8  out of  64
+n=64 algo %s : %s bellman_ford ({'pi': 0.9755859375, 'score': 0.9755859375, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.125})
+four sampler built in 13.108106851577759 seconds
+sixteen sampler built in 0.05796384811401367 seconds
+64 sampler built in 0.6322159767150879 seconds
+correct preds,  64  out of  64
+n=4 algo %s : %s bellman_ford ({'pi': 1.0, 'score': 1.0, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 1.0})
+correct preds,  61  out of  64
+n=16 algo %s : %s bellman_ford ({'pi': 0.9970703125, 'score': 0.9970703125, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.953125})
+correct preds,  8  out of  64
+n=64 algo %s : %s bellman_ford ({'pi': 0.974609375, 'score': 0.974609375, 'examples_seen': 0, 'step': 9999, 'algorithm': 'bellman_ford'}, {'pi': 0.125})
+
+
+
+
+
+
+================================================
+OVERALL STATS, predicting without permuting anything bellman_ford
+================================================
+num runs: 5
+
+==== node level:
+               mean       std
+four       1.000000  0.000000
+sixteen    0.993555  0.003820
+sixtyfour  0.975879  0.001417 
+
+==== instances (graph level):
+               mean       std
+four       1.000000  0.000000
+sixteen    0.909375  0.048664
+sixtyfour  0.209375  0.080131
