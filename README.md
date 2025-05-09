@@ -2,14 +2,14 @@
 
 Has code for the paper "Neural Algorithmic Reasoning with Multiple Correct Solutions"
 
-Branches that matter:
+## Branches that matter:
 - `master` has all the code for predicting solution distributions and stochastically extracting solutions
   
 if you care about permuting
 - `working` has all the code for training like regular CLRS but permuting inputs before you predict
 - `modify_training` has all the code for training NNs with randomized tiebreaking, and then permuting inputs before you predict
 
-Commands that matter:
+## Commands that matter:
 
 *Running (modify flags to your liking)*
 ```
@@ -22,7 +22,7 @@ Please run from inside this repo's outermost directory.
 - Run `results/viz.ipynb` all the way through
 
 
-Files that matter
+## Files that matter
 - `clrs/examples/run.py` lets you train the models and generate results `.csv`s, when run with correct flags
 - `clrs/examples/log_experiments.py` gets called by `run.py` and produces the `.csv` files
 - `results/viz.ipynb` lets you recreate the figures from `.csv` files
