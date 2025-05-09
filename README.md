@@ -4,6 +4,8 @@ Has code for the paper "Neural Algorithmic Reasoning with Multiple Correct Solut
 
 Branches that matter:
 - `master` has all the code for predicting solution distributions and stochastically extracting solutions
+  
+if you care about permuting
 - `working` has all the code for training like regular CLRS but permuting inputs before you predict
 - `modify_training` has all the code for training NNs with randomized tiebreaking, and then permuting inputs before you predict
 
@@ -40,7 +42,7 @@ Tips navigating CLRS
 
 ---
 
-*note labels come from classical implementations of algorithms (e.g. `dfs` inside `clrs/_src/algorithms/graphs.py`)*
+*note labels typically come from classical implementations of algorithms (e.g. `dfs` inside `clrs/_src/algorithms/graphs.py`). For solution distributions, we adaped `graphs.py` to average multiple runs of each algorithm and use that empirical distribution as training label*
 
 
 ----
